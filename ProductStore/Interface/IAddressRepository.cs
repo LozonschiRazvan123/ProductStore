@@ -1,15 +1,16 @@
-﻿using ProductStore.Models;
+﻿using ProductStore.DTO;
+using ProductStore.Models;
 
 namespace ProductStore.Interface
 {
     public interface IAddressRepository
     {
-        IEnumerable<Address> GetAddresses();
-        Address GetAddress(int id);
+        IEnumerable<AddressDTO> GetAddresses();
+        AddressDTO GetAddress(int id);
         bool AddressExist(int id);
         bool CreateAddress(Address address);
         bool UpdateAddress(Address address);
-        bool DeleteAddress(Address address);
+        bool DeleteAddress(AddressDTO address);
         bool Save();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ProductStore.Data;
+using ProductStore.DTO;
 using ProductStore.Interface;
 using ProductStore.Models;
 
@@ -23,20 +24,34 @@ namespace ProductStore.Repository
             return Save();
         }
 
-        public bool DeleteAddress(Address address)
+        public bool DeleteAddress(AddressDTO address)
         {
             _context.Remove(address);
             return Save();
         }
 
-        public Address GetAddress(int id)
+        public AddressDTO GetAddress(int id)
         {
-            return _context.Addresses.Where(a => a.Id == id).FirstOrDefault();
+            //return _context.Addresses.Where(a => a.Id == id).FirstOrDefault();
+
+            return _context.Addresses.Where(a => a.Id == id).Select(w => new AddressDTO()
+            {
+                Id = w.Id,
+                City = w.City,
+                State = w.State,
+                Street = w.Street
+            }).FirstOrDefault();
         }
 
-        public IEnumerable<Address> GetAddresses()
+        public IEnumerable<AddressDTO> GetAddresses()
         {
-            return _context.Addresses.ToList();
+            return _context.Addresses.Select(address => new AddressDTO
+            {
+                Id = address.Id,
+                Street = address.Street,
+                City = address.City,
+                State = address.State
+            }).ToList();
         }
 
         public bool Save()

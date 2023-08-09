@@ -20,7 +20,7 @@ namespace ProductStore.Controllers
         [HttpGet]
         public IActionResult GetAddress() 
         {
-            var addresses = _addressRepository.GetAddresses();
+            /*var addresses = _addressRepository.GetAddresses();
 
             var addressesDTO = addresses.Select(Address => new AddressDTO
             {
@@ -34,14 +34,14 @@ namespace ProductStore.Controllers
                 return BadRequest(ModelState);
             }
 
-            return Ok(addressesDTO);
-
+            return Ok(addressesDTO);*/
+            return Ok(_addressRepository.GetAddresses());
         }
 
         [HttpGet("{id}")]
         public IActionResult GetAddressById(int id)
         {
-            var address = _addressRepository.GetAddress(id);
+            /*var address = _addressRepository.GetAddress(id);
 
             if(address == null)
             {
@@ -58,8 +58,19 @@ namespace ProductStore.Controllers
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
+            }*/
+            //var addressDTO = _addressRepository.GetAddress(id);
+            if(_addressRepository.GetAddress(id) == null)
+            {
+                return NotFound();
             }
-            return Ok(addressDTO);
+
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            return Ok(_addressRepository.GetAddress(id));
         }
 
         [HttpPost]

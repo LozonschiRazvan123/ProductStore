@@ -1,4 +1,5 @@
 ﻿using ProductStore.Data;
+using ProductStore.DTO;
 using ProductStore.Interface;
 using ProductStore.Models;
 
@@ -12,9 +13,22 @@ namespace ProductStore.Repository
             _context = context;
         }
 
-        public bool Add(Order order)
+        public bool Add(OrderDTO order)
         {
-            throw new NotImplementedException();
+            var orders =  _context.Orders.Select(orderCreate => new Order
+            {
+                Id = order.Id,
+                DateTime = order.DateTime,
+                Customer = new Customer
+                {
+                    Id = order.Customer.Id,
+                    Name = order.Customer.Name,
+                    Surname = order.Customer.Surname,
+                    Email = order.Customer.Email
+                }
+            }).FirstOrDefault();
+            _context.Add(orders);
+            return Save();
         }
 
         public bool Delete(Order order)
@@ -27,14 +41,36 @@ namespace ProductStore.Repository
             throw new NotImplementedException();
         }
 
-        public Task<Order> GetOrderById(int id)
+        public async Task<OrderDTO> GetOrderById(int id)
         {
-            throw new NotImplementedException();
+            return _context.Orders.Where(o => o.Id==id).Select(order => new OrderDTO
+            {
+                Id = order.Id,
+                DateTime = order.DateTime,
+                Customer = new CustomerDTO
+                {
+                    Id = order.Customer.Id,
+                    Name = order.Customer.Name,
+                    Surname = order.Customer.Surname,
+                    Email = order.Customer.Email
+                }
+            }).FirstOrDefault();
         }
 
-        public Task<IEnumerable<Order>> GetOrders()
+        public async Task<IEnumerable<OrderDTO>> GetOrders()
         {
-            throw new NotImplementedException();
+            return _context.Orders.Select(order => new OrderDTO
+            {
+                Id = order.Id,
+                DateTime = order.DateTime,
+                Customer = new CustomerDTO
+                {
+                    Id = order.Customer.Id,
+                    Name = order.Customer.Name,
+                    Surname = order.Customer.Surname,
+                    Email = order.Customer.Email
+                }
+            }).ToList();
         }
 
         public bool Save()

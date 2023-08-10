@@ -18,8 +18,15 @@ namespace ProductStore.Repository
             return _context.Addresses.Any(a => a.Id == id);    
         }
 
-        public bool CreateAddress(Address address)
+        public bool CreateAddress(AddressDTO addressCreateDTO)
         {
+            var address = _context.Addresses.Where(a => a.Street != addressCreateDTO.Street).Select(addressCreate => new Address
+            {
+                Id = addressCreateDTO.Id,
+                City = addressCreateDTO.City,
+                State = addressCreateDTO.State,
+                Street = addressCreateDTO.Street
+            }).FirstOrDefault();
             _context.Add(address);
             return Save();
         }
@@ -60,9 +67,16 @@ namespace ProductStore.Repository
             return saved > 0 ? true : false;
         }
 
-        public bool UpdateAddress(Address address)
+        public bool UpdateAddress(AddressDTO address)
         {
-            _context.Update(address);
+            var addressDTO = _context.Addresses.Where(a => a.Id == address.Id).Select( addressCreate => new Address
+            {
+                Id = address.Id,
+                City = address.City,
+                State = address.State,
+                Street = address.Street
+            }).FirstOrDefault();
+            _context.Update(addressDTO);
             return Save();
         }
     }

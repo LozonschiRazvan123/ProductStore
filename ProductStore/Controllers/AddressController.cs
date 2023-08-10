@@ -20,46 +20,12 @@ namespace ProductStore.Controllers
         [HttpGet]
         public IActionResult GetAddress() 
         {
-            /*var addresses = _addressRepository.GetAddresses();
-
-            var addressesDTO = addresses.Select(Address => new AddressDTO
-            {
-                Id = Address.Id,
-                City = Address.City,
-                State = Address.State,
-                Street = Address.Street
-            }).ToList();
-            if(!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            return Ok(addressesDTO);*/
             return Ok(_addressRepository.GetAddresses());
         }
 
         [HttpGet("{id}")]
         public IActionResult GetAddressById(int id)
         {
-            /*var address = _addressRepository.GetAddress(id);
-
-            if(address == null)
-            {
-                return NotFound();
-            }
-
-            var addressDTO = new AddressDTO
-            { 
-                Id = address.Id,
-                City = address.City,
-                State = address.State,
-                Street = address.Street
-            };
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }*/
-            //var addressDTO = _addressRepository.GetAddress(id);
             if(_addressRepository.GetAddress(id) == null)
             {
                 return NotFound();
@@ -81,22 +47,15 @@ namespace ProductStore.Controllers
                 return BadRequest(ModelState);
             }
 
-            var address = _addressRepository.GetAddresses().Where(a => a.Street == addressCreateDTO.Street).FirstOrDefault();
+            var address = _addressRepository.CreateAddress(addressCreateDTO);
 
             if(address != null)
             {
                 ModelState.AddModelError("", "Address is already exists");
             }
 
-            var addressCreate = new Address
-            {
-                Id = addressCreateDTO.Id,
-                City = addressCreateDTO.City,
-                State = addressCreateDTO.State,
-                Street = addressCreateDTO.Street
-            };
 
-            if(!_addressRepository.CreateAddress(addressCreate))
+            if(!address)
             {
                 ModelState.AddModelError("", "Something is wrong!");
             }
@@ -117,15 +76,7 @@ namespace ProductStore.Controllers
                 return BadRequest();
             }
 
-            var updateAddressDTO = new Address
-            {
-                Id = updateAddress.Id,
-                City = updateAddress.City,
-                State = updateAddress.State,
-                Street = updateAddress.Street
-            };
-
-            if(!_addressRepository.UpdateAddress(updateAddressDTO))
+            if(!_addressRepository.UpdateAddress(updateAddress))
             {
                 ModelState.AddModelError("", "Something is wrong!");
             }

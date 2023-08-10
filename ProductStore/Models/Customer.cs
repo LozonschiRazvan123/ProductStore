@@ -11,7 +11,7 @@ namespace ProductStore.Models
         public string Surname { get; set; }
         public string Email { get; set; }
         [ForeignKey("Address")]
-        public int AddressId { get; set; }
+        public int? AddressId { get; set; }
         public Address Address { get; set; }
         public IEnumerable<Order> Orders { get; set; }
     }

@@ -9,7 +9,7 @@ namespace ProductStore.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
-        /*private readonly IOrderRepository _orderRepository;
+        private readonly IOrderRepository _orderRepository;
         public OrderController(IOrderRepository orderRepository) 
         { 
             _orderRepository = orderRepository;
@@ -18,23 +18,39 @@ namespace ProductStore.Controllers
         [HttpGet]
         public async Task<IActionResult> GetOrder()
         {
-            var order = await _orderRepository.GetOrders();
-
-            var orderDTO = order.Select(Customer => new CustomerDTO
+           if(!ModelState.IsValid)
             {
-                Id = Customer.Id,
-                Name = Customer.Name,
-                Surname = Customer.Surname,
-                Email = Customer.Email
-            }).ToList();
+                return BadRequest(ModelState);
+            }
+           return Ok(await _orderRepository.GetOrders());
+        }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetOrderById(int id)
+        {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            return Ok(await _orderRepository.GetOrderById(id));
+        }
 
-            if (!ModelState.IsValid)
+        [HttpPost]
+        public async Task<IActionResult> CreateOrder( [FromBody] OrderDTO orderCreateDTO)
+        {
+            if (orderCreateDTO == null)
             {
                 return BadRequest(ModelState);
             }
 
-            return Ok(customerDTO);
-        }*/
+            var order = _orderRepository.Add(orderCreateDTO);
+
+            if (!order)
+            {
+                ModelState.AddModelError("", "Something went wrong!");
+            }
+
+            return Ok("Successfully created!");
+        }
     }
 }

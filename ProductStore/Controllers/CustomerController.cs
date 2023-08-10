@@ -20,52 +20,27 @@ namespace ProductStore.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCustomers()
         {
-            var customer = await _customerRepository.GetCustomers();
-
-            var customerDTO = customer.Select(Customer => new CustomerDTO
-            {
-                Id = Customer.Id,
-                Name = Customer.Name,
-                Surname = Customer.Surname,
-                Email = Customer.Email
-            }).ToList();
-
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            return Ok(customerDTO);
+            return Ok(await _customerRepository.GetCustomers());
         }
 
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAddressById(int id)
         {
-            var costumer = await _customerRepository.GetCustomerById(id);
-
-            if (costumer == null)
-            {
-                return NotFound();
-            }
-
-            var costumerDTO = new CustomerDTO
-            {
-                Id = costumer.Id,
-                Name = costumer.Name,
-                Surname = costumer.Surname,
-                Email = costumer.Email
-            };
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            return Ok(costumerDTO);
+            return Ok(await _customerRepository.GetCustomerById(id));
         }
 
 
-        /*[HttpPost]
+        [HttpPost]
         public async Task<IActionResult> CreateCustomer([FromBody] CustomerDTO customerCreateDTO)
         {
             if (customerCreateDTO == null)
@@ -73,28 +48,20 @@ namespace ProductStore.Controllers
                 return BadRequest(ModelState);
             }
 
-            var customer = _customerRepository.GetCustomers().Where(c => c.Email == customerCreateDTO.Email).FirstOrDefault();
+            var customer = _customerRepository.Add(customerCreateDTO);
 
             if (customer != null)
             {
-                ModelState.AddModelError("", "Customer is already exists");
+                ModelState.AddModelError("", "Customer already exists!");
             }
 
-            var customerCreate = new Customer
+            if(!customer)
             {
-                Id = customerCreateDTO.Id,
-                Name = customerCreateDTO.Name,
-                Surname = customerCreateDTO.Surname,
-                Email = customerCreateDTO.Email
-            };
-
-            if (!_customerRepository.Add(customerCreate))
-            {
-                ModelState.AddModelError("", "Something is wrong!");
+                ModelState.AddModelError("", "Something went wrong!");
             }
 
             return Ok("Successfully created!");
-        }*/
+        }
 
         [HttpPut("{customerId}")]
         public async Task<IActionResult> UpdateCustomer(int customerId, [FromBody] CustomerDTO updateCustomer)
@@ -108,16 +75,7 @@ namespace ProductStore.Controllers
             {
                 return BadRequest();
             }
-
-            var updateCustomerDTO = new Customer
-            {
-                Id = updateCustomer.Id,
-                Name = updateCustomer.Name,
-                Surname = updateCustomer.Surname,
-                Email = updateCustomer.Email
-            };
-
-            if (!_customerRepository.Update(updateCustomerDTO))
+            if (!_customerRepository.Update(updateCustomer))
             {
                 ModelState.AddModelError("", "Something is wrong!");
             }

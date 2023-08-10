@@ -8,8 +8,8 @@ namespace ProductStore.Interface
         IEnumerable<AddressDTO> GetAddresses();
         AddressDTO GetAddress(int id);
         bool AddressExist(int id);
-        bool CreateAddress(Address address);
-        bool UpdateAddress(Address address);
+        bool CreateAddress(AddressDTO address);
+        bool UpdateAddress(AddressDTO address);
         bool DeleteAddress(AddressDTO address);
         bool Save();
     }

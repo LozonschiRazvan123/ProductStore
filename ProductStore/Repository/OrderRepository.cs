@@ -1,4 +1,5 @@
-﻿using ProductStore.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using ProductStore.Data;
 using ProductStore.DTO;
 using ProductStore.Interface;
 using ProductStore.Models;
@@ -15,7 +16,7 @@ namespace ProductStore.Repository
 
         public bool Add(OrderDTO order)
         {
-            var orders =  _context.Orders.Select(orderCreate => new Order
+            var orders =  _context.Orders.Include(c => c.Customer).Select(orderCreate => new Order
             {
                 Id = order.Id,
                 DateTime = order.DateTime,
@@ -31,14 +32,27 @@ namespace ProductStore.Repository
             return Save();
         }
 
-        public bool Delete(Order order)
+        public bool Delete(OrderDTO order)
         {
-            throw new NotImplementedException();
+            var orders = _context.Orders.Where(o => o.Id == order.Id).Include(c => c.Customer).Select(orderCreate => new Order
+            {
+                Id = order.Id,
+                DateTime = order.DateTime,
+                Customer = new Customer
+                {
+                    Id = order.Customer.Id,
+                    Name = order.Customer.Name,
+                    Surname = order.Customer.Surname,
+                    Email = order.Customer.Email
+                }
+            }).FirstOrDefault();
+            _context.Remove(orders);
+            return Save();
         }
 
         public bool ExistOrder(int id)
         {
-            throw new NotImplementedException();
+            return _context.Orders.Any(o => o.Id == id);
         }
 
         public async Task<OrderDTO> GetOrderById(int id)
@@ -75,12 +89,26 @@ namespace ProductStore.Repository
 
         public bool Save()
         {
-            throw new NotImplementedException();
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
         }
 
-        public bool Update(Order order)
+        public bool Update(OrderDTO order)
         {
-            throw new NotImplementedException();
+            var orders = _context.Orders.Where(o => o.Id == order.Id).Include(c => c.Customer).Select(orderCreate => new Order
+            {
+                Id = order.Id,
+                DateTime = order.DateTime,
+                Customer = new Customer
+                {
+                    Id = order.Customer.Id,
+                    Name = order.Customer.Name,
+                    Surname = order.Customer.Surname,
+                    Email = order.Customer.Email
+                }
+            }).FirstOrDefault();
+            _context.Update(orders);
+            return Save();
         }
     }
 }

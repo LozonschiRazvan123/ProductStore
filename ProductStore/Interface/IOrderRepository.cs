@@ -9,8 +9,8 @@ namespace ProductStore.Interface
         Task<OrderDTO> GetOrderById(int id);
         bool ExistOrder(int id);
         bool Add(OrderDTO order);
-        bool Update(Order order);
-        bool Delete(Order order);
+        bool Update(OrderDTO order);
+        bool Delete(OrderDTO order);
         bool Save();
     }
 }

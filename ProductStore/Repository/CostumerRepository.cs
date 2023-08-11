@@ -31,7 +31,14 @@ namespace ProductStore.Repository
 
         public bool DeleteCustomer(CustomerDTO customer)
         {
-            _context.Remove(customer);
+            var customerDTO = _context.Customers.Where(c => c.Id == customer.Id).Select(customerCreate => new Customer
+            {
+                Id = customer.Id,
+                Name = customer.Name,
+                Surname = customer.Surname,
+                Email = customer.Email
+            }).FirstOrDefault();
+            _context.Remove(customerDTO);
             return Save();
         }
 

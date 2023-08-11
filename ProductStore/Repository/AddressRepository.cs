@@ -33,7 +33,14 @@ namespace ProductStore.Repository
 
         public bool DeleteAddress(AddressDTO address)
         {
-            _context.Remove(address);
+            var addressDTO = _context.Addresses.Where(a => a.Id == address.Id).Select(addressCreate => new Address
+            {
+                Id = address.Id,
+                City = address.City,
+                State = address.State,
+                Street = address.Street
+            }).FirstOrDefault();
+            _context.Remove(addressDTO);
             return Save();
         }
 

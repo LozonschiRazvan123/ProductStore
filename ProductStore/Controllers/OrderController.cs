@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ProductStore.DTO;
 using ProductStore.Interface;
+using ProductStore.Models;
 
 namespace ProductStore.Controllers
 {
@@ -51,6 +52,48 @@ namespace ProductStore.Controllers
             }
 
             return Ok("Successfully created!");
+        }
+
+        [HttpPut("{orderId}")]
+        public async Task<IActionResult> UpdateOrder(int orderId, [FromBody] OrderDTO orderUpdateDTO)
+        {
+            if (orderUpdateDTO == null || orderId != orderUpdateDTO.Id)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            if (!_orderRepository.Update(orderUpdateDTO))
+            {
+                ModelState.AddModelError("", "Something is wrong!");
+            }
+
+            return Ok("Successfully update!");
+        }
+
+        [HttpDelete("{orderId}")]
+        public async Task<IActionResult> DeleteOrder(int orderId)
+        {
+            if (!_orderRepository.ExistOrder(orderId))
+            {
+                return NotFound();
+            }
+
+            var customerDelete = await _orderRepository.GetOrderById(orderId);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!_orderRepository.Delete(customerDelete))
+            {
+                ModelState.AddModelError("", "Something is wrong!");
+            }
+
+            return NoContent();
         }
     }
 }

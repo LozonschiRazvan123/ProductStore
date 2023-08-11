@@ -84,14 +84,14 @@ namespace ProductStore.Controllers
         }
 
         [HttpDelete("{customerId}")]
-        public async Task<IActionResult> DeleteAddress(int addressId)
+        public async Task<IActionResult> DeleteAddress(int customerId)
         {
-            if (!_customerRepository.ExistCostumer(addressId))
+            if (!_customerRepository.ExistCostumer(customerId))
             {
                 return NotFound();
             }
 
-            var customerDelete = await _customerRepository.GetCustomerById(addressId);
+            var customerDelete = await _customerRepository.GetCustomerById(customerId);
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

@@ -12,8 +12,8 @@ using ProductStore.Data;
 namespace ProductStore.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230816072116_Update2")]
-    partial class Update2
+    [Migration("20230816084121_InitialDatabase")]
+    partial class InitialDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

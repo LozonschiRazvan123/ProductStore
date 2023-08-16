@@ -7,5 +7,6 @@ namespace ProductStore.DTO
         public int Id { get; set; }
         public string Name { get; set; }
         public int Price { get; set; }
+        //public CategoryProductDTO CategoryProduct { get; set; }
     }
 }

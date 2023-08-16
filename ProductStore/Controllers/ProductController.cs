@@ -62,5 +62,44 @@ namespace ProductStore.Controllers
 
             return Ok("Successfully created!");
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            if(!_productRepository.ExistProduct(id))
+            {
+                return NotFound();
+            }
+            var productDelete = await _productRepository.GetProductById(id);
+            if(!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            if (!_productRepository.Delete(productDelete))
+            {
+                ModelState.AddModelError("", "Something is wrong!");
+            }
+            return NoContent();
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProduct([FromBody] ProductDTO productDTOUpdate, int id)
+        {
+            if(productDTOUpdate == null || productDTOUpdate.Id!=id)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if(!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            if(!_productRepository.Update(productDTOUpdate))
+            {
+                ModelState.AddModelError("", "Something is wrong!");
+            }
+            return Ok("Update successfully!");
+        }
     }
 }

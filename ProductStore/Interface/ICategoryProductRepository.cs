@@ -10,6 +10,6 @@ namespace ProductStore.Interface
         bool Delete(CategoryProductDTO categoryProductDTO);
         bool Update(CategoryProductDTO categoryProductDTO);
         bool Save();
-        bool ExistCategoryProduct();
+        bool ExistCategoryProduct(int id);
     }
 }

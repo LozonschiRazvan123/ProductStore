@@ -5,7 +5,7 @@
 namespace ProductStore.Migrations
 {
     /// <inheritdoc />
-    public partial class Update2 : Migration
+    public partial class InitialDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

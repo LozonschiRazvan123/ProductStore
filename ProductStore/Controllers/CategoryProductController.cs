@@ -60,5 +60,49 @@ namespace ProductStore.Controllers
 
             return Ok("Successfully created!");
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateCategoryProduct([FromBody] CategoryProductDTO categoryProductDTO, int id)
+        {
+            if(categoryProductDTO == null || categoryProductDTO.Id!=id)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if(!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            if(!_categoryProductRepository.Update(categoryProductDTO))
+            {
+                ModelState.AddModelError("", "Something is wrong!");
+            }
+
+            return Ok("Successfully update!");
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCategoryProduct(int id)
+        {
+            if(!_categoryProductRepository.ExistCategoryProduct(id))
+            {
+                return NotFound();
+            }
+
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var deleteCP = await _categoryProductRepository.GetCategoryProductById(id);
+
+            if(!_categoryProductRepository.Delete(deleteCP))
+            {
+                ModelState.AddModelError("", "Something is wrong!");
+            }
+
+            return NoContent();
+        }
     }
 }

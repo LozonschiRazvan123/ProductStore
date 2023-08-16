@@ -27,12 +27,18 @@ namespace ProductStore.Repository
 
         public bool Delete(CategoryProductDTO categoryProductDTO)
         {
-            throw new NotImplementedException();
+            var categoryProductDTOUpdate = _context.CategoryProducts.Select(cp => new CategoryProduct
+            { 
+                Id = categoryProductDTO.Id,
+                NameCategory = categoryProductDTO.NameCategory 
+            }).FirstOrDefault();
+            _context.Remove(categoryProductDTOUpdate);
+            return Save();
         }
 
-        public bool ExistCategoryProduct()
+        public bool ExistCategoryProduct(int id)
         {
-            throw new NotImplementedException();
+            return _context.CategoryProducts.Any(cp => cp.Id == id);
         }
 
         public async Task<CategoryProductDTO> GetCategoryProductById(int id)
@@ -61,7 +67,13 @@ namespace ProductStore.Repository
 
         public bool Update(CategoryProductDTO categoryProductDTO)
         {
-            throw new NotImplementedException();
+            var categoryProductUpdate = _context.CategoryProducts.Select(cp => new CategoryProduct
+            {
+                Id = categoryProductDTO.Id,
+                NameCategory = categoryProductDTO.NameCategory
+            }).FirstOrDefault();
+            _context.Update(categoryProductUpdate);
+            return Save();
         }
     }
 }

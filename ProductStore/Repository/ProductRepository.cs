@@ -16,16 +16,11 @@ namespace ProductStore.Repository
 
         public bool Add(ProductDTO product)
         {
-            var productDTO = _context.Products.Include(cp => cp.CategoryProduct).Select(product => new Product
+            var productDTO = _context.Products.Select(productCreateDTO => new Product
             {
                 Id = product.Id,
                 Name = product.Name,
-                Price = product.Price,
-                CategoryProduct = new CategoryProduct
-                {
-                    Id = product.CategoryProduct.Id,
-                    NameCategory = product.CategoryProduct.NameCategory
-                }
+                Price = product.Price
             }).FirstOrDefault();
             _context.Add(productDTO);
             return Save();
@@ -33,12 +28,19 @@ namespace ProductStore.Repository
 
         public bool Delete(ProductDTO product)
         {
-            throw new NotImplementedException();
+            var productDTO = _context.Products.Where(p => p.Id == product.Id).Select(productCreate => new Product
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Price = product.Price
+            }).FirstOrDefault();
+            _context.Remove(productDTO);
+            return Save();
         }
 
         public bool ExistProduct(int id)
         {
-            throw new NotImplementedException();
+            return _context.Products.Any(product => product.Id == id);
         }
 
         public async Task<ProductDTO> GetProductById(int id)
@@ -47,7 +49,7 @@ namespace ProductStore.Repository
             {
                 Id = product.Id,
                 Name = product.Name,
-                Price = product.Price
+                Price = product.Price,
             }).FirstOrDefault();
         }
 
@@ -69,7 +71,14 @@ namespace ProductStore.Repository
 
         public bool Update(ProductDTO product)
         {
-            throw new NotImplementedException();
+            var productDTO = _context.Products.Where(p => p.Id == product.Id).Select(productCreate => new Product
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Price = product.Price
+            }).FirstOrDefault();
+            _context.Update(productDTO);
+            return Save();
         }
     }
 }

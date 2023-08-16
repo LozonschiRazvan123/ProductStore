@@ -30,8 +30,6 @@ namespace ProductStore.Data
                 .WithMany(op => op.OrderProduct)
                 .HasForeignKey(p => p.ProductId);
 
-
-
             modelBuilder.Entity<Address>().HasData(
                 new Address
                 {

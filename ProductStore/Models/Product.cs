@@ -10,7 +10,7 @@ namespace ProductStore.Models
         public string Name { get; set; }
         public int Price { get; set; }
         [ForeignKey("CategoryProduct")]
-        public int CategoryProductId { get; set; }
+        public int? CategoryProductId { get; set; }
         public CategoryProduct CategoryProduct { get; set; }
         public IEnumerable<OrderProduct> OrderProduct { get; set; }
     }

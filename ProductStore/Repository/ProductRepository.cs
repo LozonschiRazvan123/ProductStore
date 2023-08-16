@@ -47,12 +47,7 @@ namespace ProductStore.Repository
             {
                 Id = product.Id,
                 Name = product.Name,
-                Price = product.Price,
-                CategoryProduct = new CategoryProductDTO
-                {
-                    Id = product.CategoryProduct.Id,
-                    NameCategory = product.CategoryProduct.NameCategory
-                }
+                Price = product.Price
             }).FirstOrDefault();
         }
 
@@ -62,12 +57,7 @@ namespace ProductStore.Repository
             {
                 Id = product.Id,
                 Name = product.Name,
-                Price = product.Price,
-                CategoryProduct = new CategoryProductDTO
-                {
-                    Id = product.CategoryProduct.Id,
-                    NameCategory = product.CategoryProduct.NameCategory
-                }
+                Price = product.Price
             }).ToList();
         }
 

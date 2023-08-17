@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ProductStore.ConfigurationError;
 using ProductStore.DTO;
 using ProductStore.Interface;
 using ProductStore.Models;
@@ -22,7 +23,7 @@ namespace ProductStore.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                throw new BadRequest();
             }
 
             return Ok(await _customerRepository.GetCustomers());
@@ -34,7 +35,7 @@ namespace ProductStore.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                throw new BadRequest();
             }
             return Ok(await _customerRepository.GetCustomerById(id));
         }
@@ -45,19 +46,19 @@ namespace ProductStore.Controllers
         {
             if (customerCreateDTO == null)
             {
-                return BadRequest(ModelState);
+                throw new BadRequest();
             }
 
             var customer = _customerRepository.Add(customerCreateDTO);
 
             if (customer != null)
             {
-                ModelState.AddModelError("", "Customer already exists!");
+                throw new ExistModel("Customer");
             }
 
             if(!customer)
             {
-                ModelState.AddModelError("", "Something went wrong!");
+                throw new BadRequest();
             }
 
             return Ok("Successfully created!");
@@ -68,7 +69,7 @@ namespace ProductStore.Controllers
         {
             if (updateCustomer == null || customerId != updateCustomer.Id)
             {
-                return BadRequest(ModelState);
+                throw new BadRequest();
             }
 
             if (!ModelState.IsValid)
@@ -77,7 +78,7 @@ namespace ProductStore.Controllers
             }
             if (!_customerRepository.Update(updateCustomer))
             {
-                ModelState.AddModelError("", "Something is wrong!");
+                throw new BadRequest();
             }
 
             return Ok("Successfully update!");
@@ -88,18 +89,18 @@ namespace ProductStore.Controllers
         {
             if (!_customerRepository.ExistCostumer(customerId))
             {
-                return NotFound();
+                throw new AppException("Customer", customerId);
             }
 
             var customerDelete = await _customerRepository.GetCustomerById(customerId);
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                throw new BadRequest();
             }
 
             if (!_customerRepository.DeleteCustomer(customerDelete))
             {
-                ModelState.AddModelError("", "Something is wrong!");
+                throw new BadRequest();
             }
 
             return NoContent();

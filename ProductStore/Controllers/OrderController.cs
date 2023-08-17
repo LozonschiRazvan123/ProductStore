@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ProductStore.ConfigurationError;
 using ProductStore.DTO;
 using ProductStore.Interface;
 using ProductStore.Models;
@@ -21,7 +22,7 @@ namespace ProductStore.Controllers
         {
            if(!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                throw new BadRequest();
             }
            return Ok(await _orderRepository.GetOrders());
         }
@@ -31,7 +32,7 @@ namespace ProductStore.Controllers
         {
             if(!ModelState.IsValid)
             {
-                return BadRequest();
+                throw new BadRequest();
             }
             return Ok(await _orderRepository.GetOrderById(id));
         }
@@ -41,7 +42,7 @@ namespace ProductStore.Controllers
         {
             if (orderCreateDTO == null)
             {
-                return BadRequest(ModelState);
+                throw new BadRequest();
             }
 
             var order = _orderRepository.Add(orderCreateDTO);
@@ -59,16 +60,16 @@ namespace ProductStore.Controllers
         {
             if (orderUpdateDTO == null || orderId != orderUpdateDTO.Id)
             {
-                return BadRequest(ModelState);
+                throw new BadRequest();
             }
 
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                throw new BadRequest();
             }
             if (!_orderRepository.Update(orderUpdateDTO))
             {
-                ModelState.AddModelError("", "Something is wrong!");
+                throw new BadRequest();
             }
 
             return Ok("Successfully update!");
@@ -79,18 +80,18 @@ namespace ProductStore.Controllers
         {
             if (!_orderRepository.ExistOrder(orderId))
             {
-                return NotFound();
+                throw new ExistModel("Order");
             }
 
             var customerDelete = await _orderRepository.GetOrderById(orderId);
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                throw new BadRequest();
             }
 
             if (!_orderRepository.Delete(customerDelete))
             {
-                ModelState.AddModelError("", "Something is wrong!");
+                throw new BadRequest();
             }
 
             return NoContent();

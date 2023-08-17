@@ -84,7 +84,8 @@ namespace ProductStore.Data
                     Name = "Popescu",
                     Surname = "Vasile",
                     Email = "eu123@gmail.com",
-                    AddressId = 1 
+                    AddressId = 1,
+                    UserId = 1
                 },
 
                 new Customer
@@ -93,7 +94,8 @@ namespace ProductStore.Data
                     Name = "Popescu",
                     Surname = "Marian",
                     Email = "tu123@gmail.com",
-                    AddressId = 2
+                    AddressId = 2,
+                    UserId  = 2
                 },
 
                 new Customer
@@ -102,7 +104,8 @@ namespace ProductStore.Data
                     Name = "Ionescu",
                     Surname = "Ion",
                     Email = "ionescu123@gmail.com",
-                    AddressId = 3
+                    AddressId = 3,
+                    UserId = 3
                 },
 
                 new Customer
@@ -111,7 +114,8 @@ namespace ProductStore.Data
                     Name = "Marica",
                     Surname = "Ciprian",
                     Email = "prosop@gmail.com",
-                    AddressId = 4
+                    AddressId = 4,
+                    UserId = 4
                 },
 
                 new Customer
@@ -120,9 +124,59 @@ namespace ProductStore.Data
                     Name = "Popa",
                     Surname = "Mihai",
                     Email = "popa@gmail.com",
-                    AddressId = 5
+                    AddressId = 5,
+                    UserId = 5
                 }
                 );
+
+            modelBuilder.Entity<User>().HasData(
+                new User
+                {
+                    Id = 1,
+                    UserName = "Popescu Vasile",
+                    Password = "popescu123",
+                    Role = Enum.UserRole.Admin,
+                    CustomerId = 1,
+                },
+
+                new User
+                {
+                    Id = 2,
+                    UserName = "Popescu Marian",
+                    Password = "marian123",
+                    Role = Enum.UserRole.User,
+                    CustomerId = 2,
+                },
+
+                new User
+                {
+                    Id = 3,
+                    UserName = "Ionescu Ion",
+                    Password = "ionescu123",
+                    Role = Enum.UserRole.User,
+                    CustomerId = 3,
+                },
+
+                new User
+                {
+                    Id = 4,
+                    UserName = "Marica Ciprian",
+                    Password = "prosop123",
+                    Role = Enum.UserRole.User,
+                    CustomerId = 4,
+                },
+
+                new User
+                {
+                    Id = 5,
+                    UserName = "Popa Mihai",
+                    Password = "popa123",
+                    Role = Enum.UserRole.User,
+                    CustomerId = 5
+                }
+
+                );
+
             modelBuilder.Entity<Order>().HasData(
                 new Order
                 {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ProductStore.ConfigurationError;
 using ProductStore.DTO;
 using ProductStore.Interface;
 using ProductStore.Repository;
@@ -21,7 +22,7 @@ namespace ProductStore.Controllers
         {
             if(!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                throw new BadRequest();
             }
             return Ok(await _categoryProductRepository.GetCategoryProducts());
         }
@@ -30,8 +31,8 @@ namespace ProductStore.Controllers
         public async Task<IActionResult> GetCategoryProductResult(int id)
         {
             if(!ModelState.IsValid)
-            { 
-                return BadRequest(ModelState); 
+            {
+                throw new BadRequest();
             }
 
             return Ok(await _categoryProductRepository.GetCategoryProductById(id));
@@ -42,20 +43,20 @@ namespace ProductStore.Controllers
         {
             if (categoryProductDTO == null)
             {
-                return BadRequest(ModelState);
+                throw new BadRequest();
             }
 
             var address = _categoryProductRepository.Add(categoryProductDTO);
 
             if (address != null)
             {
-                ModelState.AddModelError("", "Category product is already exists");
+                throw new ExistModel("Category product");
             }
 
 
             if (!address)
             {
-                ModelState.AddModelError("", "Something is wrong!");
+                throw new BadRequest();
             }
 
             return Ok("Successfully created!");
@@ -66,7 +67,7 @@ namespace ProductStore.Controllers
         {
             if(categoryProductDTO == null || categoryProductDTO.Id!=id)
             {
-                return BadRequest(ModelState);
+                throw new BadRequest();
             }
 
             if(!ModelState.IsValid)
@@ -76,7 +77,7 @@ namespace ProductStore.Controllers
 
             if(!_categoryProductRepository.Update(categoryProductDTO))
             {
-                ModelState.AddModelError("", "Something is wrong!");
+                throw new BadRequest();
             }
 
             return Ok("Successfully update!");
@@ -87,19 +88,19 @@ namespace ProductStore.Controllers
         {
             if(!_categoryProductRepository.ExistCategoryProduct(id))
             {
-                return NotFound();
+                throw new ExistModel("Category product");
             }
 
             if(!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                throw new BadRequest();
             }
 
             var deleteCP = await _categoryProductRepository.GetCategoryProductById(id);
 
             if(!_categoryProductRepository.Delete(deleteCP))
             {
-                ModelState.AddModelError("", "Something is wrong!");
+                throw new BadRequest();
             }
 
             return NoContent();

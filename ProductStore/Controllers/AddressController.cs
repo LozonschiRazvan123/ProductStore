@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ProductStore.ConfigurationError;
 using ProductStore.DTO;
 using ProductStore.Interface;
 using ProductStore.Models;
@@ -28,7 +29,7 @@ namespace ProductStore.Controllers
         {
             if(_addressRepository.GetAddress(id) == null)
             {
-                return NotFound();
+                throw new AppException("Address", id);
             }
 
             if(!ModelState.IsValid)
@@ -51,13 +52,13 @@ namespace ProductStore.Controllers
 
             if(address != null)
             {
-                ModelState.AddModelError("", "Address is already exists");
+                throw new ExistModel("Address");
             }
 
 
             if(!address)
             {
-                ModelState.AddModelError("", "Something is wrong!");
+                throw new BadRequest();
             }
 
             return Ok("Successfully created!");
@@ -78,7 +79,7 @@ namespace ProductStore.Controllers
 
             if(!_addressRepository.UpdateAddress(updateAddress))
             {
-                ModelState.AddModelError("", "Something is wrong!");
+                throw new BadRequest();
             }
 
             return Ok("Successfully update!");
@@ -89,7 +90,7 @@ namespace ProductStore.Controllers
         {
             if(!_addressRepository.AddressExist(addressId))
             {
-                return NotFound();
+                throw new AppException("Address", addressId);
             }
 
             var addressDelete = _addressRepository.GetAddress(addressId);
@@ -100,7 +101,7 @@ namespace ProductStore.Controllers
 
             if(!_addressRepository.DeleteAddress(addressDelete))
             {
-                ModelState.AddModelError("", "Something is wrong!");
+                throw new BadRequest();
             }
 
             return NoContent();

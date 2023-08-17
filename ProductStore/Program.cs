@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ProductStore.ConfigurationError;
 using ProductStore.Data;
 using ProductStore.Interface;
 using ProductStore.Repository;
@@ -28,6 +29,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ErrorHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 

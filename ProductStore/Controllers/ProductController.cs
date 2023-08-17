@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ProductStore.ConfigurationError;
 using ProductStore.DTO;
 using ProductStore.Interface;
 using ProductStore.Repository;
@@ -22,7 +23,7 @@ namespace ProductStore.Controllers
         {
             if(!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                throw new BadRequest();
             }
 
             return Ok(await _productRepository.GetProducts());
@@ -33,7 +34,7 @@ namespace ProductStore.Controllers
         {
             if(!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                throw new BadRequest();
             }
 
             return Ok(await _productRepository.GetProductById(id));
@@ -44,20 +45,20 @@ namespace ProductStore.Controllers
         {
             if (product == null)
             {
-                return BadRequest(ModelState);
+                throw new BadRequest();
             }
 
             var productCreate = _productRepository.Add(product);
 
             if (productCreate != null)
             {
-                ModelState.AddModelError("", "Product is already exists");
+                throw new ExistModel("Product");
             }
 
 
             if (!productCreate)
             {
-                ModelState.AddModelError("", "Something is wrong!");
+                throw new BadRequest();
             }
 
             return Ok("Successfully created!");
@@ -68,17 +69,17 @@ namespace ProductStore.Controllers
         {
             if(!_productRepository.ExistProduct(id))
             {
-                return NotFound();
+                throw new AppException("Product", id);
             }
             var productDelete = await _productRepository.GetProductById(id);
             if(!ModelState.IsValid)
             {
-                return BadRequest();
+                throw new BadRequest();
             }
 
             if (!_productRepository.Delete(productDelete))
             {
-                ModelState.AddModelError("", "Something is wrong!");
+                throw new BadRequest();
             }
             return NoContent();
         }
@@ -88,16 +89,16 @@ namespace ProductStore.Controllers
         {
             if(productDTOUpdate == null || productDTOUpdate.Id!=id)
             {
-                return BadRequest(ModelState);
+                throw new BadRequest();
             }
 
             if(!ModelState.IsValid)
             {
-                return BadRequest();
+                throw new BadRequest();
             }
             if(!_productRepository.Update(productDTOUpdate))
             {
-                ModelState.AddModelError("", "Something is wrong!");
+                throw new BadRequest();
             }
             return Ok("Update successfully!");
         }

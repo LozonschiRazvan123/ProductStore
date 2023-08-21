@@ -1,14 +1,16 @@
-﻿using ProductStore.Models;
+﻿using ProductStore.DTO;
+using ProductStore.Models;
 
 namespace ProductStore.Interface
 {
     public interface IUserRepository
     {
-        Task<IEnumerable<User>> GetUsers();
-        Task<User> GetUserById(int id);
-        bool ExistUser();
-        bool Add();
-        bool Update();
-        bool Delete();
+        Task<IEnumerable<UserDTO>> GetUsers();
+        Task<UserDTO> GetUserById(int id);
+        bool ExistUser(int id);
+        bool Add(UserDTO user);
+        bool Update(UserDTO user);
+        bool Delete(UserDTO user);
+        bool Save();
     }
 }

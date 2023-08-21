@@ -1,38 +1,87 @@
-﻿using ProductStore.Interface;
+﻿using Microsoft.EntityFrameworkCore;
+using ProductStore.Data;
+using ProductStore.DTO;
+using ProductStore.Interface;
 using ProductStore.Models;
 
 namespace ProductStore.Repository
 {
     public class UserRepository : IUserRepository
     {
-        public bool Add()
+        private readonly DataContext _context;
+        public UserRepository(DataContext context) 
         {
-            throw new NotImplementedException();
+            _context = context;
+        }
+        public bool Add(UserDTO user)
+        {
+            var userDTO = _context.Users.Select(userCreateDTO => new User
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Password = user.Password,
+                Role = user.Role
+            }).FirstOrDefault();
+            _context.Add(userDTO);
+            return Save();
+        }
+        public bool Save() 
+        {
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
         }
 
-        public bool Delete()
+        public bool Delete(UserDTO user)
         {
-            throw new NotImplementedException();
+            var userDTO = _context.Users.Select(userCreateDTO => new User
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Password = user.Password,
+                Role = user.Role
+            }).FirstOrDefault();
+            _context.Remove(userDTO);
+            return Save();
         }
 
-        public bool ExistUser()
+        public bool ExistUser(int id)
         {
-            throw new NotImplementedException();
+            return _context.Users.Any(u => u.Id == id);
         }
 
-        public Task<User> GetUserById(int id)
+        public async Task<UserDTO> GetUserById(int id)
         {
-            throw new NotImplementedException();
+            return _context.Users.Where(u => u.Id == id).Select(user => new UserDTO
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Password = user.Password,
+                Role = user.Role
+            }).FirstOrDefault();
         }
 
-        public Task<IEnumerable<User>> GetUsers()
+        public async Task<IEnumerable<UserDTO>> GetUsers()
         {
-            throw new NotImplementedException();
+            return _context.Users.Select(user => new UserDTO
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Password = user.Password,
+                Role = user.Role
+            }).ToList();
         }
 
-        public bool Update()
+        public bool Update(UserDTO user)
         {
-            throw new NotImplementedException();
+            var userDTO = _context.Users.Select(userCreateDTO => new User
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Password = user.Password,
+                Role = user.Role
+            }).FirstOrDefault();
+            _context.Update(userDTO);
+            return Save();
         }
     }
 }

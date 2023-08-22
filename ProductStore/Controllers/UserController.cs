@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProductStore.ConfigurationError;
 using ProductStore.DTO;
 using ProductStore.Interface;
+using ProductStore.Models;
 using ProductStore.Repository;
+using System.Security.Cryptography;
 
 namespace ProductStore.Controllers
 {
@@ -38,24 +41,48 @@ namespace ProductStore.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody]UserDTO userDTO)
+        public async Task<IActionResult> CreateUser([FromBody] UserDTO userDTO)
         {
             if(userDTO == null)
             {
                 throw new BadRequest();
             }
+            CreatePasswordHash(userDTO.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            var user = new User
+            {
+                Email = userDTO.Email,
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt,
+                VerificationToken = CreateRandomToken(),
+                Password = userDTO.Password,
+                UserName = userDTO.UserName
+            };
 
-            var userCreate = _userRepository.Add(userDTO);
-            if(userCreate != null )
+            var userCreate = _userRepository.Add(user);
+/*            if(userCreate != null )
             {
                 throw new ExistModel("User");
-            }
+            }*/
 
             if(!userCreate)
             {
                 throw new BadRequest();
             }
             return Ok("Successfully create");
+        }
+        private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        {
+            using (var hmac = new HMACSHA512())
+            {
+                passwordSalt = hmac.Key;
+                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+
+            }
+        }
+
+        private string CreateRandomToken()
+        {
+            return Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
         }
 
         [HttpDelete("{id}")]

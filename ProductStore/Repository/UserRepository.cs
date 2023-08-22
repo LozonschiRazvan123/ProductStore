@@ -13,14 +13,21 @@ namespace ProductStore.Repository
         {
             _context = context;
         }
-        public bool Add(UserDTO user)
+        public bool Add(User user)
         {
-            var userDTO = _context.Users.Select(userCreateDTO => new User
+            var userDTO = _context.Users.Select(u => u.Email != user.Email).Select(userCreateDTO => new User
             {
                 Id = user.Id,
                 UserName = user.UserName,
                 Password = user.Password,
-                Role = user.Role
+                Role = user.Role,
+                Email  = user.Email,
+                VerificationToken = user.VerificationToken,
+                PasswordHash = user.PasswordHash,
+                PasswordResetToken = user.PasswordResetToken,
+                PasswordSalt = user.PasswordSalt,
+                ResetTokenExpires = user.ResetTokenExpires,
+                VerifiedAt = user.VerifiedAt
             }).FirstOrDefault();
             _context.Add(userDTO);
             return Save();
@@ -56,7 +63,7 @@ namespace ProductStore.Repository
                 Id = user.Id,
                 UserName = user.UserName,
                 Password = user.Password,
-                Role = user.Role
+                Role = user.Role,
             }).FirstOrDefault();
         }
 

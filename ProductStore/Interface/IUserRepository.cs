@@ -8,7 +8,7 @@ namespace ProductStore.Interface
         Task<IEnumerable<UserDTO>> GetUsers();
         Task<UserDTO> GetUserById(int id);
         bool ExistUser(int id);
-        bool Add(UserDTO user);
+        bool Add(User user);
         bool Update(UserDTO user);
         bool Delete(UserDTO user);
         bool Save();

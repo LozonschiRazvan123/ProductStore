@@ -138,6 +138,7 @@ namespace ProductStore.Data
                     Password = "popescu123",
                     Role = Enum.UserRole.Admin,
                     CustomerId = 1,
+                    Email = "popescu123@gmail.com"
                 },
 
                 new User
@@ -147,6 +148,7 @@ namespace ProductStore.Data
                     Password = "marian123",
                     Role = Enum.UserRole.User,
                     CustomerId = 2,
+                    Email = "marian123@gmail.com"
                 },
 
                 new User
@@ -156,6 +158,7 @@ namespace ProductStore.Data
                     Password = "ionescu123",
                     Role = Enum.UserRole.User,
                     CustomerId = 3,
+                    Email = "ionescu123@gmail.com"
                 },
 
                 new User
@@ -165,6 +168,7 @@ namespace ProductStore.Data
                     Password = "prosop123",
                     Role = Enum.UserRole.User,
                     CustomerId = 4,
+                    Email = "prosop@gmail.com"
                 },
 
                 new User
@@ -173,7 +177,8 @@ namespace ProductStore.Data
                     UserName = "Popa Mihai",
                     Password = "popa123",
                     Role = Enum.UserRole.User,
-                    CustomerId = 5
+                    CustomerId = 5,
+                    Email = "popa123@gmail.com"
                 }
 
                 );

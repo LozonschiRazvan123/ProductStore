@@ -50,7 +50,7 @@ namespace ProductStore.Controllers
 
             var productCreate = _productRepository.Add(product);
 
-            if (productCreate != null)
+            if (productCreate == false)
             {
                 throw new ExistModel("Product");
             }

@@ -2,6 +2,7 @@
 using ProductStore.DTO;
 using ProductStore.Interface;
 using ProductStore.Models;
+using System;
 
 namespace ProductStore.Repository
 {
@@ -20,27 +21,27 @@ namespace ProductStore.Repository
 
         public bool CreateAddress(AddressDTO addressCreateDTO)
         {
-            var address = _context.Addresses.Where(a => a.Street != addressCreateDTO.Street).Select(addressCreate => new Address
+            var existingAddress = _context.Addresses.Where(a => a.Street == addressCreateDTO.Street).FirstOrDefault();
+
+            if (existingAddress == null)
             {
-                Id = addressCreateDTO.Id,
-                City = addressCreateDTO.City,
-                State = addressCreateDTO.State,
-                Street = addressCreateDTO.Street
-            }).FirstOrDefault();
-            _context.Add(address);
-            return Save();
+                var address = new Address
+                {
+                    City = addressCreateDTO.City,
+                    State = addressCreateDTO.State,
+                    Street = addressCreateDTO.Street
+                };
+
+                _context.Add(address);
+                return Save();
+            }
+            return false;
         }
 
-        public bool DeleteAddress(AddressDTO address)
+    public bool DeleteAddress(AddressDTO address)
         {
-            var addressDTO = _context.Addresses.Where(a => a.Id == address.Id).Select(addressCreate => new Address
-            {
-                Id = address.Id,
-                City = address.City,
-                State = address.State,
-                Street = address.Street
-            }).FirstOrDefault();
-            _context.Remove(addressDTO);
+            var existingAddress = _context.Addresses.Find(address.Id);
+            _context.Remove(existingAddress);
             return Save();
         }
 
@@ -76,15 +77,19 @@ namespace ProductStore.Repository
 
         public bool UpdateAddress(AddressDTO address)
         {
-            var addressDTO = _context.Addresses.Where(a => a.Id == address.Id).Select( addressCreate => new Address
+            var existingAddress = _context.Addresses.FirstOrDefault(a => a.Street == address.Street);
+
+            if (existingAddress != null)
             {
-                Id = address.Id,
-                City = address.City,
-                State = address.State,
-                Street = address.Street
-            }).FirstOrDefault();
-            _context.Update(addressDTO);
-            return Save();
+                existingAddress.Id = address.Id;
+                existingAddress.City = address.City;
+                existingAddress.State = address.State;
+                existingAddress.Street = address.Street;
+
+                _context.Update(existingAddress);
+                return Save();
+            }
+            return false;
         }
     }
 }

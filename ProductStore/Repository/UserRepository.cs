@@ -15,22 +15,27 @@ namespace ProductStore.Repository
         }
         public bool Add(User user)
         {
-            var userDTO = _context.Users.Select(u => u.Email != user.Email).Select(userCreateDTO => new User
+            User? existingUser = _context.Users.Where(u => u.Email == user.Email).FirstOrDefault();
+            if (existingUser == null)
             {
-                Id = user.Id,
-                UserName = user.UserName,
-                Password = user.Password,
-                Role = user.Role,
-                Email  = user.Email,
-                VerificationToken = user.VerificationToken,
-                PasswordHash = user.PasswordHash,
-                PasswordResetToken = user.PasswordResetToken,
-                PasswordSalt = user.PasswordSalt,
-                ResetTokenExpires = user.ResetTokenExpires,
-                VerifiedAt = user.VerifiedAt
-            }).FirstOrDefault();
-            _context.Add(userDTO);
-            return Save();
+                var userDTO = new User
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Password = user.Password,
+                    Role = user.Role,
+                    Email = user.Email,
+                    VerificationToken = user.VerificationToken,
+                    PasswordHash = user.PasswordHash,
+                    PasswordResetToken = user.PasswordResetToken,
+                    PasswordSalt = user.PasswordSalt,
+                    ResetTokenExpires = user.ResetTokenExpires,
+                    VerifiedAt = user.VerifiedAt
+                };
+                _context.Add(userDTO);
+                return Save();
+            }
+            return false;
         }
         public bool Save() 
         {
@@ -89,6 +94,21 @@ namespace ProductStore.Repository
             }).FirstOrDefault();
             _context.Update(userDTO);
             return Save();
+        }
+
+        public async Task<User> GetUserByEmail(string email)
+        {
+            return _context.Users.Where(u => u.Email == email).FirstOrDefault();
+        }
+
+        public async Task<User> GetUserByToken(string token)
+        {
+            return _context.Users.Where(u => u.VerificationToken == token).FirstOrDefault();
+        }
+
+        public async Task<User> GetUserByTokenVerification(string token)
+        {
+            return _context.Users.Where(u => u.PasswordResetToken == token).FirstOrDefault();
         }
     }
 }

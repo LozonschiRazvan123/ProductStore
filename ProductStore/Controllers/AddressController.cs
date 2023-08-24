@@ -50,7 +50,7 @@ namespace ProductStore.Controllers
 
             var address = _addressRepository.CreateAddress(addressCreateDTO);
 
-            if(address != null)
+            if(address == false)
             {
                 throw new ExistModel("Address");
             }

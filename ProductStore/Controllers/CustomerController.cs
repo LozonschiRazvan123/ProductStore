@@ -51,7 +51,7 @@ namespace ProductStore.Controllers
 
             var customer = _customerRepository.Add(customerCreateDTO);
 
-            if (customer != null)
+            if (customer == false)
             {
                 throw new ExistModel("Customer");
             }

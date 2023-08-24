@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProductStore.ConfigurationError;
+using ProductStore.Data;
 using ProductStore.DTO;
 using ProductStore.Interface;
 using ProductStore.Models;
@@ -58,11 +59,11 @@ namespace ProductStore.Controllers
                 UserName = userDTO.UserName
             };
 
-            var userCreate = _userRepository.Add(user);
-/*            if(userCreate != null )
+            bool userCreate = _userRepository.Add(user);
+            if(userCreate == false)
             {
                 throw new ExistModel("User");
-            }*/
+            }
 
             if(!userCreate)
             {
@@ -84,6 +85,93 @@ namespace ProductStore.Controllers
         {
             return Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
         }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(UserLoginRegister request)
+        {
+            var user = await _userRepository.GetUserByEmail(request.Email);
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            if (!VerifiedPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
+            {
+                return BadRequest("Password is incorrect");
+            }
+
+            if (user.VerifiedAt == null)
+            {
+                return BadRequest("Not veriffied!");
+            }
+
+            return Ok($"Welcome back, {user.Email}!");
+
+        }
+
+
+        [HttpPost("verify")]
+        public async Task<IActionResult> Verify(string token)
+        {
+            var user = await _userRepository.GetUserByToken(token);
+            if (user == null)
+            {
+                return BadRequest("Invalid token");
+            }
+
+            user.VerifiedAt = DateTime.Now;
+             _userRepository.Save();
+
+            return Ok("User verified!");
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            var user = await _userRepository.GetUserByEmail(email);
+            if (user == null)
+            {
+                return BadRequest("User not found!");
+            }
+
+            user.PasswordResetToken = CreateRandomToken();
+            user.ResetTokenExpires = DateTime.Now.AddDays(1);
+            _userRepository.Save();
+
+            return Ok("You may now reset your password");
+
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> RessetPassword(ResetPassword request)
+        {
+            var user = await _userRepository.GetUserByToken(request.Token);
+            if (user == null || user.ResetTokenExpires < DateTime.Now)
+            {
+                return BadRequest("User not found!");
+            }
+
+            CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            user.PasswordHash = passwordHash;
+            user.PasswordSalt = passwordSalt;
+            user.PasswordResetToken = null;
+            user.ResetTokenExpires = null;
+            _userRepository.Save();
+
+            return Ok("Password successfully reset");
+
+        }
+
+        private bool VerifiedPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+        {
+            using (var hmac = new HMACSHA512(passwordSalt))
+            {
+                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                return computedHash.SequenceEqual(passwordHash);
+            }
+        }
+
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)

@@ -48,7 +48,7 @@ namespace ProductStore.Controllers
 
             var address = _categoryProductRepository.Add(categoryProductDTO);
 
-            if (address != null)
+            if (address == false)
             {
                 throw new ExistModel("Category product");
             }

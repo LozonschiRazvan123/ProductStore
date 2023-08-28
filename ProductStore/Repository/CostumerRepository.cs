@@ -16,28 +16,28 @@ namespace ProductStore.Repository
         }
 
         public bool Add(CustomerDTO customerCreateDTO)
-
         {
-            var customer = _context.Customers.Where(a => a.Email != customerCreateDTO.Email).Select(customerCreate => new Customer
+            var customer = _context.Customers.Where(a => a.Email == customerCreateDTO.Email).FirstOrDefault();
+
+            if (customer == null)
             {
-                Id = customerCreateDTO.Id,
-                Name = customerCreateDTO.Name,
-                Surname = customerCreateDTO.Surname,
-                Email = customerCreateDTO.Email
-            }).FirstOrDefault();
-            _context.Add(customer);
-            return Save();
+
+                var customerCreate = new Customer
+                {
+                    Id = customerCreateDTO.Id,
+                    Name = customerCreateDTO.Name,
+                    Surname = customerCreateDTO.Surname,
+                    Email = customerCreateDTO.Email
+                };
+                _context.Add(customerCreate);
+                return Save();
+            }
+            return false;
         }
 
         public bool DeleteCustomer(CustomerDTO customer)
         {
-            var customerDTO = _context.Customers.Where(c => c.Id == customer.Id).Select(customerCreate => new Customer
-            {
-                Id = customer.Id,
-                Name = customer.Name,
-                Surname = customer.Surname,
-                Email = customer.Email
-            }).FirstOrDefault();
+            var customerDTO = _context.Customers.Find(customer.Id);
             _context.Remove(customerDTO);
             return Save();
         }
@@ -80,15 +80,19 @@ namespace ProductStore.Repository
 
         public bool Update(CustomerDTO customer)
         {
-            var customerDTO = _context.Customers.Where(c => c.Id == customer.Id).Select(customerCreate => new Customer
+            var customerDTO = _context.Customers.Where(c => c.Id == customer.Id).FirstOrDefault();
+
+            if (customerDTO != null)
             {
-                Id = customer.Id,
-                Name = customer.Name,
-                Surname = customer.Surname,
-                Email = customer.Email
-            }).FirstOrDefault();
-            _context.Update(customerDTO);
-            return Save();
+
+                customerDTO.Id = customer.Id;
+                customerDTO.Name = customer.Name;
+                customerDTO.Surname = customer.Surname;
+                customerDTO.Email = customer.Email;
+                _context.Update(customerDTO);
+                return Save();
+            }
+            return false;
         }
     }
 }

@@ -85,7 +85,7 @@ namespace ProductStore.Controllers
         }
 
         [HttpDelete("{customerId}")]
-        public async Task<IActionResult> DeleteAddress(int customerId)
+        public async Task<IActionResult> DeleteCustomer(int customerId)
         {
             if (!_customerRepository.ExistCostumer(customerId))
             {

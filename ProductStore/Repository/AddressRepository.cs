@@ -77,7 +77,7 @@ namespace ProductStore.Repository
 
         public bool UpdateAddress(AddressDTO address)
         {
-            var existingAddress = _context.Addresses.FirstOrDefault(a => a.Street == address.Street);
+            var existingAddress = _context.Addresses.FirstOrDefault(a => a.Id == address.Id);
 
             if (existingAddress != null)
             {

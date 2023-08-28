@@ -85,15 +85,19 @@ namespace ProductStore.Repository
 
         public bool Update(UserDTO user)
         {
-            var userDTO = _context.Users.Select(userCreateDTO => new User
+            var existingUser = _context.Users.FirstOrDefault(u => u.Id == user.Id);
+
+            if (existingUser != null)
             {
-                Id = user.Id,
-                UserName = user.UserName,
-                Password = user.Password,
-                Role = user.Role
-            }).FirstOrDefault();
-            _context.Update(userDTO);
-            return Save();
+
+                existingUser.UserName = user.UserName;
+                existingUser.Password = user.Password;
+                existingUser.Role = user.Role;
+                _context.Update(existingUser);
+                return Save();
+            }
+
+            return false;
         }
 
         public async Task<User> GetUserByEmail(string email)

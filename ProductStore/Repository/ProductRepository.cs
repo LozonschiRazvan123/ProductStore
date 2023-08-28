@@ -16,24 +16,20 @@ namespace ProductStore.Repository
 
         public bool Add(ProductDTO product)
         {
-            var productDTO = _context.Products.Select(productCreateDTO => new Product
+            var productToAdd = new Product
             {
                 Id = product.Id,
                 Name = product.Name,
                 Price = product.Price
-            }).FirstOrDefault();
-            _context.Add(productDTO);
+            };
+
+            _context.Products.Add(productToAdd);
             return Save();
         }
 
         public bool Delete(ProductDTO product)
         {
-            var productDTO = _context.Products.Where(p => p.Id == product.Id).Select(productCreate => new Product
-            {
-                Id = product.Id,
-                Name = product.Name,
-                Price = product.Price
-            }).FirstOrDefault();
+            var productDTO = _context.Products.Find(product.Id);
             _context.Remove(productDTO);
             return Save();
         }
@@ -71,14 +67,17 @@ namespace ProductStore.Repository
 
         public bool Update(ProductDTO product)
         {
-            var productDTO = _context.Products.Where(p => p.Id == product.Id).Select(productCreate => new Product
+            var existingProduct = _context.Products.FirstOrDefault(p => p.Id == product.Id);
+
+            if (existingProduct != null)
             {
-                Id = product.Id,
-                Name = product.Name,
-                Price = product.Price
-            }).FirstOrDefault();
-            _context.Update(productDTO);
-            return Save();
+                existingProduct.Name = product.Name;
+                existingProduct.Price = product.Price;
+                _context.Update(existingProduct);
+                return Save();
+            }
+
+            return false;
         }
     }
 }

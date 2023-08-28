@@ -16,7 +16,7 @@ namespace ProductStore.Repository
 
         public bool Add(OrderDTO order)
         {
-            var orders =  _context.Orders.Include(c => c.Customer).Select(orderCreate => new Order
+            var orderToAdd = new Order
             {
                 Id = order.Id,
                 DateTime = order.DateTime,
@@ -27,25 +27,14 @@ namespace ProductStore.Repository
                     Surname = order.Customer.Surname,
                     Email = order.Customer.Email
                 }
-            }).FirstOrDefault();
-            _context.Add(orders);
+            };
+            _context.Add(orderToAdd);
             return Save();
         }
 
         public bool Delete(OrderDTO order)
         {
-            var orders = _context.Orders.Where(o => o.Id == order.Id).Include(c => c.Customer).Select(orderCreate => new Order
-            {
-                Id = order.Id,
-                DateTime = order.DateTime,
-                Customer = new Customer
-                {
-                    Id = order.Customer.Id,
-                    Name = order.Customer.Name,
-                    Surname = order.Customer.Surname,
-                    Email = order.Customer.Email
-                }
-            }).FirstOrDefault();
+            var orders = _context.Orders.Find(order.Id);
             _context.Remove(orders);
             return Save();
         }
@@ -95,20 +84,21 @@ namespace ProductStore.Repository
 
         public bool Update(OrderDTO order)
         {
-            var orders = _context.Orders.Where(o => o.Id == order.Id).Include(c => c.Customer).Select(orderCreate => new Order
+            var existingOrder = _context.Orders.Include(o => o.Customer).FirstOrDefault(o => o.Id == order.Id);
+
+            if (existingOrder != null)
             {
-                Id = order.Id,
-                DateTime = order.DateTime,
-                Customer = new Customer
-                {
-                    Id = order.Customer.Id,
-                    Name = order.Customer.Name,
-                    Surname = order.Customer.Surname,
-                    Email = order.Customer.Email
-                }
-            }).FirstOrDefault();
-            _context.Update(orders);
-            return Save();
+
+                existingOrder.DateTime = order.DateTime;
+                existingOrder.Customer.Name = order.Customer.Name;
+                existingOrder.Customer.Surname = order.Customer.Surname;
+                existingOrder.Customer.Email = order.Customer.Email;
+
+                _context.Update(existingOrder);
+                return Save();
+            }
+
+            return false;
         }
     }
 }

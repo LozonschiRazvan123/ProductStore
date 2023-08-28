@@ -15,23 +15,24 @@ namespace ProductStore.Repository
 
         public bool Add(CategoryProductDTO categoryProductDTO)
         {
-            var categoryProduct =  _context.CategoryProducts.Where(cp => cp.NameCategory != categoryProductDTO.NameCategory).Select(product => new CategoryProduct
-            {
-                Id = categoryProductDTO.Id,
-                NameCategory = categoryProductDTO.NameCategory
-            }).FirstOrDefault();
+            var categoryProduct = _context.CategoryProducts.Where(cp => cp.NameCategory == categoryProductDTO.NameCategory).FirstOrDefault();
 
-            _context.Add(categoryProduct);
-            return Save();
+            if (categoryProduct == null)
+            {
+                var product = new CategoryProduct
+                {
+                    Id = categoryProductDTO.Id,
+                    NameCategory = categoryProductDTO.NameCategory
+                };
+                _context.Add(product);
+                return Save();
+            }
+            return false;
         }
 
         public bool Delete(CategoryProductDTO categoryProductDTO)
         {
-            var categoryProductDTOUpdate = _context.CategoryProducts.Select(cp => new CategoryProduct
-            { 
-                Id = categoryProductDTO.Id,
-                NameCategory = categoryProductDTO.NameCategory 
-            }).FirstOrDefault();
+            var categoryProductDTOUpdate = _context.CategoryProducts.Find(categoryProductDTO.Id);
             _context.Remove(categoryProductDTOUpdate);
             return Save();
         }
@@ -67,13 +68,15 @@ namespace ProductStore.Repository
 
         public bool Update(CategoryProductDTO categoryProductDTO)
         {
-            var categoryProductUpdate = _context.CategoryProducts.Select(cp => new CategoryProduct
+            var categoryProductUpdate = _context.CategoryProducts.Where(cp => cp.Id == categoryProductDTO.Id).FirstOrDefault();
+            if (categoryProductUpdate != null)
             {
-                Id = categoryProductDTO.Id,
-                NameCategory = categoryProductDTO.NameCategory
-            }).FirstOrDefault();
-            _context.Update(categoryProductUpdate);
-            return Save();
+                categoryProductUpdate.Id = categoryProductDTO.Id;
+                categoryProductUpdate.NameCategory = categoryProductDTO.NameCategory;
+                _context.Update(categoryProductUpdate);
+                return Save();
+            }
+            return false;
         }
     }
 }

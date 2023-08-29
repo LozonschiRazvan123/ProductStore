@@ -30,7 +30,8 @@ namespace ProductStore.Repository
                     PasswordResetToken = user.PasswordResetToken,
                     PasswordSalt = user.PasswordSalt,
                     ResetTokenExpires = user.ResetTokenExpires,
-                    VerifiedAt = user.VerifiedAt
+                    VerifiedAt = user.VerifiedAt,
+                    ImageProfile = user.ImageProfile
                 };
                 _context.Add(userDTO);
                 return Save();
@@ -45,13 +46,7 @@ namespace ProductStore.Repository
 
         public bool Delete(UserDTO user)
         {
-            var userDTO = _context.Users.Select(userCreateDTO => new User
-            {
-                Id = user.Id,
-                UserName = user.UserName,
-                Password = user.Password,
-                Role = user.Role
-            }).FirstOrDefault();
+            var userDTO = _context.Users.Find(user.Id);
             _context.Remove(userDTO);
             return Save();
         }
@@ -69,6 +64,7 @@ namespace ProductStore.Repository
                 UserName = user.UserName,
                 Password = user.Password,
                 Role = user.Role,
+                ImageProfile = user.ImageProfile
             }).FirstOrDefault();
         }
 
@@ -79,7 +75,8 @@ namespace ProductStore.Repository
                 Id = user.Id,
                 UserName = user.UserName,
                 Password = user.Password,
-                Role = user.Role
+                Role = user.Role,
+                ImageProfile = user.ImageProfile
             }).ToList();
         }
 
@@ -93,6 +90,7 @@ namespace ProductStore.Repository
                 existingUser.UserName = user.UserName;
                 existingUser.Password = user.Password;
                 existingUser.Role = user.Role;
+                existingUser.ImageProfile = user.ImageProfile;
                 _context.Update(existingUser);
                 return Save();
             }

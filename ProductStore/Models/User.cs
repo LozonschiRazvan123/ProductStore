@@ -9,8 +9,7 @@ namespace ProductStore.Models
         public string UserName { get; set; }
         public string Password { get; set; }
         public string Email { get; set; }   
-        [NotMapped]
-        public IFormFile? ImageProfile { get; set; }
+        public byte[]? ImageProfile { get; set; }
         public UserRole Role { get; set; }
         public byte[] PasswordHash { get; set; } = new byte[32];
         public byte[] PasswordSalt { get; set; } = new byte[32];

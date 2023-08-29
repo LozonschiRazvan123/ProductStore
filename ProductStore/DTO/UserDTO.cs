@@ -12,6 +12,7 @@ namespace ProductStore.DTO
         [Required, EmailAddress]
         public string Email { get; set; }   
         public UserRole Role { get; set; }
+        public byte[] ImageProfile { get; set; }
 
         [Required, Compare("Password")]
         public string ConfirmPassword { get; set; }

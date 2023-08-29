@@ -8,6 +8,7 @@ using ProductStore.Interface;
 using ProductStore.Models;
 using ProductStore.Repository;
 using System.Security.Cryptography;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ProductStore.Controllers
 {
@@ -16,9 +17,11 @@ namespace ProductStore.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
-        public UserController(IUserRepository userRepository) 
+        private readonly IImageRepository _imageRepository;
+        public UserController(IUserRepository userRepository, IImageRepository imageRepository) 
         {
             _userRepository = userRepository; 
+            _imageRepository = imageRepository;
         }
 
         [HttpGet]
@@ -71,6 +74,94 @@ namespace ProductStore.Controllers
             }
             return Ok("Successfully create");
         }
+
+        [HttpPost("AddImageProfile/{userId}")]
+        public async Task<IActionResult> AddImageProfile(int userId, [FromForm] IFormFile image)
+        {
+            var userTask = _userRepository.GetUserById(userId);
+            var user = await userTask;
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            if (image != null && image.Length > 0)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await image.CopyToAsync(memoryStream);
+                    user.ImageProfile = memoryStream.ToArray();
+
+                    bool updateSuccessful = _userRepository.Update(user);
+                    if (updateSuccessful)
+                    {
+                        return Ok("Image profile added successfully.");
+                    }
+                    else
+                    {
+                        return BadRequest("Failed to update user with image.");
+                    }
+                }
+            }
+
+            return BadRequest("Invalid image.");
+        }
+
+        [HttpPut("UpdateImageProfile/{userId}")]
+        public async Task<IActionResult> UpdateImageProfile(int userId, [FromForm] IFormFile image)
+        {
+            var user = await _userRepository.GetUserById(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            if (image != null && image.Length > 0)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await image.CopyToAsync(memoryStream);
+                    user.ImageProfile = memoryStream.ToArray();
+
+                    bool updateSuccessful = _userRepository.Update(user);
+                    if (updateSuccessful)
+                    {
+                        return Ok("Image profile updated successfully.");
+                    }
+                    else
+                    {
+                        return BadRequest("Failed to update user's image.");
+                    }
+                }
+            }
+
+            return BadRequest("Invalid image.");
+        }
+
+
+        [HttpDelete("DeleteImageProfile/{userId}")]
+        public async Task<IActionResult> DeleteImageProfile(int userId)
+        {
+            var user = await _userRepository.GetUserById(userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user.ImageProfile = null; 
+
+            bool updateSuccessful = _userRepository.Update(user);
+            if (updateSuccessful)
+            {
+                return Ok("Image profile deleted successfully.");
+            }
+            else
+            {
+                return BadRequest("Failed to delete user's image.");
+            }
+        }
+
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
             using (var hmac = new HMACSHA512())
@@ -120,7 +211,7 @@ namespace ProductStore.Controllers
             }
 
             user.VerifiedAt = DateTime.Now;
-             _userRepository.Save();
+            _userRepository.Save();
 
             return Ok("User verified!");
         }

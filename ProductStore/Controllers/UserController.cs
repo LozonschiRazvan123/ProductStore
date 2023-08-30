@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProductStore.ConfigurationError;
@@ -17,11 +18,9 @@ namespace ProductStore.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
-        private readonly IImageRepository _imageRepository;
-        public UserController(IUserRepository userRepository, IImageRepository imageRepository) 
+        public UserController(IUserRepository userRepository) 
         {
             _userRepository = userRepository; 
-            _imageRepository = imageRepository;
         }
 
         [HttpGet]
@@ -263,7 +262,7 @@ namespace ProductStore.Controllers
         }
 
 
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {

@@ -2,14 +2,17 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using ProductStore.ConfigurationError;
 using ProductStore.Data;
 using ProductStore.DTO;
 using ProductStore.Interface;
+using ProductStore.Migrations;
 using ProductStore.Models;
 using ProductStore.Repository;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ProductStore.Controllers
 {
@@ -18,6 +21,7 @@ namespace ProductStore.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly IConfiguration _configuration;
         public UserController(IUserRepository userRepository) 
         {
             _userRepository = userRepository; 
@@ -167,13 +171,34 @@ namespace ProductStore.Controllers
             {
                 passwordSalt = hmac.Key;
                 passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-
             }
         }
 
-        private string CreateRandomToken()
+        private string CreateRandomToken(bool isAdmin = false)
         {
-            return Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
+            List<Claim> claims = new List<Claim>();
+
+            if (isAdmin)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+            }
+            else
+            {
+                claims.Add(new Claim(ClaimTypes.Role, "User"));
+            }
+
+            var a = _configuration.GetSection("AppSettings:Token").Value;
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(a));
+
+            var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.Now.AddDays(1),
+                signingCredentials: cred);
+
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            return jwt;
         }
 
         [HttpPost("login")]
@@ -262,8 +287,7 @@ namespace ProductStore.Controllers
         }
 
 
-        [Authorize(Roles = "Admin")]
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             if (!_userRepository.ExistUser(id))

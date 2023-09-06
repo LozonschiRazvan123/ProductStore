@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProductStore.Models;
 
 namespace ProductStore.Data
 {
-    public class DataContext: DbContext
+    public class DataContext: IdentityDbContext<User>
     {
         public DataContext(DbContextOptions<DataContext> options): base(options)
         { 
@@ -20,25 +22,31 @@ namespace ProductStore.Data
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<IdentityUserLogin<string>>().HasNoKey();
+            modelBuilder.Entity<IdentityUserToken<string>>().HasNoKey();
+            modelBuilder.Entity<IdentityUserRole<string>>().HasNoKey();
+
             modelBuilder.Entity<OrderProduct>()
                 .HasKey(op => new { op.OrderId, op.ProductId });
+
             modelBuilder.Entity<OrderProduct>()
                 .HasOne(o => o.Order)
                 .WithMany(op => op.OrderProduct)
                 .HasForeignKey(o => o.OrderId);
+            
             modelBuilder.Entity<OrderProduct>()
                 .HasOne(p => p.Product)
                 .WithMany(op => op.OrderProduct)
                 .HasForeignKey(p => p.ProductId);
 
-            modelBuilder.Entity<Address>().HasData(
+           /* modelBuilder.Entity<Address>().HasData(
                 new Address
                 {
                     Id = 1,
                     Street = "Mihai Eminescu",
                     City = "Iasi",
                     State = "IS",
-                    
+
                 },
 
                 new Address
@@ -47,7 +55,7 @@ namespace ProductStore.Data
                     Street = "Mihai Viteazu",
                     City = "Iasi",
                     State = "IS",
-                    
+
                 },
 
                 new Address
@@ -56,7 +64,7 @@ namespace ProductStore.Data
                     Street = "Petru Rares",
                     City = "Piatra Neamt",
                     State = "PN",
-                    
+
                 },
 
                 new Address
@@ -65,7 +73,7 @@ namespace ProductStore.Data
                     Street = "George Bacovia",
                     City = "Bacau",
                     State = "BC",
-                    
+
                 },
 
                 new Address
@@ -74,9 +82,9 @@ namespace ProductStore.Data
                     Street = "Emil Palade",
                     City = "Vaslui",
                     State = "VS",
-                    
+
                 }
-                ) ;
+                );
 
             modelBuilder.Entity<Customer>().HasData(
                 new Customer
@@ -86,7 +94,7 @@ namespace ProductStore.Data
                     Surname = "Vasile",
                     Email = "eu123@gmail.com",
                     AddressId = 1,
-                    UserId = 1
+                    UserId = "1"
                 },
 
                 new Customer
@@ -96,17 +104,17 @@ namespace ProductStore.Data
                     Surname = "Marian",
                     Email = "tu123@gmail.com",
                     AddressId = 2,
-                    UserId  = 2
+                    UserId = "2"
                 },
 
                 new Customer
                 {
-                    Id= 3,
+                    Id = 3,
                     Name = "Ionescu",
                     Surname = "Ion",
                     Email = "ionescu123@gmail.com",
                     AddressId = 3,
-                    UserId = 3
+                    UserId = "3"
                 },
 
                 new Customer
@@ -116,7 +124,7 @@ namespace ProductStore.Data
                     Surname = "Ciprian",
                     Email = "prosop@gmail.com",
                     AddressId = 4,
-                    UserId = 4
+                    UserId = "4"
                 },
 
                 new Customer
@@ -126,14 +134,13 @@ namespace ProductStore.Data
                     Surname = "Mihai",
                     Email = "popa@gmail.com",
                     AddressId = 5,
-                    UserId = 5
+                    UserId = "5"
                 }
-                );
+                );*/
 
-            modelBuilder.Entity<User>().HasData(
+            /*modelBuilder.Entity<User>().HasData(
                 new User
                 {
-                    Id = 1,
                     UserName = "Popescu Vasile",
                     Password = "popescu123",
                     Role = Enum.UserRole.Admin,
@@ -143,7 +150,6 @@ namespace ProductStore.Data
 
                 new User
                 {
-                    Id = 2,
                     UserName = "Popescu Marian",
                     Password = "marian123",
                     Role = Enum.UserRole.User,
@@ -153,7 +159,6 @@ namespace ProductStore.Data
 
                 new User
                 {
-                    Id = 3,
                     UserName = "Ionescu Ion",
                     Password = "ionescu123",
                     Role = Enum.UserRole.User,
@@ -163,7 +168,6 @@ namespace ProductStore.Data
 
                 new User
                 {
-                    Id = 4,
                     UserName = "Marica Ciprian",
                     Password = "prosop123",
                     Role = Enum.UserRole.User,
@@ -173,7 +177,6 @@ namespace ProductStore.Data
 
                 new User
                 {
-                    Id = 5,
                     UserName = "Popa Mihai",
                     Password = "popa123",
                     Role = Enum.UserRole.User,
@@ -187,7 +190,7 @@ namespace ProductStore.Data
                 new Order
                 {
                     Id = 1,
-                    DateTime = new DateTime(2022,1,1),
+                    DateTime = new DateTime(2022, 1, 1),
                     CustomerId = 1
                 },
 
@@ -271,7 +274,7 @@ namespace ProductStore.Data
 
                 new CategoryProduct
                 {
-                    Id=3,
+                    Id = 3,
                     NameCategory = "Car"
                 },
 
@@ -387,7 +390,7 @@ namespace ProductStore.Data
                     OrderId = 5,
                     ProductId = 5,
                 }
-                );
+                );*/
         }
     }
 }

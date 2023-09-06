@@ -89,7 +89,7 @@ namespace ProductStore.Controllers
         {
             if (!_customerRepository.ExistCostumer(customerId))
             {
-                throw new AppException("Customer", customerId);
+                throw new AppException("Customer", customerId.ToString());
             }
 
             var customerDelete = await _customerRepository.GetCustomerById(customerId);

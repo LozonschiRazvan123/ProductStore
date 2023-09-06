@@ -12,6 +12,6 @@ namespace ProductStore.Models
         [ForeignKey("CategoryProduct")]
         public int? CategoryProductId { get; set; }
         public CategoryProduct? CategoryProduct { get; set; }
-        public IEnumerable<OrderProduct> OrderProduct { get; set; }
+        public ICollection<OrderProduct>? OrderProduct { get; set; }
     }
 }

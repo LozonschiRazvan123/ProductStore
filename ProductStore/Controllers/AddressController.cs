@@ -29,7 +29,7 @@ namespace ProductStore.Controllers
         {
             if(_addressRepository.GetAddress(id) == null)
             {
-                throw new AppException("Address", id);
+                throw new AppException("Address", id.ToString());
             }
 
             if(!ModelState.IsValid)
@@ -90,7 +90,7 @@ namespace ProductStore.Controllers
         {
             if(!_addressRepository.AddressExist(addressId))
             {
-                throw new AppException("Address", addressId);
+                throw new AppException("Address", addressId.ToString());
             }
 
             var addressDelete = _addressRepository.GetAddress(addressId);

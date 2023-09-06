@@ -6,11 +6,11 @@ namespace ProductStore.Interface
     public interface IUserRepository
     {
         Task<IEnumerable<UserDTO>> GetUsers();
-        Task<UserDTO> GetUserById(int id);
+        Task<UserDTO> GetUserById(string id);
         Task<User> GetUserByEmail(string email);
         Task<User> GetUserByToken(string token);
         Task<User> GetUserByTokenVerification(string token);
-        bool ExistUser(int id);
+        bool ExistUser(string id);
         bool Add(User user);
         bool Update(UserDTO user);
         bool Delete(UserDTO user);

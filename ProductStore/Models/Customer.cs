@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProductStore.Models
 {
+    [Table(name: "Customers")]
     public class Customer
     {
         [Key]
@@ -13,9 +14,9 @@ namespace ProductStore.Models
         [ForeignKey("Address")]
         public int? AddressId { get; set; }
         public Address Address { get; set; }
-        public IEnumerable<Order> Orders { get; set; }
+        public ICollection<Order>? Orders { get; set; }
         [ForeignKey("User")]
-        public int? UserId { get;set; }
+        public string? UserId { get;set; }
         public User User { get; set; }
     }
 }

@@ -22,6 +22,114 @@ namespace ProductStore.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RoleClaims");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserClaims");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("UserLogins");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("UserRoles");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("UserTokens");
+                });
+
             modelBuilder.Entity("ProductStore.Models.Address", b =>
                 {
                     b.Property<int>("Id")
@@ -50,43 +158,6 @@ namespace ProductStore.Migrations
                     b.HasIndex("CustomerId");
 
                     b.ToTable("Addresses");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            City = "Iasi",
-                            State = "IS",
-                            Street = "Mihai Eminescu"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            City = "Iasi",
-                            State = "IS",
-                            Street = "Mihai Viteazu"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            City = "Piatra Neamt",
-                            State = "PN",
-                            Street = "Petru Rares"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            City = "Bacau",
-                            State = "BC",
-                            Street = "George Bacovia"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            City = "Vaslui",
-                            State = "VS",
-                            Street = "Emil Palade"
-                        });
                 });
 
             modelBuilder.Entity("ProductStore.Models.CategoryProduct", b =>
@@ -104,28 +175,6 @@ namespace ProductStore.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CategoryProducts");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            NameCategory = "Book"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            NameCategory = "Smartphone"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            NameCategory = "Car"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            NameCategory = "Food"
-                        });
                 });
 
             modelBuilder.Entity("ProductStore.Models.Customer", b =>
@@ -151,8 +200,8 @@ namespace ProductStore.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -161,53 +210,6 @@ namespace ProductStore.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Customers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AddressId = 1,
-                            Email = "eu123@gmail.com",
-                            Name = "Popescu",
-                            Surname = "Vasile",
-                            UserId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            AddressId = 2,
-                            Email = "tu123@gmail.com",
-                            Name = "Popescu",
-                            Surname = "Marian",
-                            UserId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            AddressId = 3,
-                            Email = "ionescu123@gmail.com",
-                            Name = "Ionescu",
-                            Surname = "Ion",
-                            UserId = 3
-                        },
-                        new
-                        {
-                            Id = 4,
-                            AddressId = 4,
-                            Email = "prosop@gmail.com",
-                            Name = "Marica",
-                            Surname = "Ciprian",
-                            UserId = 4
-                        },
-                        new
-                        {
-                            Id = 5,
-                            AddressId = 5,
-                            Email = "popa@gmail.com",
-                            Name = "Popa",
-                            Surname = "Mihai",
-                            UserId = 5
-                        });
                 });
 
             modelBuilder.Entity("ProductStore.Models.Order", b =>
@@ -229,68 +231,6 @@ namespace ProductStore.Migrations
                     b.HasIndex("CustomerId");
 
                     b.ToTable("Orders");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CustomerId = 1,
-                            DateTime = new DateTime(2022, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CustomerId = 1,
-                            DateTime = new DateTime(2023, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CustomerId = 1,
-                            DateTime = new DateTime(2020, 11, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 4,
-                            CustomerId = 2,
-                            DateTime = new DateTime(2022, 11, 11, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 5,
-                            CustomerId = 2,
-                            DateTime = new DateTime(2022, 5, 12, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 6,
-                            CustomerId = 2,
-                            DateTime = new DateTime(2022, 7, 17, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 7,
-                            CustomerId = 3,
-                            DateTime = new DateTime(2020, 4, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 8,
-                            CustomerId = 3,
-                            DateTime = new DateTime(2023, 5, 5, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 9,
-                            CustomerId = 4,
-                            DateTime = new DateTime(2022, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        },
-                        new
-                        {
-                            Id = 10,
-                            CustomerId = 5,
-                            DateTime = new DateTime(2023, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("ProductStore.Models.OrderProduct", b =>
@@ -306,58 +246,6 @@ namespace ProductStore.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("OrderProducts");
-
-                    b.HasData(
-                        new
-                        {
-                            OrderId = 1,
-                            ProductId = 1
-                        },
-                        new
-                        {
-                            OrderId = 1,
-                            ProductId = 2
-                        },
-                        new
-                        {
-                            OrderId = 1,
-                            ProductId = 3
-                        },
-                        new
-                        {
-                            OrderId = 2,
-                            ProductId = 4
-                        },
-                        new
-                        {
-                            OrderId = 2,
-                            ProductId = 5
-                        },
-                        new
-                        {
-                            OrderId = 3,
-                            ProductId = 1
-                        },
-                        new
-                        {
-                            OrderId = 3,
-                            ProductId = 3
-                        },
-                        new
-                        {
-                            OrderId = 4,
-                            ProductId = 3
-                        },
-                        new
-                        {
-                            OrderId = 5,
-                            ProductId = 1
-                        },
-                        new
-                        {
-                            OrderId = 5,
-                            ProductId = 5
-                        });
                 });
 
             modelBuilder.Entity("ProductStore.Models.Product", b =>
@@ -383,77 +271,54 @@ namespace ProductStore.Migrations
                     b.HasIndex("CategoryProductId");
 
                     b.ToTable("Products");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CategoryProductId = 1,
-                            Name = "Ursul pacalit de vulpe",
-                            Price = 10
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CategoryProductId = 1,
-                            Name = "Ion",
-                            Price = 100
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CategoryProductId = 3,
-                            Name = "Dacia",
-                            Price = 1000
-                        },
-                        new
-                        {
-                            Id = 4,
-                            CategoryProductId = 4,
-                            Name = "Chocolate",
-                            Price = 11
-                        },
-                        new
-                        {
-                            Id = 5,
-                            CategoryProductId = 4,
-                            Name = "Rice",
-                            Price = 15
-                        });
                 });
 
             modelBuilder.Entity("ProductStore.Models.User", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("CustomerId")
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
 
                     b.Property<byte[]>("ImageProfile")
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("Password")
-                        .IsRequired()
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<byte[]>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
+                    b.Property<string>("NormalizedUserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PasswordResetToken")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<byte[]>("PasswordSalt")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("ResetTokenExpires")
                         .HasColumnType("datetime2");
@@ -461,8 +326,13 @@ namespace ProductStore.Migrations
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
                     b.Property<string>("UserName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("VerificationToken")
@@ -476,63 +346,6 @@ namespace ProductStore.Migrations
                     b.HasIndex("CustomerId");
 
                     b.ToTable("Users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CustomerId = 1,
-                            Email = "popescu123@gmail.com",
-                            Password = "popescu123",
-                            PasswordHash = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                            PasswordSalt = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                            Role = 0,
-                            UserName = "Popescu Vasile"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CustomerId = 2,
-                            Email = "marian123@gmail.com",
-                            Password = "marian123",
-                            PasswordHash = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                            PasswordSalt = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                            Role = 1,
-                            UserName = "Popescu Marian"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CustomerId = 3,
-                            Email = "ionescu123@gmail.com",
-                            Password = "ionescu123",
-                            PasswordHash = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                            PasswordSalt = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                            Role = 1,
-                            UserName = "Ionescu Ion"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            CustomerId = 4,
-                            Email = "prosop@gmail.com",
-                            Password = "prosop123",
-                            PasswordHash = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                            PasswordSalt = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                            Role = 1,
-                            UserName = "Marica Ciprian"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            CustomerId = 5,
-                            Email = "popa123@gmail.com",
-                            Password = "popa123",
-                            PasswordHash = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                            PasswordSalt = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                            Role = 1,
-                            UserName = "Popa Mihai"
-                        });
                 });
 
             modelBuilder.Entity("ProductStore.Models.Address", b =>

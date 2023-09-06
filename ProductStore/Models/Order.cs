@@ -11,6 +11,6 @@ namespace ProductStore.Models
         [ForeignKey("Customer")]
         public int CustomerId { get; set; }
         public Customer Customer { get; set; }
-        public IEnumerable<OrderProduct> OrderProduct { get; set; }
+        public ICollection<OrderProduct>? OrderProduct { get; set; }
     }
 }

@@ -22,13 +22,11 @@ namespace ProductStore.Repository
                 {
                     Id = user.Id,
                     UserName = user.UserName,
-                    Password = user.Password,
                     Role = user.Role,
                     Email = user.Email,
                     VerificationToken = user.VerificationToken,
                     PasswordHash = user.PasswordHash,
                     PasswordResetToken = user.PasswordResetToken,
-                    PasswordSalt = user.PasswordSalt,
                     ResetTokenExpires = user.ResetTokenExpires,
                     VerifiedAt = user.VerifiedAt,
                     ImageProfile = user.ImageProfile
@@ -51,18 +49,17 @@ namespace ProductStore.Repository
             return Save();
         }
 
-        public bool ExistUser(int id)
+        public bool ExistUser(string id)
         {
             return _context.Users.Any(u => u.Id == id);
         }
 
-        public async Task<UserDTO> GetUserById(int id)
+        public async Task<UserDTO> GetUserById(string id)
         {
             return _context.Users.Where(u => u.Id == id).Select(user => new UserDTO
             {
                 Id = user.Id,
                 UserName = user.UserName,
-                Password = user.Password,
                 Role = user.Role,
                 ImageProfile = user.ImageProfile
             }).FirstOrDefault();
@@ -74,7 +71,6 @@ namespace ProductStore.Repository
             {
                 Id = user.Id,
                 UserName = user.UserName,
-                Password = user.Password,
                 Role = user.Role,
                 ImageProfile = user.ImageProfile
             }).ToList();
@@ -88,7 +84,6 @@ namespace ProductStore.Repository
             {
 
                 existingUser.UserName = user.UserName;
-                existingUser.Password = user.Password;
                 existingUser.Role = user.Role;
                 existingUser.ImageProfile = user.ImageProfile;
                 _context.Update(existingUser);

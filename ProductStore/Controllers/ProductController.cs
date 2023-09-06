@@ -69,7 +69,7 @@ namespace ProductStore.Controllers
         {
             if(!_productRepository.ExistProduct(id))
             {
-                throw new AppException("Product", id);
+                throw new AppException("Product", id.ToString());
             }
             var productDelete = await _productRepository.GetProductById(id);
             if(!ModelState.IsValid)

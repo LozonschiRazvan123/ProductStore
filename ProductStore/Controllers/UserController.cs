@@ -6,8 +6,9 @@ using Microsoft.IdentityModel.Tokens;
 using ProductStore.ConfigurationError;
 using ProductStore.Data;
 using ProductStore.DTO;
+using ProductStore.Enum;
 using ProductStore.Interface;
-using ProductStore.Migrations;
+using ProductStore.Mappers;
 using ProductStore.Models;
 using ProductStore.Repository;
 using System.IdentityModel.Tokens.Jwt;
@@ -22,9 +23,10 @@ namespace ProductStore.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
-        public UserController(IUserRepository userRepository) 
+        public UserController(IUserRepository userRepository, IConfiguration configuration) 
         {
             _userRepository = userRepository; 
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -38,7 +40,7 @@ namespace ProductStore.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserById(int id)
+        public async Task<IActionResult> GetUserById(string id)
         {
             if(!ModelState.IsValid)
             {
@@ -54,14 +56,11 @@ namespace ProductStore.Controllers
             {
                 throw new BadRequest();
             }
-            CreatePasswordHash(userDTO.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            //CreatePasswordHash(userDTO.Password, out byte[] passwordHash, out byte[] passwordSalt);
             var user = new User
             {
                 Email = userDTO.Email,
-                PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt,
-                VerificationToken = CreateRandomToken(),
-                Password = userDTO.Password,
+                VerificationToken = CreateJwt(userDTO.Role),
                 UserName = userDTO.UserName
             };
 
@@ -79,7 +78,7 @@ namespace ProductStore.Controllers
         }
 
         [HttpPost("AddImageProfile/{userId}")]
-        public async Task<IActionResult> AddImageProfile(int userId, [FromForm] IFormFile image)
+        public async Task<IActionResult> AddImageProfile(string userId, [FromForm] IFormFile image)
         {
             var userTask = _userRepository.GetUserById(userId);
             var user = await userTask;
@@ -112,7 +111,7 @@ namespace ProductStore.Controllers
         }
 
         [HttpPut("UpdateImageProfile/{userId}")]
-        public async Task<IActionResult> UpdateImageProfile(int userId, [FromForm] IFormFile image)
+        public async Task<IActionResult> UpdateImageProfile(string userId, [FromForm] IFormFile image)
         {
             var user = await _userRepository.GetUserById(userId);
             if (user == null)
@@ -144,7 +143,7 @@ namespace ProductStore.Controllers
 
 
         [HttpDelete("DeleteImageProfile/{userId}")]
-        public async Task<IActionResult> DeleteImageProfile(int userId)
+        public async Task<IActionResult> DeleteImageProfile(string userId)
         {
             var user = await _userRepository.GetUserById(userId);
             if (user == null)
@@ -174,11 +173,11 @@ namespace ProductStore.Controllers
             }
         }
 
-        private string CreateRandomToken(bool isAdmin = false)
+        private string CreateJwt(UserRole userRole)
         {
             List<Claim> claims = new List<Claim>();
 
-            if (isAdmin)
+            if (userRole == 0)
             {
                 claims.Add(new Claim(ClaimTypes.Role, "Admin"));
             }
@@ -187,8 +186,7 @@ namespace ProductStore.Controllers
                 claims.Add(new Claim(ClaimTypes.Role, "User"));
             }
 
-            var a = _configuration.GetSection("AppSettings:Token").Value;
-            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(a));
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("JwtSettings:Token").Value));
 
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
@@ -210,10 +208,10 @@ namespace ProductStore.Controllers
                 return BadRequest("User not found");
             }
 
-            if (!VerifiedPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
+/*            if (!VerifiedPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
             {
                 return BadRequest("Password is incorrect");
-            }
+            }*/
 
             if (user.VerifiedAt == null)
             {
@@ -249,7 +247,9 @@ namespace ProductStore.Controllers
                 return BadRequest("User not found!");
             }
 
-            user.PasswordResetToken = CreateRandomToken();
+            UserDTO userDto = UserLoginMapping.MapUserRole(user);
+
+            user.PasswordResetToken = CreateJwt(userDto.Role);
             user.ResetTokenExpires = DateTime.Now.AddDays(1);
             _userRepository.Save();
 
@@ -267,8 +267,6 @@ namespace ProductStore.Controllers
             }
 
             CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
-            user.PasswordHash = passwordHash;
-            user.PasswordSalt = passwordSalt;
             user.PasswordResetToken = null;
             user.ResetTokenExpires = null;
             _userRepository.Save();
@@ -288,7 +286,7 @@ namespace ProductStore.Controllers
 
 
         [HttpDelete("{id}"), Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser(string id)
         {
             if (!_userRepository.ExistUser(id))
             {
@@ -308,7 +306,7 @@ namespace ProductStore.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser([FromBody] UserDTO userDTOUpdate, int id)
+        public async Task<IActionResult> UpdateUser([FromBody] UserDTO userDTOUpdate, string id)
         {
             if (userDTOUpdate == null || userDTOUpdate.Id != id)
             {

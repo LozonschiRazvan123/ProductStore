@@ -22,7 +22,6 @@ namespace ProductStore.Repository
                 {
                     Id = user.Id,
                     UserName = user.UserName,
-                    Role = user.Role,
                     Email = user.Email,
                     VerificationToken = user.VerificationToken,
                     PasswordHash = user.PasswordHash,
@@ -60,7 +59,6 @@ namespace ProductStore.Repository
             {
                 Id = user.Id,
                 UserName = user.UserName,
-                Role = user.Role,
                 ImageProfile = user.ImageProfile
             }).FirstOrDefault();
         }
@@ -71,7 +69,6 @@ namespace ProductStore.Repository
             {
                 Id = user.Id,
                 UserName = user.UserName,
-                Role = user.Role,
                 ImageProfile = user.ImageProfile
             }).ToList();
         }
@@ -84,7 +81,6 @@ namespace ProductStore.Repository
             {
 
                 existingUser.UserName = user.UserName;
-                existingUser.Role = user.Role;
                 existingUser.ImageProfile = user.ImageProfile;
                 _context.Update(existingUser);
                 return Save();

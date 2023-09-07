@@ -1,19 +1,19 @@
 ﻿using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using ProductStore.ConfigurationError;
 using ProductStore.Data;
 using ProductStore.DTO;
-using ProductStore.Enum;
 using ProductStore.Interface;
-using ProductStore.Mappers;
 using ProductStore.Models;
 using ProductStore.Repository;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Threading;
 
 namespace ProductStore.Controllers
 {
@@ -23,10 +23,12 @@ namespace ProductStore.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
-        public UserController(IUserRepository userRepository, IConfiguration configuration) 
+        private readonly UserManager<User> _userManager;  
+        public UserController(IUserRepository userRepository, IConfiguration configuration, UserManager<User> userManager) 
         {
             _userRepository = userRepository; 
             _configuration = configuration;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -52,29 +54,37 @@ namespace ProductStore.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] UserDTO userDTO)
         {
-            if(userDTO == null)
+            if (userDTO == null)
             {
-                throw new BadRequest();
+                return BadRequest();
             }
-            //CreatePasswordHash(userDTO.Password, out byte[] passwordHash, out byte[] passwordSalt);
-            var user = new User
-            {
-                Email = userDTO.Email,
-                VerificationToken = CreateJwt(userDTO.Role),
-                UserName = userDTO.UserName
-            };
 
-            bool userCreate = _userRepository.Add(user);
-            if(userCreate == false)
+            var existingUser = await _userManager.FindByNameAsync(userDTO.UserName);
+            if (existingUser != null)
             {
                 throw new ExistModel("User");
             }
 
-            if(!userCreate)
+            var user = new User
             {
-                throw new BadRequest();
+                Email = userDTO.Email,
+                UserName = userDTO.UserName
+            };
+
+            var result = await _userManager.CreateAsync(user, userDTO.Password);
+
+            if (result.Succeeded)
+            {
+                var verificationToken = CreateJwt(user);
+                user.VerificationToken = verificationToken;
+                await _userManager.UpdateAsync(user); 
+
+                return Ok("Successfully created");
             }
-            return Ok("Successfully create");
+            else
+            {
+                return BadRequest(result.Errors); 
+            }
         }
 
         [HttpPost("AddImageProfile/{userId}")]
@@ -173,17 +183,16 @@ namespace ProductStore.Controllers
             }
         }
 
-        private string CreateJwt(UserRole userRole)
+        private string CreateJwt(User user)
         {
+            var roles = _userManager.GetRolesAsync(user).Result;
+
             List<Claim> claims = new List<Claim>();
 
-            if (userRole == 0)
+            foreach (var role in roles)
             {
-                claims.Add(new Claim(ClaimTypes.Role, "Admin"));
-            }
-            else
-            {
-                claims.Add(new Claim(ClaimTypes.Role, "User"));
+                claims.Add(new Claim(ClaimTypes.Role, role));
+                claims.Add(new Claim(ClaimTypes.Name, user.UserName));
             }
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("JwtSettings:Token").Value));
@@ -198,6 +207,7 @@ namespace ProductStore.Controllers
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
             return jwt;
         }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserLoginRegister request)
@@ -218,7 +228,9 @@ namespace ProductStore.Controllers
                 return BadRequest("Not veriffied!");
             }
 
-            return Ok($"Welcome back, {user.Email}!");
+            user.PasswordResetToken = CreateJwt(user);
+
+            return Ok($"Welcome back, {user.PasswordResetToken}!");
 
         }
 
@@ -247,14 +259,11 @@ namespace ProductStore.Controllers
                 return BadRequest("User not found!");
             }
 
-            UserDTO userDto = UserLoginMapping.MapUserRole(user);
-
-            user.PasswordResetToken = CreateJwt(userDto.Role);
+            user.PasswordResetToken = CreateJwt(user); 
             user.ResetTokenExpires = DateTime.Now.AddDays(1);
             _userRepository.Save();
 
             return Ok("You may now reset your password");
-
         }
 
         [HttpPost("reset-password")]

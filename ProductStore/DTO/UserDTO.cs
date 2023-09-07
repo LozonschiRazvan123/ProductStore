@@ -1,5 +1,4 @@
-﻿using ProductStore.Enum;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace ProductStore.DTO
 {
@@ -11,7 +10,6 @@ namespace ProductStore.DTO
         public string Password { get; set; }
         [Required, EmailAddress]
         public string Email { get; set; }   
-        public UserRole Role { get; set; }
         public byte[]? ImageProfile { get; set; }
 
         [Required, Compare("Password")]

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using ProductStore.Enum;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProductStore.Models
@@ -8,7 +7,6 @@ namespace ProductStore.Models
     public class User: IdentityUser
     {
         public byte[]? ImageProfile { get; set; }
-        public UserRole Role { get; set; }
         public string? VerificationToken { get; set; }
         public DateTime? VerifiedAt { get; set; }
         public string? PasswordResetToken { get; set; }

@@ -10,9 +10,11 @@ using ProductStore.DTO;
 using ProductStore.Interface;
 using ProductStore.Models;
 using ProductStore.Repository;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 
 namespace ProductStore.Controllers
@@ -185,14 +187,46 @@ namespace ProductStore.Controllers
 
         private string CreateJwt(User user)
         {
+            /*var tokenHandler = new JwtSecurityTokenHandler();
+
+            var jwtKey = _configuration.GetSection("JwtSettings:Token").Value;
+
+            var encodedJWTKey = Encoding.UTF8.GetBytes(jwtKey);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.Name, user.UserName),
+                }),
+                Expires = DateTime.UtcNow.AddDays(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(encodedJWTKey), SecurityAlgorithms.HmacSha256Signature),
+            };
+
+            var roles = _userManager.GetRolesAsync(user).Result.ToList();
+
+            roles.ForEach(role =>
+            {
+                tokenDescriptor.Subject.AddClaim(new Claim("roles", role));
+            });
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            var writtenToken = tokenHandler.WriteToken(token);
+
+            return writtenToken;*/
             var roles = _userManager.GetRolesAsync(user).Result;
 
             List<Claim> claims = new List<Claim>();
 
+            claims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
+            claims.Add(new Claim(ClaimTypes.Name, user.UserName));
+            claims.Add(new Claim(ClaimTypes.Email, user.Email));
+            claims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.Email));
+
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
-                claims.Add(new Claim(ClaimTypes.Name, user.UserName));
             }
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("JwtSettings:Token").Value));
@@ -230,7 +264,7 @@ namespace ProductStore.Controllers
 
             user.PasswordResetToken = CreateJwt(user);
 
-            return Ok($"Welcome back, {user.PasswordResetToken}!");
+            return Ok(new { token = user.PasswordResetToken });
 
         }
 
@@ -294,9 +328,12 @@ namespace ProductStore.Controllers
         }
 
 
-        [HttpDelete("{id}"), Authorize(Roles = "Admin")]
+        [HttpDelete("deleteUser/{id}")]
+        [Authorize(Roles = "admin")]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> DeleteUser(string id)
         {
+            //var f = User.Identity;
             if (!_userRepository.ExistUser(id))
             {
                 throw new AppException("User", id);

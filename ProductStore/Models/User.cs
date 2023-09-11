@@ -13,6 +13,6 @@ namespace ProductStore.Models
         public DateTime? ResetTokenExpires { get; set; }
         [ForeignKey("Customer")]
         public int? CustomerId { get; set; }
-        public Customer Customer { get; set; }
+        public Customer? Customer { get; set; }
     }
 }

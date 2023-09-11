@@ -49,6 +49,31 @@ namespace ProductStore.Data
 
                 if (!context.Customers.Any())
                 {
+                    /*var orders = new List<Order>
+                    {
+                        new Order()
+                        {
+                            DateTime = new DateTime(2022, 1, 1),
+                            CustomerId = 1
+                        },
+                         new Order()
+                        {
+                            DateTime = new DateTime(2023, 1, 1),
+                            CustomerId = 2
+                        },
+                        new Order()
+                        {
+                            DateTime = new DateTime(2020, 11, 1),
+                            CustomerId = 3
+                        },
+                        new Order()
+                        {
+                            DateTime = new DateTime(2022, 11, 11),
+                            CustomerId = 4
+                        }
+                    };*/
+                   
+
                     context.Customers.AddRange(new List<Customer>()
                     {
                         new Customer()
@@ -57,6 +82,7 @@ namespace ProductStore.Data
                             Surname = "Vasile",
                             Email = "eu123@gmail.com",
                             AddressId = 1,
+                            //Orders = orders
                          },
                         new Customer()
                         {
@@ -64,6 +90,7 @@ namespace ProductStore.Data
                             Surname = "Marian",
                             Email = "tu123@gmail.com",
                             AddressId = 2,
+                            //Orders = orders
                         },
                         new Customer()
                         {
@@ -71,6 +98,7 @@ namespace ProductStore.Data
                             Surname = "Ion",
                             Email = "ionescu123@gmail.com",
                             AddressId = 3,
+                            //Orders= orders
                         },
                         new Customer()
                         {
@@ -78,34 +106,35 @@ namespace ProductStore.Data
                             Surname = "Ciprian",
                             Email = "prosop@gmail.com",
                             AddressId = 4,
+                            //Orders = orders
                         }
                     });
                     context.SaveChanges();
                 }
 
-                if (!context.Orders.Any())
+                if(!context.Orders.Any())
                 {
                     context.Orders.AddRange(new List<Order>()
                     {
                         new Order()
                         {
                             DateTime = new DateTime(2022, 1, 1),
-                            CustomerId = 2
-                         },
-                        new Order()
+                            CustomerId = 1
+                        },
+                         new Order()
                         {
                             DateTime = new DateTime(2023, 1, 1),
-                            CustomerId = 3
+                            CustomerId = 2
                         },
                         new Order()
                         {
                             DateTime = new DateTime(2020, 11, 1),
-                            CustomerId = 4
+                            CustomerId = 3
                         },
                         new Order()
                         {
                             DateTime = new DateTime(2022, 11, 11),
-                            CustomerId = 5
+                            CustomerId = 4
                         }
                     });
                     context.SaveChanges();
@@ -226,12 +255,12 @@ namespace ProductStore.Data
                         UserName = "RazvanLozonschi",
                         Email = adminUserEmail,
                         EmailConfirmed = true,
-                        Customer = new Customer()
+/*                        Customer = new Customer()
                         {
                             Name = "Razvan",
                             Surname = "Lozonschi",
                             Email = "razvanlozonschi123@gmail.com"
-                        }
+                        }*/
                     };
                     await userManager.CreateAsync(newAdminUser, "Coding@1234?");
 

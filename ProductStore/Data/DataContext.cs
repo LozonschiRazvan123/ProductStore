@@ -22,9 +22,7 @@ namespace ProductStore.Data
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<IdentityUserLogin<string>>().HasNoKey();
-            modelBuilder.Entity<IdentityUserToken<string>>().HasNoKey();
-            modelBuilder.Entity<IdentityUserRole<string>>().HasNoKey();
+            base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<OrderProduct>()
                 .HasKey(op => new { op.OrderId, op.ProductId });

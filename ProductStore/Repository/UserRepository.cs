@@ -13,7 +13,7 @@ namespace ProductStore.Repository
         {
             _context = context;
         }
-        public bool Add(User user)
+        public bool Add(UserDTO user)
         {
             User? existingUser = _context.Users.Where(u => u.Email == user.Email).FirstOrDefault();
             if (existingUser == null)
@@ -23,11 +23,11 @@ namespace ProductStore.Repository
                     Id = user.Id,
                     UserName = user.UserName,
                     Email = user.Email,
-                    VerificationToken = user.VerificationToken,
+                    /*VerificationToken = user.VerificationToken,
                     PasswordHash = user.PasswordHash,
                     PasswordResetToken = user.PasswordResetToken,
                     ResetTokenExpires = user.ResetTokenExpires,
-                    VerifiedAt = user.VerifiedAt,
+                    VerifiedAt = user.VerifiedAt,*/
                     ImageProfile = user.ImageProfile
                 };
                 _context.Add(userDTO);

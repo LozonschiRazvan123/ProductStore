@@ -11,7 +11,7 @@ namespace ProductStore.Interface
         Task<User> GetUserByToken(string token);
         Task<User> GetUserByTokenVerification(string token);
         bool ExistUser(string id);
-        bool Add(User user);
+        bool Add(UserDTO user);
         bool Update(UserDTO user);
         bool Delete(UserDTO user);
         bool Save();

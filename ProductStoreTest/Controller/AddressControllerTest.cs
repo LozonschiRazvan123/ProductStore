@@ -8,6 +8,7 @@ using ProductStore.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -31,10 +32,10 @@ namespace ProductStoreTest.Controller
 
 
         [Fact]
-        public void ClubController_GetAddress_ReturnsSuccess()
+        public void AddressController_GetAddress_ReturnsSuccess()
         {
             // Arrange - What do I need to bring in?
-            var addresses = new List<AddressDTO>(); 
+            var addresses = new List<AddressDTO>();
             var fakeAddressRepository = A.Fake<IAddressRepository>();
             A.CallTo(() => fakeAddressRepository.GetAddresses()).Returns(addresses);
 
@@ -43,6 +44,86 @@ namespace ProductStoreTest.Controller
 
             //Assert - Object check actions
             result.Should().BeOfType<OkObjectResult>();
+        }
+
+
+        [Fact]
+        public void AddressController_GetAddressID_ReturnsSuccess()
+        {
+            var id = 1;
+            var address = A.Fake<AddressDTO>();
+            A.CallTo(() => _addressRepository.GetAddress(id)).Returns(address);
+            var result = _addressController.GetAddressById(id);
+            result.Should().BeOfType<OkObjectResult>();
+        }
+
+        [Fact]
+        public void AddressController_CreateAddress_ReturnsCreateResult()
+        {
+            var addressDTO = new AddressDTO();
+            /*A.CallTo(() => _addressRepository.CreateAddress(addressDTO)).Returns(true);
+
+            var controller = new AddressController(_addressRepository);
+
+            // Act
+            var result = controller.CreateAddress(addressDTO);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);*/
+            A.CallTo(() => _addressRepository.CreateAddress(addressDTO)).Returns(true);
+            var result = _addressController.CreateAddress(addressDTO);
+            result.Should().BeOfType<OkObjectResult>();
+            //Assert.Equal("Successfully created!", okResult.Value);
+        }
+
+        [Fact]
+        public void AddressController_CreateAddress_ReturnsBadRequestWhenDTOIsNull()
+        {
+            AddressDTO addressDTO = null;
+            A.CallTo(() => _addressRepository.CreateAddress(addressDTO)).Returns(true);
+            var result = _addressController.CreateAddress(addressDTO);
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        [Fact]
+        public void AddressController_UpdateAddress_SuccessfullyUpdate()
+        {
+            var addressId = 1;
+            var updateAddress = new AddressDTO
+            {
+                Id = addressId,
+                Street = "Update",
+                City = "Update",
+                State = "Update"
+            };
+
+            A.CallTo(() => _addressRepository.UpdateAddress(updateAddress)).Returns(true);
+            var result = _addressController.UpdateAddress(addressId, updateAddress);
+            result.Should().BeOfType<OkObjectResult>();
+
+        }
+
+        [Fact]
+        public void AddressController_UpdateAddress_ReturnsBadRequestWhenDTOIsInvalid()
+        {
+            var addressId = 10;
+            AddressDTO updateAddress = null;
+
+            A.CallTo(() => _addressRepository.UpdateAddress(updateAddress)).Returns(true);
+            var result = _addressController.UpdateAddress(addressId, updateAddress);
+            result.Should().BeOfType<BadRequestObjectResult>();
+        }
+
+        [Fact]
+        public void AddressController_DeleteAddress_SuccessfullyUpdate()
+        {
+            var addressId = 1;
+            var address = A.Fake<AddressDTO>();
+            A.CallTo(() => _addressRepository.AddressExist(addressId)).Returns(true);
+            A.CallTo(() => _addressRepository.GetAddress(addressId)).Returns(address);
+            A.CallTo(() => _addressRepository.DeleteAddress(address)).Returns(true);
+            var result = _addressController.DeleteAddress(addressId);
+            result.Should().BeOfType<NoContentResult>();
         }
     }
 }

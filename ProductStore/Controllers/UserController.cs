@@ -185,7 +185,7 @@ namespace ProductStore.Controllers
             }
         }
 
-        private string CreateJwt(User user)
+        public string CreateJwt(User user)
         {
             /*var tokenHandler = new JwtSecurityTokenHandler();
 

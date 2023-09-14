@@ -48,14 +48,14 @@ namespace ProductStore.Repository
             return Save();
         }
 
-        public bool ExistUser(string id)
+        public bool ExistUser(Guid id)
         {
-            return _context.Users.Any(u => u.Id == id);
+            return _context.Users.Any(u => u.Id == id.ToString());
         }
 
-        public async Task<UserDTO> GetUserById(string id)
+        public async Task<UserDTO> GetUserById(Guid id)
         {
-            return _context.Users.Where(u => u.Id == id).Select(user => new UserDTO
+            return _context.Users.Where(u => u.Id == id.ToString()).Select(user => new UserDTO
             {
                 Id = user.Id,
                 UserName = user.UserName,
@@ -75,7 +75,7 @@ namespace ProductStore.Repository
 
         public bool Update(UserDTO user)
         {
-            var existingUser = _context.Users.FirstOrDefault(u => u.Id == user.Id);
+            var existingUser = _context.Users.FirstOrDefault(u => u.Id == user.Id.ToString());
 
             if (existingUser != null)
             {

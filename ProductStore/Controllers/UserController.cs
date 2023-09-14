@@ -44,7 +44,7 @@ namespace ProductStore.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserById(string id)
+        public async Task<IActionResult> GetUserById(Guid id)
         {
             if(!ModelState.IsValid)
             {
@@ -90,7 +90,7 @@ namespace ProductStore.Controllers
         }
 
         [HttpPost("AddImageProfile/{userId}")]
-        public async Task<IActionResult> AddImageProfile(string userId, [FromForm] IFormFile image)
+        public async Task<IActionResult> AddImageProfile(Guid userId, [FromForm] IFormFile image)
         {
             var userTask = _userRepository.GetUserById(userId);
             var user = await userTask;
@@ -123,7 +123,7 @@ namespace ProductStore.Controllers
         }
 
         [HttpPut("UpdateImageProfile/{userId}")]
-        public async Task<IActionResult> UpdateImageProfile(string userId, [FromForm] IFormFile image)
+        public async Task<IActionResult> UpdateImageProfile(Guid userId, [FromForm] IFormFile image)
         {
             var user = await _userRepository.GetUserById(userId);
             if (user == null)
@@ -155,7 +155,7 @@ namespace ProductStore.Controllers
 
 
         [HttpDelete("DeleteImageProfile/{userId}")]
-        public async Task<IActionResult> DeleteImageProfile(string userId)
+        public async Task<IActionResult> DeleteImageProfile(Guid userId)
         {
             var user = await _userRepository.GetUserById(userId);
             if (user == null)
@@ -185,7 +185,7 @@ namespace ProductStore.Controllers
             }
         }
 
-        public string CreateJwt(User user)
+        private string CreateJwt(User user)
         {
             /*var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -303,16 +303,22 @@ namespace ProductStore.Controllers
         [HttpPost("reset-password")]
         public async Task<IActionResult> RessetPassword(ResetPassword request)
         {
-            var user = await _userRepository.GetUserByToken(request.Token);
-            if (user == null || user.ResetTokenExpires < DateTime.Now)
+            /* var user = await _userRepository.GetUserByToken(request.Token);
+             if (user == null || user.ResetTokenExpires < DateTime.Now)
+             {
+                 return BadRequest("User not found!");
+             }
+
+             CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
+             user.PasswordResetToken = null;
+             user.ResetTokenExpires = null;
+             _userRepository.Save();*/
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if(user == null)
             {
                 return BadRequest("User not found!");
             }
-
-            CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
-            user.PasswordResetToken = null;
-            user.ResetTokenExpires = null;
-            _userRepository.Save();
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
             return Ok("Password successfully reset");
 
@@ -331,12 +337,12 @@ namespace ProductStore.Controllers
         [HttpDelete("deleteUser/{id}")]
         [Authorize(Roles = "admin")]
         //[Authorize(AuthenticationSchemes = "Bearer")]
-        public async Task<IActionResult> DeleteUser(string id)
+        public async Task<IActionResult> DeleteUser(Guid id)
         {
             //var f = User.Identity;
             if (!_userRepository.ExistUser(id))
             {
-                throw new AppException("User", id);
+                throw new AppException("User", id.ToString());
             }
             var userDelete = await _userRepository.GetUserById(id);
             if (!ModelState.IsValid)

@@ -1,5 +1,6 @@
 ﻿using Castle.Core.Configuration;
 using FakeItEasy;
+using FakeItEasy.Configuration;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -95,33 +96,68 @@ namespace ProductStoreTest.Controller
             var resultTask = _userController.Login(request);
             var result = await resultTask;
 
-            // Verificați dacă rezultatul este un tip care se poate atribui la OkObjectResult
             result.Should().BeAssignableTo<OkObjectResult>();
 
-            // Verificați codul de stare
             result.As<OkObjectResult>().StatusCode.Should().Be(200);
-            /*var token = (resultTask.Value as dynamic)?.token;
-            Assert.NotNull(token);*/
-            /*var token = _userController.CreateJwt(user);
+        }
 
-            // Assert
-            var handler = new JwtSecurityTokenHandler();
-            var tokenValidationParameters = new TokenValidationParameters
+
+        [Fact]
+        public async void UserController_ForgotPassword_ReturnsSuccessfully()
+        {
+            var user = new User()
             {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration.GetSection("JwtSettings:Token").Value)), // Utilizați cheia JWT reală din configurare
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                RequireExpirationTime = true,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
+                Email = "razvanlozonschi123@gmail.com",
+                UserName = "RazvanLozonschi"
+            };
+            IList<string> userRoles = new List<string> { "admin" };
+            A.CallTo(() => _userManager.GetRolesAsync(user)).Returns(Task.FromResult(userRoles));
+            A.CallTo(() => _userRepository.GetUserByEmail(user.Email)).Returns(user);
+            var resultTask = _userController.ForgotPassword(user.Email);
+            var result = await resultTask;
+            result.Should().BeAssignableTo<OkObjectResult>();
+
+            result.As<OkObjectResult>().StatusCode.Should().Be(200);
+
+        }
+
+        [Fact]
+        public async void UserController_RessetPassword_ReturnsSuccess()
+        {
+            var request = new ResetPassword
+            {
+                Email = "razvanlozonschi123@gmail.com",
+                Password = "NewPassword123",
+                ConfirmPassword = "NewPassword123"
             };
 
-            var principal = handler.ValidateToken(token, tokenValidationParameters, out var securityToken);
+            var user = new User()
+            {
+                Email = "razvanlozonschi123@gmail.com",
+                UserName = "RazvanLozonschi"
+            };
 
-            Assert.IsType<ClaimsPrincipal>(principal);
-            Assert.NotNull(securityToken);*/
+            A.CallTo(() => _userRepository.GetUserByEmail(user.Email)).Returns(user);
+            var result = await _userController.RessetPassword(request);
+            result.Should().BeAssignableTo<OkObjectResult>();
+            result.As<OkObjectResult>().StatusCode.Should().Be(200);
+        }
 
+
+        [Fact]
+        public async void UserController_Verify_ReturnsSuccess()
+        {
+            var token = "token";
+            var user = new User()
+            {
+                Email = "razvanlozonschi123@gmail.com",
+                UserName = "RazvanLozonschi"
+            };
+
+            A.CallTo(() => _userRepository.GetUserByToken(token)).Returns(user);
+            var result = await _userController.Verify(token);
+            result.Should().BeAssignableTo<OkObjectResult>();
+            result.As<OkObjectResult>().StatusCode.Should().Be(200);
         }
 
     }

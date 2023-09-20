@@ -4,8 +4,6 @@ using ProductStore.ConfigurationError;
 using ProductStore.DTO;
 using ProductStore.Interface;
 using ProductStore.Models;
-using ProductStore.Repository;
-
 namespace ProductStore.Controllers
 {
     [Route("api/[controller]")]

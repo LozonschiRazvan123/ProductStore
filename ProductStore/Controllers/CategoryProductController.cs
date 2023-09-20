@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using ProductStore.ConfigurationError;
 using ProductStore.DTO;
 using ProductStore.Interface;
-using ProductStore.Repository;
 
 namespace ProductStore.Controllers
 {

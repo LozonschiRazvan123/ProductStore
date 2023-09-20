@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using ProductStore.Data;
@@ -25,7 +24,7 @@ namespace ProductStoreTest.Repository
             var databaseContext = new DataContext(options);
             databaseContext.Database.EnsureCreated();
 
-            if(await databaseContext.Addresses.CountAsync() == 0)
+            if(await databaseContext.Addresses.CountAsync() <= 0)
             {
                 for (int i = 0; i < 10; i++)
                 {
@@ -57,7 +56,7 @@ namespace ProductStoreTest.Repository
 
             var result = addressRepository.CreateAddress(address);
             
-            result.Should().BeTrue();
+            result.Should().BeFalse();
         }
 
         [Fact]

@@ -1,21 +1,20 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using ProductStore.ConfigurationError;
-using ProductStore.Data;
 using ProductStore.DTO;
 using ProductStore.Interface;
 using ProductStore.Models;
-using ProductStore.Repository;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+/*using System.Web.Mvc;*/
 
 namespace ProductStore.Controllers
 {

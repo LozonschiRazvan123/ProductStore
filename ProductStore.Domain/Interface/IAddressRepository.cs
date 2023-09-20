@@ -1,5 +1,6 @@
-﻿using ProductStore.DTO;
-using ProductStore.Models;
+﻿
+
+using ProductStore.DTO;
 
 namespace ProductStore.Interface
 {

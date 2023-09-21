@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ProductStore.ConfigurationError;
 using ProductStore.DTO;
+using ProductStore.Framework.Configuration;
 using ProductStore.Interface;
 using ProductStore.Models;
 using System.Data;
@@ -23,12 +25,12 @@ namespace ProductStore.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
-        private readonly IConfiguration _configuration;
+        private readonly JwtSettings _jwtSettings;
         private readonly UserManager<User> _userManager;  
-        public UserController(IUserRepository userRepository, IConfiguration configuration, UserManager<User> userManager) 
+        public UserController(IUserRepository userRepository, IOptions<JwtSettings> jwtSettingsOptions, UserManager<User> userManager) 
         {
-            _userRepository = userRepository; 
-            _configuration = configuration;
+            _userRepository = userRepository;
+            _jwtSettings = jwtSettingsOptions.Value;
             _userManager = userManager;
         }
 
@@ -228,7 +230,7 @@ namespace ProductStore.Controllers
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
 
-            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("JwtSettings:Token").Value));
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_jwtSettings.Token));
 
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 

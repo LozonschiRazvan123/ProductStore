@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ProductStore.Controllers;
 using ProductStore.DTO;
+using ProductStore.Framework.Configuration;
 using ProductStore.Interface;
 using ProductStore.Models;
 using ProductStore.Repository;
@@ -27,26 +29,33 @@ namespace ProductStoreTest.Controller
         private UserController _userController;
         private IUserRepository _userRepository;
         private UserManager<User> _userManager;
-        private readonly Microsoft.Extensions.Configuration.IConfiguration _configuration;
+        private readonly JwtSettings _jwtSettings;
 
         public UserControllerTest()
         {
             _userRepository = A.Fake<IUserRepository>();
             _userManager = A.Fake<UserManager<User>>();
+            _jwtSettings = A.Fake<JwtSettings>();
 
-
-            var configuration = Configure();
+            //var configuration = Configure();
             var services = new ServiceCollection();
 
-            
-            services.AddSingleton<Microsoft.Extensions.Configuration.IConfiguration>(configuration);
+
+            //services.AddSingleton<Microsoft.Extensions.Configuration.IConfiguration>(configuration);
+            //services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 
             //_userController = A.Fake<UserController>();
 
-            _userController = A.Fake<UserController>(builder => builder.WithArgumentsForConstructor(new object[] { _userRepository, configuration, _userManager }));
+            var jwtSettingsOptions = A.Fake<IOptions<JwtSettings>>();
+
+            A.CallTo(() => jwtSettingsOptions.Value).Returns(new JwtSettings
+            {
+                Token = "my top secret key lozonschi-constantin-razvan123 dadaadsdasdbmfdlgkvn",
+            });
+            _userController = new UserController(_userRepository, jwtSettingsOptions, _userManager);
         }
 
-        public static Microsoft.Extensions.Configuration.IConfiguration Configure()
+        /*public static Microsoft.Extensions.Configuration.IConfiguration Configure()
         {
             var config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.test.json")
@@ -54,7 +63,7 @@ namespace ProductStoreTest.Controller
                  .Build();
 
             return config;
-        }
+        }*/
 
         [Fact]
         public void UserController_GetUsers()

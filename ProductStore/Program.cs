@@ -6,10 +6,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ProductStore.ConfigurationError;
 using ProductStore.Data;
+using ProductStore.Framework.Configuration;
 using ProductStore.Interface;
 using ProductStore.Models;
 using ProductStore.Repository;
@@ -30,6 +32,8 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryProductRepository, CategoryProductRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection(nameof(JwtSettings)));
 builder.Services.AddTransient<Seed>();
 builder.Services.AddDbContext<DataContext>(options =>
 {
@@ -104,5 +108,14 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapGet("options", (IOptions<JwtSettings> options) =>
+{
+    var response = new
+    {
+        options.Value.Token
+    };
+    return Results.Ok(response);
+});
 
 app.Run();

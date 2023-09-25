@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ProductStore.ConfigurationError;
 using ProductStore.DTO;
+using ProductStore.Framework.Pagination;
 using ProductStore.Interface;
 using ProductStore.Models;
 namespace ProductStore.Controllers
@@ -27,6 +28,27 @@ namespace ProductStore.Controllers
             return Ok(await _customerRepository.GetCustomers());
         }
 
+        [HttpGet("api/CustomerPagination")]
+        public async Task<IActionResult> GetCustomerPagination([FromQuery] PaginationFilter filter)
+        {
+            if (!ModelState.IsValid)
+            {
+                throw new BadRequest();
+            }
+
+            var customers = await _customerRepository.GetCustomersPagination(filter);
+
+            var response = new
+            {
+                PageNumber = filter.PageNumber,
+                PageSize = filter.PageSize,
+                TotalPages = customers.TotalPages,
+                TotalRecords = customers.TotalRecords,
+                Customers = customers.Results
+            };
+
+            return Ok(response);
+        }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAddressById(int id)

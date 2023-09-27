@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ProductStore.ConfigurationError;
+using ProductStore.Core.Interface;
+using ProductStore.Data;
 using ProductStore.DTO;
 using ProductStore.Framework.Pagination;
 using ProductStore.Interface;
@@ -12,9 +15,13 @@ namespace ProductStore.Controllers
     public class CustomerController : ControllerBase
     {
         private readonly ICustomerRepository _customerRepository;
-        public CustomerController(ICustomerRepository customerRepository) 
+        private readonly IServicePagination<Customer> _servicePagination;
+        private readonly DataContext _dataContext;
+        public CustomerController(ICustomerRepository customerRepository, IServicePagination<Customer> servicePagination, DataContext dataContext) 
         {
             _customerRepository = customerRepository;
+            _servicePagination = servicePagination;
+            _dataContext = dataContext;
         }
 
         [HttpGet]
@@ -36,7 +43,8 @@ namespace ProductStore.Controllers
                 throw new BadRequest();
             }
 
-            var customers = await _customerRepository.GetCustomersPagination(filter);
+            //IQueryable<Customer> query = _dataContext.Customers;
+            var customers = await _servicePagination.GetCustomersPagination(_dataContext.Customers, filter);
 
             var response = new
             {

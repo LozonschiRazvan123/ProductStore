@@ -75,7 +75,7 @@ namespace ProductStore.Repository
             }).ToList();
         }
 
-        public async Task<PageResult<CustomerDTO>> GetCustomersPagination(PaginationFilter filter)
+       /* public async Task<PageResult<CustomerDTO>> GetCustomersPagination(PaginationFilter filter)
         {
             var query = _context.Customers
                 .Select(customer => new CustomerDTO
@@ -93,11 +93,11 @@ namespace ProductStore.Repository
                     case "name":
                         if (filter.SortAscending == "true")
                         {
-                            query = query.Where(customer => customer.Name.Contains(filter.Keyword)).OrderBy(customer => customer.Surname);                        
+                            query = query.Where(customer => customer.Name.Contains(filter.Keyword)).OrderBy(customer => customer.Surname);
                         }
                         else
                         {
-                            query = query.Where(customer => customer.Name.Contains(filter.Keyword)).OrderByDescending(customer => customer.Surname);                        
+                            query = query.Where(customer => customer.Name.Contains(filter.Keyword)).OrderByDescending(customer => customer.Surname);
                         }
                         break;
                     case "surname":
@@ -107,7 +107,8 @@ namespace ProductStore.Repository
                         }
                         else
                         {
-                            query = query.Where(customer => customer.Surname.Contains(filter.Keyword)).OrderByDescending(customer => customer.Name);                        }
+                            query = query.Where(customer => customer.Surname.Contains(filter.Keyword)).OrderByDescending(customer => customer.Name);
+                        }
                         break;
                     case "email":
                         if (filter.SortAscending == "true")
@@ -143,7 +144,7 @@ namespace ProductStore.Repository
             };
 
             return result;
-        }
+        }*/
 
         public bool Save()
         {

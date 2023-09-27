@@ -8,7 +8,7 @@ namespace ProductStore.Interface
     public interface ICustomerRepository
     {
         Task<IEnumerable<CustomerDTO>> GetCustomers();
-        Task<PageResult<CustomerDTO>> GetCustomersPagination(PaginationFilter filter);
+        //Task<PageResult<CustomerDTO>> GetCustomersPagination(PaginationFilter filter);
         Task<CustomerDTO> GetCustomerById(int id);
         bool ExistCostumer(int id);
         bool Add(CustomerDTO customer);

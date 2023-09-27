@@ -10,8 +10,10 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ProductStore.ConfigurationError;
+using ProductStore.Core.Interface;
 using ProductStore.Data;
 using ProductStore.Framework.Configuration;
+using ProductStore.Infrastructure.Repository;
 using ProductStore.Interface;
 using ProductStore.Models;
 using ProductStore.Repository;
@@ -32,6 +34,7 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryProductRepository, CategoryProductRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped(typeof(IServicePagination<>), typeof(PaginationRepository<>));
 builder.Services.Configure<JwtSettings>(
     builder.Configuration.GetSection(nameof(JwtSettings)));
 builder.Services.AddTransient<Seed>();

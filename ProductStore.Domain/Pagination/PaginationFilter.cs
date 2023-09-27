@@ -10,9 +10,9 @@ namespace ProductStore.Framework.Pagination
     {
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 50;
-        public string Keyword { get; set; }
-        public string SortByField { get; set; }
-        public string SortAscending { get; set; }
+        public string? Keyword { get; set; }
+        public string? SortByField { get; set; }
+        public string? SortAscending { get; set; }
 
         /*public PaginationFilter(int pageNumber, int pageSize, string keyword, string sortByField)
         {

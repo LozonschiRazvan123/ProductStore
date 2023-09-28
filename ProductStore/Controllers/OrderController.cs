@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProductStore.ConfigurationError;
+using ProductStore.Core.Interface;
+using ProductStore.Data;
 using ProductStore.DTO;
+using ProductStore.Framework.Pagination;
 using ProductStore.Interface;
 using ProductStore.Models;
 
@@ -12,9 +15,13 @@ namespace ProductStore.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderRepository _orderRepository;
-        public OrderController(IOrderRepository orderRepository) 
+        private readonly IServicePagination<Order> _servicePagination;
+        private readonly DataContext _dataContext;
+        public OrderController(IOrderRepository orderRepository, IServicePagination<Order> servicePagination, DataContext dataContext) 
         { 
             _orderRepository = orderRepository;
+            _servicePagination = servicePagination;
+            _dataContext = dataContext;
         }
 
         [HttpGet]
@@ -35,6 +42,29 @@ namespace ProductStore.Controllers
                 throw new BadRequest();
             }
             return Ok(await _orderRepository.GetOrderById(id));
+        }
+
+        [HttpGet("api/CustomerPagination")]
+        public async Task<IActionResult> GetCustomerPagination([FromQuery] PaginationFilter filter)
+        {
+            if (!ModelState.IsValid)
+            {
+                throw new BadRequest();
+            }
+
+            //IQueryable<Customer> query = _dataContext.Customers;
+            var customers = await _servicePagination.GetCustomersPagination(_dataContext.Orders, filter);
+
+            var response = new
+            {
+                PageNumber = filter.PageNumber,
+                PageSize = filter.PageSize,
+                TotalPages = customers.TotalPages,
+                TotalRecords = customers.TotalRecords,
+                Customers = customers.Results
+            };
+
+            return Ok(response);
         }
 
         [HttpPost]

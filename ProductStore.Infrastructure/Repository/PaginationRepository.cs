@@ -57,9 +57,9 @@ namespace ProductStore.Infrastructure.Repository
                 }
             }
 
-            if (!string.IsNullOrEmpty(filter.Keyword))
+            /*if (!string.IsNullOrEmpty(filter.Keyword))
             {
-                var propsToCheck = typeof(T).GetProperties().Where(p => p.PropertyType == typeof(string));
+                var propsToCheck = typeof(T).GetProperties();
                 var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
                 var searchValue = Expression.Constant(filter.Keyword, typeof(string));
                 var parameter = Expression.Parameter(typeof(T));
@@ -67,14 +67,26 @@ namespace ProductStore.Infrastructure.Repository
 
                 foreach (var prop in propsToCheck)
                 {
-                    var propertyValue = Expression.Property(parameter, prop);
-                    var containsExpr = Expression.Call(propertyValue, containsMethod, searchValue);
-                    predicate = predicate.Or(Expression.Lambda<Func<T, bool>>(containsExpr, parameter));
+                    if (prop.PropertyType == typeof(string))
+                    {
+                        var propertyValue = Expression.Property(parameter, prop);
+                        var containsExpr = Expression.Call(propertyValue, containsMethod, searchValue);
+                        predicate = predicate.Or(Expression.Lambda<Func<T, bool>>(containsExpr, parameter));
+                    }
+                    else if (prop.PropertyType == typeof(int))
+                    {
+                        var propertyValue = Expression.Property(parameter, prop);
+                        var toStringMethod = typeof(int).GetMethod("ToString", Type.EmptyTypes);
+                        var propertyToStringCall = Expression.Call(propertyValue, toStringMethod);
+                        var containsExpr = Expression.Call(propertyToStringCall, containsMethod, searchValue);
+                        predicate = predicate.Or(Expression.Lambda<Func<T, bool>>(containsExpr, parameter));
+                    }
                 }
 
                 query = query.Where(predicate);
-            }
+            }*/
 
+            query = query.Where(Filter(query, filter.Keyword));
             var totalRecords = await query.CountAsync();
 
             var pagedData = await query
@@ -95,23 +107,33 @@ namespace ProductStore.Infrastructure.Repository
         }
 
 
-        /*private static IQueryable<T> Filter<T>(IQueryable<T> query, string searchStr)
+        private static ExpressionStarter<T> Filter<T>(IQueryable<T> query, string searchStr)
         {
-            var propsToCheck = typeof(T).GetProperties().Where(p => p.PropertyType == typeof(string));
-
+            var propsToCheck = typeof(T).GetProperties();
+            var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+            var searchValue = Expression.Constant(searchStr, typeof(string));
+            var parameter = Expression.Parameter(typeof(T));
             var predicate = PredicateBuilder.New<T>(false);
 
             foreach (var prop in propsToCheck)
             {
-                var propertyValue = Expression.Property(Expression.Parameter(typeof(T)), prop);
-                var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
-                var searchValue = Expression.Constant(searchStr, typeof(string));
-                var containsExpr = Expression.Call(propertyValue, containsMethod, searchValue);
-
-                predicate = predicate.Or(Expression.Lambda<Func<T, bool>>(containsExpr, Expression.Parameter(typeof(T))));
+                if (prop.PropertyType == typeof(string))
+                {
+                    var propertyValue = Expression.Property(parameter, prop);
+                    var containsExpr = Expression.Call(propertyValue, containsMethod, searchValue);
+                    predicate = predicate.Or(Expression.Lambda<Func<T, bool>>(containsExpr, parameter));
+                }
+                else if (prop.PropertyType == typeof(int))
+                {
+                    var propertyValue = Expression.Property(parameter, prop);
+                    var toStringMethod = typeof(int).GetMethod("ToString", Type.EmptyTypes);
+                    var propertyToStringCall = Expression.Call(propertyValue, toStringMethod);
+                    var containsExpr = Expression.Call(propertyToStringCall, containsMethod, searchValue);
+                    predicate = predicate.Or(Expression.Lambda<Func<T, bool>>(containsExpr, parameter));
+                }
             }
 
-            return query.Where(predicate);
-        }*/
+            return predicate;
+        }
     }
 }

@@ -6,8 +6,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ProductStore.ConfigurationError;
+using ProductStore.Core.Interface;
+using ProductStore.Data;
 using ProductStore.DTO;
 using ProductStore.Framework.Configuration;
+using ProductStore.Framework.Pagination;
+using ProductStore.Framework.Services;
 using ProductStore.Interface;
 using ProductStore.Models;
 using System.Data;
@@ -25,13 +29,17 @@ namespace ProductStore.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
-        private readonly JwtSettings _jwtSettings;
-        private readonly UserManager<User> _userManager;  
-        public UserController(IUserRepository userRepository, IOptions<JwtSettings> jwtSettingsOptions, UserManager<User> userManager) 
+        private readonly UserManager<User> _userManager;
+        private readonly IServicePagination<User> _servicePagination;
+        private readonly DataContext _dataContext;
+        private readonly CreateJWT _createJWT;
+        public UserController(IUserRepository userRepository, UserManager<User> userManager, IServicePagination<User> servicePagination, DataContext dataContext, CreateJWT createJWT) 
         {
             _userRepository = userRepository;
-            _jwtSettings = jwtSettingsOptions.Value;
             _userManager = userManager;
+            _servicePagination = servicePagination;
+            _dataContext = dataContext;
+            _createJWT = createJWT;
         }
 
         [HttpGet]
@@ -52,6 +60,29 @@ namespace ProductStore.Controllers
                 throw new BadRequest();
             }
             return Ok(await _userRepository.GetUserById(id));
+        }
+
+        [HttpGet("api/CustomerPagination")]
+        public async Task<IActionResult> GetCustomerPagination([FromQuery] PaginationFilter filter)
+        {
+            if (!ModelState.IsValid)
+            {
+                throw new BadRequest();
+            }
+
+            //IQueryable<Customer> query = _dataContext.Customers;
+            var customers = await _servicePagination.GetCustomersPagination(_dataContext.Users, filter);
+
+            var response = new
+            {
+                PageNumber = filter.PageNumber,
+                PageSize = filter.PageSize,
+                TotalPages = customers.TotalPages,
+                TotalRecords = customers.TotalRecords,
+                Customers = customers.Results
+            };
+
+            return Ok(response);
         }
 
         [HttpPost]
@@ -78,7 +109,7 @@ namespace ProductStore.Controllers
 
             if (result.Succeeded)
             {
-                var verificationToken = CreateJwt(user);
+                var verificationToken = _createJWT.CreateJwt(user);
                 user.VerificationToken = verificationToken;
                 await _userManager.UpdateAsync(user); 
 
@@ -186,9 +217,9 @@ namespace ProductStore.Controllers
             }
         }
 
-        private string CreateJwt(User user)
+        /*private string CreateJwt(User user)
         {
-            /*var tokenHandler = new JwtSecurityTokenHandler();
+            *//*var tokenHandler = new JwtSecurityTokenHandler();
 
             var jwtKey = _configuration.GetSection("JwtSettings:Token").Value;
 
@@ -215,7 +246,7 @@ namespace ProductStore.Controllers
 
             var writtenToken = tokenHandler.WriteToken(token);
 
-            return writtenToken;*/
+            return writtenToken;*//*
             var roles = _userManager.GetRolesAsync(user).Result;
 
             List<Claim> claims = new List<Claim>();
@@ -241,7 +272,7 @@ namespace ProductStore.Controllers
 
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
             return jwt;
-        }
+        }*/
 
 
         [HttpPost("login")]
@@ -263,7 +294,8 @@ namespace ProductStore.Controllers
                 return BadRequest("Not veriffied!");
             }
 
-            user.PasswordResetToken = CreateJwt(user);
+            //user.PasswordResetToken = CreateJwt(user);
+            user.PasswordResetToken = _createJWT.CreateJwt(user);
 
             return Ok(new { token = user.PasswordResetToken });
 
@@ -294,7 +326,7 @@ namespace ProductStore.Controllers
                 return BadRequest("User not found!");
             }
 
-            user.PasswordResetToken = CreateJwt(user); 
+            user.PasswordResetToken = _createJWT.CreateJwt(user); 
             user.ResetTokenExpires = DateTime.Now.AddDays(1);
             _userRepository.Save();
 

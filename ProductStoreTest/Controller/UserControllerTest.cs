@@ -9,8 +9,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ProductStore.Controllers;
+using ProductStore.Core.Interface;
+using ProductStore.Data;
 using ProductStore.DTO;
 using ProductStore.Framework.Configuration;
+using ProductStore.Framework.Services;
 using ProductStore.Interface;
 using ProductStore.Models;
 using ProductStore.Repository;
@@ -30,12 +33,18 @@ namespace ProductStoreTest.Controller
         private IUserRepository _userRepository;
         private UserManager<User> _userManager;
         private readonly JwtSettings _jwtSettings;
+        private readonly CreateJWT _createJWT;
+        private readonly IServicePagination<User> _servicePagination;
+        private readonly DataContext _dataContext;
 
         public UserControllerTest()
         {
             _userRepository = A.Fake<IUserRepository>();
             _userManager = A.Fake<UserManager<User>>();
             _jwtSettings = A.Fake<JwtSettings>();
+            _createJWT = A.Fake<CreateJWT>();
+            _servicePagination = A.Fake<IServicePagination<User>>();
+            _dataContext = A.Fake<DataContext>();
 
             //var configuration = Configure();
             var services = new ServiceCollection();
@@ -52,7 +61,7 @@ namespace ProductStoreTest.Controller
             {
                 Token = "my top secret key lozonschi-constantin-razvan123 dadaadsdasdbmfdlgkvn",
             });
-            _userController = new UserController(_userRepository, jwtSettingsOptions, _userManager);
+            _userController = new UserController(_userRepository, _userManager,_servicePagination, _dataContext, _createJWT);
         }
 
         /*public static Microsoft.Extensions.Configuration.IConfiguration Configure()

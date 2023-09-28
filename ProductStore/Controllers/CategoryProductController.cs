@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProductStore.ConfigurationError;
+using ProductStore.Core.Interface;
+using ProductStore.Data;
 using ProductStore.DTO;
+using ProductStore.Framework.Pagination;
 using ProductStore.Interface;
+using ProductStore.Models;
 
 namespace ProductStore.Controllers
 {
@@ -11,9 +15,13 @@ namespace ProductStore.Controllers
     public class CategoryProductController : ControllerBase
     {
         private readonly ICategoryProductRepository _categoryProductRepository;
-        public CategoryProductController(ICategoryProductRepository categoryProductRepository) 
+        private readonly IServicePagination<CategoryProduct> _servicePagination;
+        private readonly DataContext _dataContext;
+        public CategoryProductController(ICategoryProductRepository categoryProductRepository, IServicePagination<CategoryProduct> servicePagination, DataContext dataContext) 
         { 
             _categoryProductRepository = categoryProductRepository;
+            _servicePagination = servicePagination;
+            _dataContext = dataContext;
         }
 
         [HttpGet]
@@ -35,6 +43,29 @@ namespace ProductStore.Controllers
             }
 
             return Ok(await _categoryProductRepository.GetCategoryProductById(id));
+        }
+
+        [HttpGet("api/CustomerPagination")]
+        public async Task<IActionResult> GetCustomerPagination([FromQuery] PaginationFilter filter)
+        {
+            if (!ModelState.IsValid)
+            {
+                throw new BadRequest();
+            }
+
+            //IQueryable<Customer> query = _dataContext.Customers;
+            var customers = await _servicePagination.GetCustomersPagination(_dataContext.CategoryProducts, filter);
+
+            var response = new
+            {
+                PageNumber = filter.PageNumber,
+                PageSize = filter.PageSize,
+                TotalPages = customers.TotalPages,
+                TotalRecords = customers.TotalRecords,
+                Customers = customers.Results
+            };
+
+            return Ok(response);
         }
 
         [HttpPost]

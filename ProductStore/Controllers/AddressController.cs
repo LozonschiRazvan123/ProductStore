@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProductStore.ConfigurationError;
+using ProductStore.Core.Interface;
+using ProductStore.Data;
 using ProductStore.DTO;
+using ProductStore.Framework.Pagination;
 using ProductStore.Interface;
+using ProductStore.Models;
 using System.Reflection.Metadata.Ecma335;
 
 namespace ProductStore.Controllers
@@ -12,9 +16,13 @@ namespace ProductStore.Controllers
     public class AddressController : ControllerBase
     {
         private readonly IAddressRepository _addressRepository;
-        public AddressController(IAddressRepository addressRepository)
+        private readonly IServicePagination<Address> _servicePagination;
+        private readonly DataContext _dataContext;
+        public AddressController(IAddressRepository addressRepository, IServicePagination<Address> servicePagination, DataContext dataContext)
         {
             _addressRepository = addressRepository;
+            _servicePagination = servicePagination;
+            _dataContext = dataContext;
         }
 
         [HttpGet]
@@ -37,6 +45,29 @@ namespace ProductStore.Controllers
             }
 
             return Ok(_addressRepository.GetAddress(id));
+        }
+
+        [HttpGet("api/CustomerPagination")]
+        public async Task<IActionResult> GetCustomerPagination([FromQuery] PaginationFilter filter)
+        {
+            if (!ModelState.IsValid)
+            {
+                throw new BadRequest();
+            }
+
+            //IQueryable<Customer> query = _dataContext.Customers;
+            var customers = await _servicePagination.GetCustomersPagination(_dataContext.Addresses, filter);
+
+            var response = new
+            {
+                PageNumber = filter.PageNumber,
+                PageSize = filter.PageSize,
+                TotalPages = customers.TotalPages,
+                TotalRecords = customers.TotalRecords,
+                Customers = customers.Results
+            };
+
+            return Ok(response);
         }
 
         [HttpPost]

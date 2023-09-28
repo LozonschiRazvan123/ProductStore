@@ -2,6 +2,8 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using ProductStore.Controllers;
+using ProductStore.Core.Interface;
+using ProductStore.Data;
 using ProductStore.DTO;
 using ProductStore.Interface;
 using ProductStore.Models;
@@ -18,16 +20,20 @@ namespace ProductStoreTest.Controller
     {
         private AddressController _addressController;
         private IAddressRepository _addressRepository;
+        private readonly IServicePagination<Address> _servicePagination;
+        private readonly DataContext _dataContext;
         public AddressControllerTest()
         {
             //Dependencies
             _addressRepository = A.Fake<IAddressRepository>();
+            _servicePagination = A.Fake<IServicePagination<Address>>();
+            _dataContext = A.Fake<DataContext>();
 
             //SUT
             //System under test (SUT) refers to a system that is being tested for correct operation.
             //According to ISTQB it is the test object. From a unit testing perspective, the system under test represents
             //all of the classes in a test that are not predefined pieces of code like stubs or even mocks.
-            _addressController = new AddressController(_addressRepository);
+            _addressController = new AddressController(_addressRepository, _servicePagination, _dataContext);
         }
 
 

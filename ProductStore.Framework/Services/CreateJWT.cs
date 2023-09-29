@@ -16,13 +16,11 @@ namespace ProductStore.Framework.Services
     public class CreateJWT
     {
         private readonly UserManager<User> _userManager;
-        private readonly IConfiguration _configuration;
         private readonly JwtSettings _jwtSettings;
 
-        public CreateJWT(UserManager<User> userManager, IConfiguration configuration, JwtSettings jwtSettings)
+        public CreateJWT(UserManager<User> userManager, JwtSettings jwtSettings)
         {
             _userManager = userManager;
-            _configuration = configuration;
             _jwtSettings = jwtSettings;
         }
 

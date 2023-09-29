@@ -4,6 +4,7 @@ using FakeItEasy.Configuration;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -44,7 +45,7 @@ namespace ProductStoreTest.Controller
             _jwtSettings = A.Fake<JwtSettings>();
             _createJWT = A.Fake<CreateJWT>();
             _servicePagination = A.Fake<IServicePagination<User>>();
-            _dataContext = A.Fake<DataContext>();
+            _dataContext = new DataContext(new DbContextOptions<DataContext>());
 
             //var configuration = Configure();
             var services = new ServiceCollection();
@@ -61,6 +62,8 @@ namespace ProductStoreTest.Controller
             {
                 Token = "my top secret key lozonschi-constantin-razvan123 dadaadsdasdbmfdlgkvn",
             });
+            _jwtSettings = jwtSettingsOptions.Value;
+            _createJWT= new CreateJWT(_userManager, _jwtSettings);
             _userController = new UserController(_userRepository, _userManager,_servicePagination, _dataContext, _createJWT);
         }
 
@@ -75,12 +78,12 @@ namespace ProductStoreTest.Controller
         }*/
 
         [Fact]
-        public void UserController_GetUsers()
+        public async Task UserController_GetUsers()
         {
             var users = new List<UserDTO>();
             A.CallTo(() => _userRepository.GetUsers()).Returns(users);
-            var result = _userController.GetUsers();
-            result.Should().BeOfType<Task<IActionResult>>();
+            var result = await _userController.GetUsers();
+            Assert.IsType<OkObjectResult>(result);
         }
 
         [Fact]

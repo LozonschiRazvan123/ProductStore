@@ -1,6 +1,7 @@
 ﻿using FakeItEasy;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ProductStore.Controllers;
 using ProductStore.Core.Interface;
 using ProductStore.Data;
@@ -27,7 +28,7 @@ namespace ProductStoreTest.Controller
             //Dependencies
             _addressRepository = A.Fake<IAddressRepository>();
             _servicePagination = A.Fake<IServicePagination<Address>>();
-            _dataContext = A.Fake<DataContext>();
+            _dataContext = new DataContext(new DbContextOptions<DataContext>());
 
             //SUT
             //System under test (SUT) refers to a system that is being tested for correct operation.

@@ -131,7 +131,7 @@ namespace ProductStore.Controllers
         {
             DataTable dt = new DataTable();
             dt.TableName = "User";
-            dt.Columns.Add("Id", typeof(int));
+            dt.Columns.Add("Id", typeof(Guid));
             dt.Columns.Add("ImageProfil", typeof(byte));
             /*dt.Columns.Add("VericationToken", typeof(string));
             dt.Columns.Add("VerifiedAt", typeof(DateTime));

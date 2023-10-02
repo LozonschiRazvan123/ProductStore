@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ProductStore.Core.Interface;
 using ProductStore.Framework.Configuration;
@@ -20,10 +21,10 @@ namespace ProductStore.Framework.Services
         private readonly UserManager<User> _userManager;
         private readonly JwtSettings _jwtSettings;
 
-        public CreateJWT(UserManager<User> userManager, JwtSettings jwtSettings)
+        public CreateJWT(UserManager<User> userManager, IOptions<JwtSettings> jwtSettings)
         {
             _userManager = userManager;
-            _jwtSettings = jwtSettings;
+            _jwtSettings = jwtSettings.Value;
         }
 
         public string CreateJwt(User user)

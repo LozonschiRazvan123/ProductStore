@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml.Table;
+using OfficeOpenXml;
 using ProductStore.ConfigurationError;
 using ProductStore.Core.Interface;
 using ProductStore.Data;
@@ -7,6 +9,7 @@ using ProductStore.DTO;
 using ProductStore.Framework.Pagination;
 using ProductStore.Interface;
 using ProductStore.Models;
+using System.Data;
 
 namespace ProductStore.Controllers
 {
@@ -68,6 +71,63 @@ namespace ProductStore.Controllers
             };
 
             return Ok(response);
+        }
+
+        [HttpGet("ExportExcel")]
+        public IActionResult ExportExcel()
+        {
+            try
+            {
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                DataTable dataTable = GetAddressData();
+
+                using (var package = new ExcelPackage())
+                {
+                    var worksheet = package.Workbook.Worksheets.Add("Product");
+
+                    for (int i = 0; i < dataTable.Columns.Count; i++)
+                    {
+                        worksheet.Cells[1, i + 1].Value = dataTable.Columns[i].ColumnName;
+                    }
+
+                    for (int row = 0; row < dataTable.Rows.Count; row++)
+                    {
+                        for (int col = 0; col < dataTable.Columns.Count; col++)
+                        {
+                            worksheet.Cells[row + 2, col + 1].Value = dataTable.Rows[row][col];
+                        }
+                    }
+
+                    var tableRange = worksheet.Cells[1, 1, dataTable.Rows.Count + 1, dataTable.Columns.Count];
+                    var table = worksheet.Tables.Add(tableRange, "ProductTable");
+                    table.TableStyle = TableStyles.Light1;
+
+                    var fileBytes = package.GetAsByteArray();
+                    return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Product.xlsx");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error in Excel {ex.Message}");
+            }
+        }
+
+        private DataTable GetAddressData()
+        {
+            DataTable dt = new DataTable();
+            dt.TableName = "Product";
+            dt.Columns.Add("Id", typeof(int));
+            dt.Columns.Add("Name", typeof(string));
+            dt.Columns.Add("Price", typeof(int));
+
+            var categoryData = _productRepository.GetProducts().Result;
+            foreach (var customer in categoryData)
+            {
+                dt.Rows.Add(customer.Id, customer.Name, customer.Price);
+
+            }
+
+            return dt;
         }
 
         [HttpPost]

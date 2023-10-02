@@ -34,7 +34,7 @@ namespace ProductStoreTest.Controller
         private IUserRepository _userRepository;
         private UserManager<User> _userManager;
         private readonly JwtSettings _jwtSettings;
-        private readonly CreateJWT _createJWT;
+        private readonly ICreateJWT _createJWT;
         private readonly IServicePagination<User> _servicePagination;
         private readonly DataContext _dataContext;
 
@@ -43,7 +43,7 @@ namespace ProductStoreTest.Controller
             _userRepository = A.Fake<IUserRepository>();
             _userManager = A.Fake<UserManager<User>>();
             _jwtSettings = A.Fake<JwtSettings>();
-            _createJWT = A.Fake<CreateJWT>();
+            _createJWT = A.Fake<ICreateJWT>();
             _servicePagination = A.Fake<IServicePagination<User>>();
             _dataContext = new DataContext(new DbContextOptions<DataContext>());
 

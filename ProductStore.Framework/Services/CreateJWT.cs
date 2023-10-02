@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using ProductStore.Core.Interface;
 using ProductStore.Framework.Configuration;
 using ProductStore.Models;
 using System;
@@ -13,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace ProductStore.Framework.Services
 {
-    public class CreateJWT
+    public class CreateJWT: ICreateJWT
     {
         private readonly UserManager<User> _userManager;
         private readonly JwtSettings _jwtSettings;

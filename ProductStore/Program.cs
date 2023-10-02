@@ -13,6 +13,7 @@ using ProductStore.ConfigurationError;
 using ProductStore.Core.Interface;
 using ProductStore.Data;
 using ProductStore.Framework.Configuration;
+using ProductStore.Framework.Services;
 using ProductStore.Infrastructure.Repository;
 using ProductStore.Interface;
 using ProductStore.Models;
@@ -35,8 +36,8 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryProductRepository, CategoryProductRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped(typeof(IServicePagination<>), typeof(PaginationRepository<>));
-builder.Services.Configure<JwtSettings>(
-    builder.Configuration.GetSection(nameof(JwtSettings)));
+builder.Services.AddScoped<ICreateJWT,CreateJWT>();
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
 builder.Services.AddTransient<Seed>();
 builder.Services.AddDbContext<DataContext>(options =>
 {

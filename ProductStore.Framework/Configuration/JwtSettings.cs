@@ -9,5 +9,7 @@ namespace ProductStore.Framework.Configuration
     public class JwtSettings
     {
         public string Token { get; init; } = string.Empty;
+        public string Issuer { get; set; } = string.Empty;
+        public string Audience { get; set; } = string.Empty;
     }
 }

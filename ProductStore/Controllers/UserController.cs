@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using OfficeOpenXml.Table;
+using OfficeOpenXml;
 using ProductStore.ConfigurationError;
 using ProductStore.Core.Interface;
 using ProductStore.Data;
@@ -14,6 +16,7 @@ using ProductStore.Framework.Pagination;
 using ProductStore.Framework.Services;
 using ProductStore.Interface;
 using ProductStore.Models;
+using ProductStore.Repository;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -32,8 +35,8 @@ namespace ProductStore.Controllers
         private readonly UserManager<User> _userManager;
         private readonly IServicePagination<User> _servicePagination;
         private readonly DataContext _dataContext;
-        private readonly CreateJWT _createJWT;
-        public UserController(IUserRepository userRepository, UserManager<User> userManager, IServicePagination<User> servicePagination, DataContext dataContext, CreateJWT createJWT) 
+        private readonly ICreateJWT _createJWT;
+        public UserController(IUserRepository userRepository, UserManager<User> userManager, IServicePagination<User> servicePagination, DataContext dataContext, ICreateJWT createJWT) 
         {
             _userRepository = userRepository;
             _userManager = userManager;
@@ -83,6 +86,69 @@ namespace ProductStore.Controllers
             };
 
             return Ok(response);
+        }
+
+        [HttpGet("ExportExcel")]
+        public IActionResult ExportExcel()
+        {
+            try
+            {
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                DataTable dataTable = GetAddressData();
+
+                using (var package = new ExcelPackage())
+                {
+                    var worksheet = package.Workbook.Worksheets.Add("User");
+
+                    for (int i = 0; i < dataTable.Columns.Count; i++)
+                    {
+                        worksheet.Cells[1, i + 1].Value = dataTable.Columns[i].ColumnName;
+                    }
+
+                    for (int row = 0; row < dataTable.Rows.Count; row++)
+                    {
+                        for (int col = 0; col < dataTable.Columns.Count; col++)
+                        {
+                            worksheet.Cells[row + 2, col + 1].Value = dataTable.Rows[row][col];
+                        }
+                    }
+
+                    var tableRange = worksheet.Cells[1, 1, dataTable.Rows.Count + 1, dataTable.Columns.Count];
+                    var table = worksheet.Tables.Add(tableRange, "UserTable");
+                    table.TableStyle = TableStyles.Light1;
+
+                    var fileBytes = package.GetAsByteArray();
+                    return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "User.xlsx");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error in Excel {ex.Message}");
+            }
+        }
+
+        private DataTable GetAddressData()
+        {
+            DataTable dt = new DataTable();
+            dt.TableName = "User";
+            dt.Columns.Add("Id", typeof(int));
+            dt.Columns.Add("ImageProfil", typeof(byte));
+            /*dt.Columns.Add("VericationToken", typeof(string));
+            dt.Columns.Add("VerifiedAt", typeof(DateTime));
+            dt.Columns.Add("PasswordResetToken", typeof(string));
+            dt.Columns.Add("ResetTokenExpires", typeof(DateTime));*/
+            dt.Columns.Add("UserName", typeof (string));
+/*            dt.Columns.Add("NormalizedUserName", typeof (string));
+            dt.Columns.Add("Email", typeof(string));*/
+
+            var categoryData = _userRepository.GetUsers().Result;
+            foreach (var customer in categoryData)
+            {
+                dt.Rows.Add(customer.Id, customer.ImageProfile, customer.UserName);
+
+            }
+
+            return dt;
         }
 
         [HttpPost]

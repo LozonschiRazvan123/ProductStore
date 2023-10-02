@@ -108,7 +108,7 @@ namespace ProductStore.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest($"Eroare la exportul în Excel: {ex.Message}");
+                return BadRequest($"Error in Excel: {ex.Message}");
             }
         }
 

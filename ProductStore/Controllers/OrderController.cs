@@ -20,6 +20,7 @@ namespace ProductStore.Controllers
         private readonly IOrderRepository _orderRepository;
         private readonly IServicePagination<Order> _servicePagination;
         private readonly DataContext _dataContext;
+        private readonly IGetDataExcel _excel;
         public OrderController(IOrderRepository orderRepository, IServicePagination<Order> servicePagination, DataContext dataContext) 
         { 
             _orderRepository = orderRepository;
@@ -76,7 +77,7 @@ namespace ProductStore.Controllers
             try
             {
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                DataTable dataTable = GetAddressData();
+                DataTable dataTable = _excel.GetOrderData();
 
                 using (var package = new ExcelPackage())
                 {
@@ -113,23 +114,6 @@ namespace ProductStore.Controllers
             {
                 return BadRequest($"Error in Excel {ex.Message}");
             }
-        }
-
-        private DataTable GetAddressData()
-        {
-            DataTable dt = new DataTable();
-            dt.TableName = "Order";
-            dt.Columns.Add("Id", typeof(int));
-            dt.Columns.Add("DateTime", typeof(DateTime));
-
-            var categoryData = _orderRepository.GetOrders().Result;
-            foreach (var customer in categoryData)
-            {
-                dt.Rows.Add(customer.Id, customer.DateTime);
-
-            }
-
-            return dt;
         }
 
         [HttpPost]

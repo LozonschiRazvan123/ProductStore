@@ -23,11 +23,13 @@ namespace ProductStore.Controllers
         private readonly ICustomerRepository _customerRepository;
         private readonly IServicePagination<Customer> _servicePagination;
         private readonly DataContext _dataContext;
-        public CustomerController(ICustomerRepository customerRepository, IServicePagination<Customer> servicePagination, DataContext dataContext) 
+        private readonly IGetDataExcel _excel;
+        public CustomerController(ICustomerRepository customerRepository, IServicePagination<Customer> servicePagination, DataContext dataContext, IGetDataExcel excel) 
         {
             _customerRepository = customerRepository;
             _servicePagination = servicePagination;
             _dataContext = dataContext;
+            _excel = excel;
         }
 
         [HttpGet]
@@ -80,7 +82,7 @@ namespace ProductStore.Controllers
             try
             {
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                DataTable dataTable = GetAddressData();
+                DataTable dataTable = _excel.GetCustomerData();
 
                 using (var package = new ExcelPackage())
                 {
@@ -111,25 +113,6 @@ namespace ProductStore.Controllers
             {
                 return BadRequest($"Error in Excel {ex.Message}");
             }
-        }
-
-        private DataTable GetAddressData()
-        {
-            DataTable dt = new DataTable();
-            dt.TableName = "Customer";
-            dt.Columns.Add("Id", typeof(int));
-            dt.Columns.Add("Name", typeof(string));
-            dt.Columns.Add("Surname", typeof(string));
-            dt.Columns.Add("Email", typeof(string));
-
-            var categoryData = _customerRepository.GetCustomers().Result;
-            foreach (var customer in categoryData)
-            {
-                dt.Rows.Add(customer.Id, customer.Name, customer.Surname, customer.Email);
-
-            }
-
-            return dt;
         }
 
 

@@ -36,13 +36,15 @@ namespace ProductStore.Controllers
         private readonly IServicePagination<User> _servicePagination;
         private readonly DataContext _dataContext;
         private readonly ICreateJWT _createJWT;
-        public UserController(IUserRepository userRepository, UserManager<User> userManager, IServicePagination<User> servicePagination, DataContext dataContext, ICreateJWT createJWT) 
+        private readonly IGetDataExcel _excel;
+        public UserController(IUserRepository userRepository, UserManager<User> userManager, IServicePagination<User> servicePagination, DataContext dataContext, ICreateJWT createJWT, IGetDataExcel excel) 
         {
             _userRepository = userRepository;
             _userManager = userManager;
             _servicePagination = servicePagination;
             _dataContext = dataContext;
             _createJWT = createJWT;
+            _excel = excel;
         }
 
         [HttpGet]
@@ -94,7 +96,7 @@ namespace ProductStore.Controllers
             try
             {
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                DataTable dataTable = GetAddressData();
+                DataTable dataTable = _excel.GetUserData();
 
                 using (var package = new ExcelPackage())
                 {
@@ -127,30 +129,7 @@ namespace ProductStore.Controllers
             }
         }
 
-        private DataTable GetAddressData()
-        {
-            DataTable dt = new DataTable();
-            dt.TableName = "User";
-            dt.Columns.Add("Id", typeof(Guid));
-            dt.Columns.Add("ImageProfil", typeof(byte));
-            /*dt.Columns.Add("VericationToken", typeof(string));
-            dt.Columns.Add("VerifiedAt", typeof(DateTime));
-            dt.Columns.Add("PasswordResetToken", typeof(string));
-            dt.Columns.Add("ResetTokenExpires", typeof(DateTime));*/
-            dt.Columns.Add("UserName", typeof (string));
-/*            dt.Columns.Add("NormalizedUserName", typeof (string));
-            dt.Columns.Add("Email", typeof(string));*/
-
-            var categoryData = _userRepository.GetUsers().Result;
-            foreach (var customer in categoryData)
-            {
-                dt.Rows.Add(customer.Id, customer.ImageProfile, customer.UserName);
-
-            }
-
-            return dt;
-        }
-
+ 
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] UserDTO userDTO)
         {
@@ -282,63 +261,6 @@ namespace ProductStore.Controllers
                 passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
             }
         }
-
-        /*private string CreateJwt(User user)
-        {
-            *//*var tokenHandler = new JwtSecurityTokenHandler();
-
-            var jwtKey = _configuration.GetSection("JwtSettings:Token").Value;
-
-            var encodedJWTKey = Encoding.UTF8.GetBytes(jwtKey);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Name, user.UserName),
-                }),
-                Expires = DateTime.UtcNow.AddDays(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(encodedJWTKey), SecurityAlgorithms.HmacSha256Signature),
-            };
-
-            var roles = _userManager.GetRolesAsync(user).Result.ToList();
-
-            roles.ForEach(role =>
-            {
-                tokenDescriptor.Subject.AddClaim(new Claim("roles", role));
-            });
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            var writtenToken = tokenHandler.WriteToken(token);
-
-            return writtenToken;*//*
-            var roles = _userManager.GetRolesAsync(user).Result;
-
-            List<Claim> claims = new List<Claim>();
-
-            claims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
-            claims.Add(new Claim(ClaimTypes.Name, user.UserName));
-            claims.Add(new Claim(ClaimTypes.Email, user.Email));
-            claims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.Email));
-
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_jwtSettings.Token));
-
-            var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
-
-            var token = new JwtSecurityToken(
-                claims: claims,
-                expires: DateTime.Now.AddDays(1),
-                signingCredentials: cred);
-
-            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-            return jwt;
-        }*/
 
 
         [HttpPost("login")]

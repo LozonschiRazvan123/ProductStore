@@ -20,11 +20,13 @@ namespace ProductStore.Controllers
         private readonly IProductRepository _productRepository; 
         private readonly IServicePagination<Product> _servicePagination;
         private readonly DataContext _dataContext;
-        public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext) 
+        private readonly IGetDataExcel _excel;
+        public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext, IGetDataExcel excel) 
         {
             _productRepository = productRepository;
             _servicePagination = servicePagination;
             _dataContext = dataContext;
+            _excel = excel;
         }
 
 
@@ -79,7 +81,7 @@ namespace ProductStore.Controllers
             try
             {
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                DataTable dataTable = GetAddressData();
+                DataTable dataTable = _excel.GetProductData();
 
                 using (var package = new ExcelPackage())
                 {
@@ -112,23 +114,6 @@ namespace ProductStore.Controllers
             }
         }
 
-        private DataTable GetAddressData()
-        {
-            DataTable dt = new DataTable();
-            dt.TableName = "Product";
-            dt.Columns.Add("Id", typeof(int));
-            dt.Columns.Add("Name", typeof(string));
-            dt.Columns.Add("Price", typeof(int));
-
-            var categoryData = _productRepository.GetProducts().Result;
-            foreach (var customer in categoryData)
-            {
-                dt.Rows.Add(customer.Id, customer.Name, customer.Price);
-
-            }
-
-            return dt;
-        }
 
         [HttpPost]
         public async Task<IActionResult> CreateProduct([FromBody] ProductDTO product)

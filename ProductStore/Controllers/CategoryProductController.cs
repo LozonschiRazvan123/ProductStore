@@ -21,11 +21,13 @@ namespace ProductStore.Controllers
         private readonly ICategoryProductRepository _categoryProductRepository;
         private readonly IServicePagination<CategoryProduct> _servicePagination;
         private readonly DataContext _dataContext;
-        public CategoryProductController(ICategoryProductRepository categoryProductRepository, IServicePagination<CategoryProduct> servicePagination, DataContext dataContext) 
+        private readonly IGetDataExcel _excel;
+        public CategoryProductController(ICategoryProductRepository categoryProductRepository, IServicePagination<CategoryProduct> servicePagination, DataContext dataContext, IGetDataExcel excel) 
         { 
             _categoryProductRepository = categoryProductRepository;
             _servicePagination = servicePagination;
             _dataContext = dataContext;
+            _excel = excel;
         }
 
         [HttpGet]
@@ -78,7 +80,7 @@ namespace ProductStore.Controllers
             try
             {
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                DataTable dataTable =  GetAddressData();
+                DataTable dataTable = _excel.GetCategoryProductData();
 
                 using (var package = new ExcelPackage())
                 {
@@ -109,23 +111,6 @@ namespace ProductStore.Controllers
             {
                 return BadRequest($"Error in Excel {ex.Message}");
             }
-        }
-
-        private DataTable GetAddressData()
-        {
-            DataTable dt = new DataTable();
-            dt.TableName = "CategoryProduct";
-            dt.Columns.Add("Id", typeof(int));
-            dt.Columns.Add("NameCategory", typeof(string));
-
-            var categoryData = _categoryProductRepository.GetCategoryProducts().Result;
-            foreach (var category in categoryData)
-            {
-                dt.Rows.Add(category.Id, category.NameCategory);
-
-            }
-
-            return dt;
         }
 
         [HttpPost]

@@ -21,11 +21,13 @@ namespace ProductStore.Controllers
         private readonly IAddressRepository _addressRepository;
         private readonly IServicePagination<Address> _servicePagination;
         private readonly DataContext _dataContext;
-        public AddressController(IAddressRepository addressRepository, IServicePagination<Address> servicePagination, DataContext dataContext)
+        private readonly IGetDataExcel _excel;
+        public AddressController(IAddressRepository addressRepository, IServicePagination<Address> servicePagination, DataContext dataContext, IGetDataExcel excel)
         {
             _addressRepository = addressRepository;
             _servicePagination = servicePagination;
             _dataContext = dataContext;
+            _excel = excel;
         }
 
         [HttpGet]
@@ -79,7 +81,7 @@ namespace ProductStore.Controllers
             try
             {
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                DataTable dataTable = GetAddressData();
+                DataTable dataTable = _excel.GetAddressData();
 
                 using (var package = new ExcelPackage())
                 {
@@ -110,26 +112,6 @@ namespace ProductStore.Controllers
             {
                 return BadRequest($"Error in Excel: {ex.Message}");
             }
-        }
-
-        private DataTable GetAddressData()
-        {
-            DataTable dt = new DataTable();
-            dt.TableName = "Address";
-            dt.Columns.Add("Id", typeof(int));
-            dt.Columns.Add("Street", typeof(string));
-            dt.Columns.Add("City", typeof (string));
-            dt.Columns.Add("State", typeof (string));
-            //dt.Columns.Add("CustomerId", typeof(int));
-
-            var addressData = _addressRepository.GetAddresses();                                   
-            foreach (var address in addressData)
-            {                                                         
-                    dt.Rows.Add(address.Id, address.Street, address.City, address.State);
-                                                                 
-            }
-
-            return dt;
         }
 
         [HttpPost]

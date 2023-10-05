@@ -9,9 +9,11 @@ namespace ProductStore.DTO
         [Required, MinLength(6, ErrorMessage = "Please enter at least 6 characters!")]
         public string Password { get; set; }
         [Required, EmailAddress]
-        public string Email { get; set; }   
+        public string Email { get; set; }
+        [Display(Name = "Image Profile")]
         public byte[]? ImageProfile { get; set; }
 
+        [Display(Name = "Confirm Password")]
         [Required, Compare("Password")]
         public string ConfirmPassword { get; set; }
         /*public byte[] PasswordHash { get; set; } = new byte[32];

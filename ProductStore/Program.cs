@@ -38,6 +38,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped(typeof(IServicePagination<>), typeof(PaginationRepository<>));
 builder.Services.AddScoped<ICreateJWT,CreateJWT>();
 builder.Services.AddScoped<IGetDataExcel,GetDataExcel>();
+builder.Services.AddScoped<IEmailService,EmailService>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
 builder.Services.AddTransient<Seed>();
 builder.Services.AddDbContext<DataContext>(options =>

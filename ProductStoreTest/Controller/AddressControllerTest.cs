@@ -6,6 +6,7 @@ using ProductStore.Controllers;
 using ProductStore.Core.Interface;
 using ProductStore.Data;
 using ProductStore.DTO;
+using ProductStore.Framework.Services;
 using ProductStore.Interface;
 using ProductStore.Models;
 using System;
@@ -23,18 +24,20 @@ namespace ProductStoreTest.Controller
         private IAddressRepository _addressRepository;
         private readonly IServicePagination<Address> _servicePagination;
         private readonly DataContext _dataContext;
+        private readonly GetDataExcel _excel;
         public AddressControllerTest()
         {
             //Dependencies
             _addressRepository = A.Fake<IAddressRepository>();
             _servicePagination = A.Fake<IServicePagination<Address>>();
             _dataContext = new DataContext(new DbContextOptions<DataContext>());
+            _excel = A.Fake<GetDataExcel>();
 
             //SUT
             //System under test (SUT) refers to a system that is being tested for correct operation.
             //According to ISTQB it is the test object. From a unit testing perspective, the system under test represents
             //all of the classes in a test that are not predefined pieces of code like stubs or even mocks.
-            _addressController = new AddressController(_addressRepository, _servicePagination, _dataContext);
+            _addressController = new AddressController(_addressRepository, _servicePagination, _dataContext, _excel);
         }
 
 

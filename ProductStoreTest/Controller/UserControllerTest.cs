@@ -37,7 +37,7 @@ namespace ProductStoreTest.Controller
         private readonly ICreateJWT _createJWT;
         private readonly IServicePagination<User> _servicePagination;
         private readonly DataContext _dataContext;
-
+        private readonly GetDataExcel _excel;
         public UserControllerTest()
         {
             _userRepository = A.Fake<IUserRepository>();
@@ -45,6 +45,7 @@ namespace ProductStoreTest.Controller
             _jwtSettings = A.Fake<JwtSettings>();
             _createJWT = A.Fake<ICreateJWT>();
             _servicePagination = A.Fake<IServicePagination<User>>();
+            _excel = A.Fake<GetDataExcel>();
             _dataContext = new DataContext(new DbContextOptions<DataContext>());
 
             //var configuration = Configure();
@@ -56,15 +57,15 @@ namespace ProductStoreTest.Controller
 
             //_userController = A.Fake<UserController>();
 
-            var jwtSettingsOptions = A.Fake<IOptions<JwtSettings>>();
-
-            A.CallTo(() => jwtSettingsOptions.Value).Returns(new JwtSettings
+            var jwtSettings = new JwtSettings
             {
                 Token = "my top secret key lozonschi-constantin-razvan123 dadaadsdasdbmfdlgkvn",
-            });
-            _jwtSettings = jwtSettingsOptions.Value;
-            _createJWT= new CreateJWT(_userManager, _jwtSettings);
-            _userController = new UserController(_userRepository, _userManager,_servicePagination, _dataContext, _createJWT);
+            };
+
+            var jwtSettingsOptions = Options.Create(jwtSettings); // Creați obiectul IOptions<JwtSettings> folosind Options.Create
+
+            _createJWT = new CreateJWT(_userManager, jwtSettingsOptions);
+            _userController = new UserController(_userRepository, _userManager,_servicePagination, _dataContext, _createJWT, _excel);
         }
 
         /*public static Microsoft.Extensions.Configuration.IConfiguration Configure()

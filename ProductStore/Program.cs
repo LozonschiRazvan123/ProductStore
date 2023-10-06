@@ -20,6 +20,8 @@ using ProductStore.Models;
 using ProductStore.Repository;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
+using WorkerService.Interface;
+using WorkerService.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +41,7 @@ builder.Services.AddScoped(typeof(IServicePagination<>), typeof(PaginationReposi
 builder.Services.AddScoped<ICreateJWT,CreateJWT>();
 builder.Services.AddScoped<IGetDataExcel,GetDataExcel>();
 builder.Services.AddScoped<IEmailService,EmailService>();
+builder.Services.AddScoped<IBackgroundTaskQueue, BackgroundTaskQueue>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
 builder.Services.AddTransient<Seed>();
 builder.Services.AddDbContext<DataContext>(options =>

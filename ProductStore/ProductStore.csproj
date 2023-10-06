@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ProductStore.Framework\ProductStore.Framework.csproj" />
+    <ProjectReference Include="..\WorkerService\WorkerService.csproj" />
   </ItemGroup>
 
 </Project>

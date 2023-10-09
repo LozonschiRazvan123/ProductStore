@@ -17,14 +17,14 @@ namespace ProductStore.Framework.Services
         public void SendEmail(EmailDTO request)
         {
             var email = new MimeMessage();
-            email.From.Add(MailboxAddress.Parse("german.parker@ethereal.email"));
+            email.From.Add(MailboxAddress.Parse("razvanlozonschi123@gmail.com"));
             email.To.Add(MailboxAddress.Parse(request.To));
             email.Subject = request.Subject;
             email.Body = new TextPart(TextFormat.Html) { Text = request.Body };
 
             using var smtp = new SmtpClient();
-            smtp.Connect("smtp.ethereal.email", 587, SecureSocketOptions.StartTls);
-            smtp.Authenticate("german.parker@ethereal.email", "VSePWAK5D9f5mZs3XA");
+            smtp.Connect("smtp.gmail.email", 587, SecureSocketOptions.StartTls);
+            smtp.Authenticate("razvanlozonschi123@gmail.com", "razvan123!!RR");
             smtp.Send(email);
             smtp.Disconnect(true);
         }

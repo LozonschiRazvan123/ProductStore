@@ -13,15 +13,16 @@ namespace ProductStore.Controllers
         private readonly IEmailService _emailService;
         private readonly IBackgroundTaskQueue _taskQueue;
 
-        public EmailController(IEmailService emailService)
+        public EmailController(IEmailService emailService, IBackgroundTaskQueue taskQueue)
         {
             _emailService = emailService;
+            _taskQueue = taskQueue;
         }
 
         [HttpPost("SendEmail")]
-        public IActionResult SendEmail(EmailDTO request)
+        public async Task<IActionResult> SendEmail([FromBody] EmailDTO request)
         {
-            _taskQueue.EnqueueAsync(async cancellationToken =>
+            await _taskQueue.EnqueueAsync(async cancellationToken =>
             {
                      _emailService.SendEmail(request);
             });

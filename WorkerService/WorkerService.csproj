@@ -13,5 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ProductStore.Domain\ProductStore.Core.csproj" />
+    <ProjectReference Include="..\ProductStore.Framework\ProductStore.Framework.csproj" />
   </ItemGroup>
 </Project>

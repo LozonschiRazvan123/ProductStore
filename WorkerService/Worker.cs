@@ -10,7 +10,7 @@ namespace WorkerService
         private readonly IEmailService _email;
         private readonly IBackgroundTaskQueue _taskQueue;
 
-        public Worker(ILogger<Worker> logger, IEmailService email, IBackgroundTaskQueue taskQueue)
+        public Worker(ILogger<Worker> logger, IEmailService email, IBackgroundTaskQueue taskQueue, EmailDTO emailDTO)
         {
             _logger = logger;
             _email = email;
@@ -21,9 +21,10 @@ namespace WorkerService
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var currentTime = DateTime.Now;
+                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+                var currentTime = DateTimeOffset.Now;
 
-                if (currentTime.Hour == 14 && currentTime.Minute == 0)
+                if (currentTime.Hour == 14 && currentTime.Minute == 00)
                 {
                     var task = await _taskQueue.DequeueAsync(stoppingToken);
 
@@ -34,7 +35,7 @@ namespace WorkerService
                         await task(stoppingToken);
                     }
 
-                    await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken); // Verifica?i coada la fiecare minut
+                    await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
                 }
             }
         }

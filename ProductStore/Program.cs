@@ -87,6 +87,7 @@ builder.Services.AddAuthentication(o =>
         var n = builder.Configuration.GetSection("JwtSettings:Token").Value;
         options.TokenValidationParameters = new TokenValidationParameters
         {
+
            
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration.GetSection("JwtSettings:Issuer").Value,

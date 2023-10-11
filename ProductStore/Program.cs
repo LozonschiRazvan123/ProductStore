@@ -18,10 +18,9 @@ using ProductStore.Infrastructure.Repository;
 using ProductStore.Interface;
 using ProductStore.Models;
 using ProductStore.Repository;
+using Quartz;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
-using WorkerService.Interface;
-using WorkerService.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,14 +40,27 @@ builder.Services.AddScoped(typeof(IServicePagination<>), typeof(PaginationReposi
 builder.Services.AddScoped<ICreateJWT,CreateJWT>();
 builder.Services.AddScoped<IGetDataExcel,GetDataExcel>();
 builder.Services.AddScoped<IEmailService,EmailService>();
-builder.Services.AddScoped<IBackgroundTaskQueue, BackgroundTaskQueue>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
 builder.Services.AddTransient<Seed>();
 builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 }) ;
+JobKey jobKey = new JobKey("my-job");
 
+builder.Services.AddQuartz(q =>
+{
+    q.UseMicrosoftDependencyInjectionJobFactory();
+    // Add each job's configuration like this
+    q.AddJob<SendingEmail>(config => config.WithIdentity(jobKey));
+    // Add each job's trigger like this and bind it to the job by the key
+    q.AddTrigger(config => config
+        .WithIdentity("my-job-trigger")
+        .WithCronSchedule("0 0 10 ? * * *")
+        .ForJob(jobKey));
+});
+// Let Quartz know that it should finish all the running jobs slowly before shutting down.
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 builder.Services.AddIdentity<User,IdentityRole>()
     .AddEntityFrameworkStores<DataContext>()
     .AddDefaultTokenProviders();

@@ -24,12 +24,14 @@ namespace ProductStore.Controllers
         private readonly IServicePagination<Customer> _servicePagination;
         private readonly DataContext _dataContext;
         private readonly IGetDataExcel _excel;
-        public CustomerController(ICustomerRepository customerRepository, IServicePagination<Customer> servicePagination, DataContext dataContext, IGetDataExcel excel) 
+        private readonly IImportDataExcel _importDataExcel;
+        public CustomerController(ICustomerRepository customerRepository, IServicePagination<Customer> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel) 
         {
             _customerRepository = customerRepository;
             _servicePagination = servicePagination;
             _dataContext = dataContext;
             _excel = excel;
+            _importDataExcel = importDataExcel;
         }
 
         [HttpGet]
@@ -137,6 +139,31 @@ namespace ProductStore.Controllers
             }
 
             return Ok("Successfully created!");
+        }
+
+        [HttpPost("ImportExcel")]
+        public IActionResult ImportExcel(IFormFile file)
+        {
+            try
+            {
+                if (file != null && file.Length > 0)
+                {
+                    using (var stream = file.OpenReadStream())
+                    {
+                        _importDataExcel.ImportDataFromExcelCustomer(file);
+                    }
+
+                    return Ok("Awsome");
+                }
+                else
+                {
+                    return BadRequest("Naspa");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
         }
 
         [HttpPut("{customerId}")]

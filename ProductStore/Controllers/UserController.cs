@@ -37,7 +37,8 @@ namespace ProductStore.Controllers
         private readonly DataContext _dataContext;
         private readonly ICreateJWT _createJWT;
         private readonly IGetDataExcel _excel;
-        public UserController(IUserRepository userRepository, UserManager<User> userManager, IServicePagination<User> servicePagination, DataContext dataContext, ICreateJWT createJWT, IGetDataExcel excel) 
+        private readonly IImportDataExcel _importDataExcel;
+        public UserController(IUserRepository userRepository, UserManager<User> userManager, IServicePagination<User> servicePagination, DataContext dataContext, ICreateJWT createJWT, IGetDataExcel excel, IImportDataExcel importDataExcel) 
         {
             _userRepository = userRepository;
             _userManager = userManager;
@@ -45,6 +46,7 @@ namespace ProductStore.Controllers
             _dataContext = dataContext;
             _createJWT = createJWT;
             _excel = excel;
+            _importDataExcel = importDataExcel;
         }
 
         [HttpGet]
@@ -163,6 +165,31 @@ namespace ProductStore.Controllers
             else
             {
                 return BadRequest(result.Errors); 
+            }
+        }
+
+        [HttpPost("ImportExcel")]
+        public IActionResult ImportExcel(IFormFile file)
+        {
+            try
+            {
+                if (file != null && file.Length > 0)
+                {
+                    using (var stream = file.OpenReadStream())
+                    {
+                        _importDataExcel.ImportDataFromExcelUser(file);
+                    }
+
+                    return Ok("Awsome");
+                }
+                else
+                {
+                    return BadRequest("Naspa");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
             }
         }
 

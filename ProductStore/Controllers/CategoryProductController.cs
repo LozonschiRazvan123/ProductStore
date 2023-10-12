@@ -11,6 +11,7 @@ using ProductStore.Interface;
 using ProductStore.Models;
 using ProductStore.Repository;
 using System.Data;
+using ProductStore.Framework.Services;
 
 namespace ProductStore.Controllers
 {
@@ -22,12 +23,14 @@ namespace ProductStore.Controllers
         private readonly IServicePagination<CategoryProduct> _servicePagination;
         private readonly DataContext _dataContext;
         private readonly IGetDataExcel _excel;
-        public CategoryProductController(ICategoryProductRepository categoryProductRepository, IServicePagination<CategoryProduct> servicePagination, DataContext dataContext, IGetDataExcel excel) 
+        private readonly IImportDataExcel _importDataExcel;
+        public CategoryProductController(ICategoryProductRepository categoryProductRepository, IServicePagination<CategoryProduct> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel) 
         { 
             _categoryProductRepository = categoryProductRepository;
             _servicePagination = servicePagination;
             _dataContext = dataContext;
             _excel = excel;
+            _importDataExcel = importDataExcel;
         }
 
         [HttpGet]
@@ -135,6 +138,31 @@ namespace ProductStore.Controllers
             }
 
             return Ok("Successfully created!");
+        }
+
+        [HttpPost("ImportExcel")]
+        public IActionResult ImportExcel(IFormFile file)
+        {
+            try
+            {
+                if (file != null && file.Length > 0)
+                {
+                    using (var stream = file.OpenReadStream())
+                    {
+                        _importDataExcel.ImportDataFromExcelCategoryProduct(file);
+                    }
+
+                    return Ok("Awsome");
+                }
+                else
+                {
+                    return BadRequest("Naspa");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
         }
 
         [HttpPut("{id}")]

@@ -25,6 +25,7 @@ namespace ProductStoreTest.Controller
         private readonly IServicePagination<Address> _servicePagination;
         private readonly DataContext _dataContext;
         private readonly GetDataExcel _excel;
+        private readonly ImportDataExcel _importExcel;
         public AddressControllerTest()
         {
             //Dependencies
@@ -32,12 +33,14 @@ namespace ProductStoreTest.Controller
             _servicePagination = A.Fake<IServicePagination<Address>>();
             _dataContext = new DataContext(new DbContextOptions<DataContext>());
             _excel = A.Fake<GetDataExcel>();
+            _importExcel = A.Fake<ImportDataExcel>();
+            
 
             //SUT
             //System under test (SUT) refers to a system that is being tested for correct operation.
             //According to ISTQB it is the test object. From a unit testing perspective, the system under test represents
             //all of the classes in a test that are not predefined pieces of code like stubs or even mocks.
-            _addressController = new AddressController(_addressRepository, _servicePagination, _dataContext, _excel);
+            _addressController = new AddressController(_addressRepository, _servicePagination, _dataContext, _excel, _importExcel);
         }
 
 

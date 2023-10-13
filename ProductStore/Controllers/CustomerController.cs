@@ -186,6 +186,31 @@ namespace ProductStore.Controllers
             return Ok("Successfully update!");
         }
 
+        [HttpPut("ImportExcel")]
+        public IActionResult ImportExcelCustomer(IFormFile file)
+        {
+            try
+            {
+                if (file != null && file.Length > 0)
+                {
+                    using (var stream = file.OpenReadStream())
+                    {
+                        _importDataExcel.ImportDataExcelUpdateCustomer(file);
+                    }
+
+                    return Ok("Awsome");
+                }
+                else
+                {
+                    return BadRequest("Naspa");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
+        }
+
         [HttpDelete("{customerId}")]
         public async Task<IActionResult> DeleteCustomer(int customerId)
         {

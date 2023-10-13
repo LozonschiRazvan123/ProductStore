@@ -182,6 +182,31 @@ namespace ProductStore.Controllers
             return Ok("Successfully update!");
         }
 
+        [HttpPut("ImportExcel")]
+        public IActionResult ImportExcelOrder(IFormFile file)
+        {
+            try
+            {
+                if (file != null && file.Length > 0)
+                {
+                    using (var stream = file.OpenReadStream())
+                    {
+                        _importDataExcel.ImportDataExcelUpdateOrder(file);
+                    }
+
+                    return Ok("Awsome");
+                }
+                else
+                {
+                    return BadRequest("Naspa");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
+        }
+
         [HttpDelete("{orderId}")]
         public async Task<IActionResult> DeleteOrder(int orderId)
         {

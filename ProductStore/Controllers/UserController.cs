@@ -423,5 +423,31 @@ namespace ProductStore.Controllers
             }
             return Ok("Update successfully!");
         }
+
+        [HttpPut("ImportExcel")]
+        public IActionResult ImportExcelUser(IFormFile file)
+        {
+            try
+            {
+                if (file != null && file.Length > 0)
+                {
+                    using (var stream = file.OpenReadStream())
+                    {
+                        _importDataExcel.ImportDataExcelUpdateUser(file);
+                    }
+
+                    return Ok("Awsome");
+                }
+                else
+                {
+                    return BadRequest("Naspa");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
+        }
+
     }
 }

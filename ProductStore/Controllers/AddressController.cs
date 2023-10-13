@@ -187,6 +187,31 @@ namespace ProductStore.Controllers
             return Ok("Successfully update!");
         }
 
+        [HttpPut("ImportExcel")]
+        public IActionResult ImportExcelUpdate(IFormFile file)
+        {
+            try
+            {
+                if (file != null && file.Length > 0)
+                {
+                    using (var stream = file.OpenReadStream())
+                    {
+                        _importDataExcel.ImportDataExcelUpdateAddress(file);
+                    }
+
+                    return Ok("Awsome");
+                }
+                else
+                {
+                    return BadRequest("Naspa");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
+        }
+
         [HttpDelete("{addressId}")]
         public IActionResult DeleteAddress(int addressId)
         {

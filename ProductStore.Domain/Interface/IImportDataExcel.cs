@@ -15,5 +15,12 @@ namespace ProductStore.Core.Interface
         public void ImportDataFromExcelOrder(IFormFile file);
         public void ImportDataFromExcelProduct(IFormFile file);
         public void ImportDataFromExcelUser(IFormFile file);
+
+        public void ImportDataExcelUpdateAddress(IFormFile file);
+        public void ImportDataExcelUpdateCategoryProduct(IFormFile file);
+        public void ImportDataExcelUpdateCustomer(IFormFile file);
+        public void ImportDataExcelUpdateOrder(IFormFile file);
+        public void ImportDataExcelUpdateProduct(IFormFile file);
+        public void ImportDataExcelUpdateUser(IFormFile file);
     }
 }

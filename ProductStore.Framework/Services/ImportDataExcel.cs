@@ -280,5 +280,212 @@ namespace ProductStore.Framework.Services
                 }
             }
         }
+
+        public void ImportDataExcelUpdateAddress(IFormFile file)
+        {
+            using (var stream = file.OpenReadStream())
+            {
+                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                using (var package = new ExcelPackage(stream))
+                {
+                    var worksheet = package.Workbook.Worksheets[0];
+
+                    for (int row = 2; row <= worksheet.Dimension.Rows; row++)
+                    {
+                        int id = Convert.ToInt32(worksheet.Cells[row, 1].Value);
+                        string street = worksheet.Cells[row, 2].Value.ToString();
+                        string city = worksheet.Cells[row, 3].Value.ToString();
+                        string state = worksheet.Cells[row, 4].Value.ToString();
+
+                        var existingAddress = _dataContext.Addresses.FirstOrDefault(a => a.Id == id);
+
+                        if (existingAddress != null)
+                        {
+                            existingAddress.Street = street;
+                            existingAddress.City = city;
+                            existingAddress.State = state;
+                        }
+                    }
+                    _dataContext.SaveChanges();
+                }
+            }
+        }
+
+        public async void ImportDataExcelUpdateCategoryProduct(IFormFile file)
+        {
+            using (var stream = file.OpenReadStream())
+            {
+                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                using (var package = new ExcelPackage(stream))
+                {
+                    var worksheet = package.Workbook.Worksheets[0];
+
+                    for (int row = 2; row <= worksheet.Dimension.Rows; row++)
+                    {
+                        int id = Convert.ToInt32(worksheet.Cells[row, 1].Value);
+                        string nameCategory = worksheet.Cells[row, 2].Value.ToString();
+
+                        var categoryProductDTO = new CategoryProductDTO
+                        {
+                            Id = id,
+                            NameCategory = nameCategory
+                        };
+
+
+                        var existingCategoryProduct = _dataContext.CategoryProducts.FirstOrDefault(a => a.Id == id);
+
+                        if (existingCategoryProduct != null)
+                        {
+                            existingCategoryProduct.NameCategory = nameCategory;
+                        }
+                    }
+                    _dataContext.SaveChanges();
+                }
+            }
+        }
+
+        public void ImportDataExcelUpdateCustomer(IFormFile file)
+        {
+            using (var stream = file.OpenReadStream())
+            {
+                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                using (var package = new ExcelPackage(stream))
+                {
+                    var worksheet = package.Workbook.Worksheets[0];
+
+                    for (int row = 2; row <= worksheet.Dimension.Rows; row++)
+                    {
+                        int id = Convert.ToInt32(worksheet.Cells[row, 1].Value);
+                        string name = worksheet.Cells[row, 2].Value.ToString();
+                        string surName = worksheet.Cells[row, 3].Value.ToString();
+                        string email = worksheet.Cells[row, 4].Value.ToString();
+
+                        var customerDTO = new CustomerDTO
+                        {
+                            Id = id,
+                            Name = name,
+                            Surname = surName,
+                            Email = email
+                        };
+
+
+                        var existingCustomer = _dataContext.Customers.FirstOrDefault(a => a.Id == id);
+
+                        if (existingCustomer != null)
+                        {
+                            existingCustomer.Name = name;
+                            existingCustomer.Surname = surName;
+                            existingCustomer.Email = email;
+                        }
+                    }
+                    _dataContext.SaveChanges();
+                }
+            }
+        }
+
+        public void ImportDataExcelUpdateOrder(IFormFile file)
+        {
+            using (var stream = file.OpenReadStream())
+            {
+                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                using (var package = new ExcelPackage(stream))
+                {
+                    var worksheet = package.Workbook.Worksheets[0];
+
+                    for (int row = 2; row <= worksheet.Dimension.Rows; row++)
+                    {
+                        int id = Convert.ToInt32(worksheet.Cells[row, 1].Value);
+                        DateTime date = DateTime.Parse(worksheet.Cells[row, 2].Text);
+
+                        var orderDTO = new OrderDTO
+                        {
+                            Id = id,
+                            DateTime = date,
+                        };
+
+
+                        var existingOrder = _dataContext.Orders.FirstOrDefault(a => a.Id == id);
+
+                        if (existingOrder != null)
+                        {
+                            existingOrder.DateTime = date;
+                        }
+                    }
+                    _dataContext.SaveChanges();
+                }
+            }
+        }
+
+        public void ImportDataExcelUpdateProduct(IFormFile file)
+        {
+            using (var stream = file.OpenReadStream())
+            {
+                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                using (var package = new ExcelPackage(stream))
+                {
+                    var worksheet = package.Workbook.Worksheets[0];
+
+                    for (int row = 2; row <= worksheet.Dimension.Rows; row++)
+                    {
+                        int id = Convert.ToInt32(worksheet.Cells[row, 1].Value);
+                        string name = worksheet.Cells[row, 2].Value.ToString();
+                        int price = int.Parse(worksheet.Cells[row, 3].Value.ToString());
+
+                        var productDTO = new ProductDTO
+                        {
+                            Id = id,
+                            Name = name,
+                            Price = price
+                        };
+
+
+                        var existingProduct = _dataContext.Products.FirstOrDefault(a => a.Id == id);
+
+                        if (existingProduct != null)
+                        {
+                            existingProduct.Name = name;
+                            existingProduct.Price = price;
+                        }
+                    }
+                    _dataContext.SaveChanges();
+                }
+            }
+        }
+
+        public void ImportDataExcelUpdateUser(IFormFile file)
+        {
+            using (var stream = file.OpenReadStream())
+            {
+                ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
+                using (var package = new ExcelPackage(stream))
+                {
+                    var worksheet = package.Workbook.Worksheets[0];
+
+                    for (int row = 2; row <= worksheet.Dimension.Rows; row++)
+                    {
+                        Guid id = Guid.Parse(worksheet.Cells[row, 1].Text);
+                        byte[] imageProfile = Convert.FromBase64String(worksheet.Cells[row, 2].Value.ToString());
+                        string userName = worksheet.Cells[row, 3].Value.ToString();
+
+                        var userDTO = new UserDTO
+                        {
+                            Id = id.ToString(),
+                            ImageProfile = imageProfile,
+                            UserName = userName
+                        };
+
+
+                        var existingUser = _dataContext.Users.FirstOrDefault(a => a.Id == id.ToString());
+
+                        if (existingUser != null)
+                        {
+                            existingUser.ImageProfile = imageProfile;
+                            existingUser.UserName = userName;
+                        }
+                    }
+                    _dataContext.SaveChanges();
+                }
+            }
+        }
     }
 }

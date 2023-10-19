@@ -38,6 +38,12 @@ namespace ProductStoreTest.Controller
         private readonly IServicePagination<User> _servicePagination;
         private readonly DataContext _dataContext;
         private readonly GetDataExcel _excel;
+        private readonly ImportDataExcel _importExcel;
+        private readonly ICategoryProductRepository _categoryProductRepository;
+        private readonly IProductRepository _productRepository;
+        private readonly ICustomerRepository _customerRepository;
+        private readonly IOrderRepository _orderRepository;
+        private readonly IAddressRepository _addressRepository;
         public UserControllerTest()
         {
             _userRepository = A.Fake<IUserRepository>();
@@ -47,6 +53,9 @@ namespace ProductStoreTest.Controller
             _servicePagination = A.Fake<IServicePagination<User>>();
             _excel = A.Fake<GetDataExcel>();
             _dataContext = new DataContext(new DbContextOptions<DataContext>());
+            _importExcel = _importExcel = new ImportDataExcel(
+        _addressRepository, _dataContext, _categoryProductRepository,
+        _customerRepository, _orderRepository, _productRepository, _userRepository);
 
             //var configuration = Configure();
             var services = new ServiceCollection();
@@ -65,7 +74,7 @@ namespace ProductStoreTest.Controller
             var jwtSettingsOptions = Options.Create(jwtSettings); // Creați obiectul IOptions<JwtSettings> folosind Options.Create
 
             _createJWT = new CreateJWT(_userManager, jwtSettingsOptions);
-            _userController = new UserController(_userRepository, _userManager,_servicePagination, _dataContext, _createJWT, _excel);
+            _userController = new UserController(_userRepository, _userManager,_servicePagination, _dataContext, _createJWT, _excel, _importExcel);
         }
 
         /*public static Microsoft.Extensions.Configuration.IConfiguration Configure()

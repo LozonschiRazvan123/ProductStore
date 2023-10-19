@@ -26,6 +26,11 @@ namespace ProductStoreTest.Controller
         private readonly DataContext _dataContext;
         private readonly GetDataExcel _excel;
         private readonly ImportDataExcel _importExcel;
+        private readonly ICategoryProductRepository _categoryProductRepository;
+        private readonly IProductRepository _productRepository;
+        private readonly ICustomerRepository _customerRepository;
+        private readonly IOrderRepository _orderRepository;
+        private readonly IUserRepository _userRepository;
         public AddressControllerTest()
         {
             //Dependencies
@@ -33,8 +38,10 @@ namespace ProductStoreTest.Controller
             _servicePagination = A.Fake<IServicePagination<Address>>();
             _dataContext = new DataContext(new DbContextOptions<DataContext>());
             _excel = A.Fake<GetDataExcel>();
-            _importExcel = A.Fake<ImportDataExcel>();
-            
+            _importExcel = new ImportDataExcel(
+        _addressRepository, _dataContext, _categoryProductRepository,
+        _customerRepository, _orderRepository, _productRepository, _userRepository);
+
 
             //SUT
             //System under test (SUT) refers to a system that is being tested for correct operation.

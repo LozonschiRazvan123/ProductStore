@@ -48,6 +48,10 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 }) ;
 JobKey jobKey = new JobKey("my-job");
+builder.Services.AddSignalR();
+builder.Services.AddCors(options => {
+    options.AddPolicy("CORSPolicy", builder => builder.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed((hosts) => true));
+});
 
 builder.Services.AddQuartz(q =>
 {
@@ -119,6 +123,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors("CORSPolicy");
 
 app.UseRouting();
 
@@ -129,6 +134,11 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseEndpoints(endpoints => {
+    endpoints.MapControllers();
+    endpoints.MapHub<MessageHub>("/offers");
+});
 
 app.MapControllers();
 

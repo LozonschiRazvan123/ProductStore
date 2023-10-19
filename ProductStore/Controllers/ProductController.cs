@@ -10,6 +10,8 @@ using ProductStore.Framework.Pagination;
 using ProductStore.Interface;
 using ProductStore.Models;
 using System.Data;
+using ProductStore.Framework.Services;
+using Microsoft.AspNetCore.SignalR;
 
 namespace ProductStore.Controllers
 {
@@ -22,13 +24,15 @@ namespace ProductStore.Controllers
         private readonly DataContext _dataContext;
         private readonly IGetDataExcel _excel;
         private readonly IImportDataExcel _importDataExcel;
-        public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel) 
+        private IHubContext<MessageHub, IMessageHubClient> _messageHub;
+        public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel, IHubContext<MessageHub, IMessageHubClient> messageHub) 
         {
             _productRepository = productRepository;
             _servicePagination = servicePagination;
             _dataContext = dataContext;
             _excel = excel;
             _importDataExcel = importDataExcel;
+            _messageHub = messageHub;
         }
 
 
@@ -228,6 +232,21 @@ namespace ProductStore.Controllers
             {
                 return BadRequest($"Error: {ex.Message}");
             }
+        }
+
+
+        [HttpPost]
+        [Route("productoffers")]
+        public async Task<string> SendMessage()
+        {
+            var product = await _productRepository.GetProducts();
+            IList<string> offers = new List<string>();
+            foreach(var item in product)
+            {
+                offers.Add("20% Off on" + item.Name);
+            }
+            _messageHub.Clients.All.SendOffersToUser(offers);
+            return "Offers sent successfully to all users!";
         }
     }
 }

@@ -105,7 +105,11 @@ builder.Services.AddAuthentication(o =>
         };
     }
     );
-
+builder.Services.AddLogging(logging =>
+{
+    logging.AddConsole(); // Adaug? înregistrarea la consol?
+    logging.SetMinimumLevel(LogLevel.Debug); // Seteaz? nivelul minim de înregistrare
+});
 
 
 var app = builder.Build();
@@ -139,6 +143,8 @@ app.UseEndpoints(endpoints => {
     endpoints.MapControllers();
     endpoints.MapHub<MessageHub>("/offers");
 });
+
+
 
 app.MapControllers();
 

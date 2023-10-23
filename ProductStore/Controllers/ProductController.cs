@@ -25,6 +25,7 @@ namespace ProductStore.Controllers
         private readonly IGetDataExcel _excel;
         private readonly IImportDataExcel _importDataExcel;
         private IHubContext<MessageHub, IMessageHubClient> _messageHub;
+
         public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel, IHubContext<MessageHub, IMessageHubClient> messageHub) 
         {
             _productRepository = productRepository;
@@ -240,12 +241,12 @@ namespace ProductStore.Controllers
         public async Task<string> SendMessage()
         {
             var product = await _productRepository.GetProducts();
-            IList<string> offers = new List<string>();
+            List<string> offers = new List<string>();
             foreach(var item in product)
             {
                 offers.Add("20% Off on" + item.Name);
             }
-            _messageHub.Clients.All.SendOffersToUser(offers);
+            await _messageHub.Clients.All.SendOffersToUser(offers);
             return "Offers sent successfully to all users!";
         }
     }

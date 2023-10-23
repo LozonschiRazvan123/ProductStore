@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using ProductStore.Core.Interface;
 using System;
 using System.Collections.Generic;
@@ -10,9 +11,8 @@ namespace ProductStore.Framework.Services
 {
     public class MessageHub: Hub<IMessageHubClient>
     {
-        public async Task SendOffersToUser(IList<string> message)
-        {
-            await Clients.All.SendOffersToUser(message);
-        }
+        public async Task SendOffersToUser(List<string> message)
+
+           => await Clients.All.SendOffersToUser(message);
     }
 }

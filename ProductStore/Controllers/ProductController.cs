@@ -11,7 +11,7 @@ using ProductStore.Interface;
 using ProductStore.Models;
 using System.Data;
 using ProductStore.Framework.Services;
-using Microsoft.AspNet.SignalR;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNet.SignalR.Messaging;
 
 
@@ -249,7 +249,7 @@ namespace ProductStore.Controllers
                 offers.Add("20% Off on " + item.Name);
             }
 
-            await _messageHub.Clients.All.SendOffersToUser("ReceiveMessage",offers);
+            await _messageHub.Clients.All.SendAsync("SendOffersToUser", "ReceiveMessage", offers);
 
             return Ok("Offers sent successfully to all users!");
         }

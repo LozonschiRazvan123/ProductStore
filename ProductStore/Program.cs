@@ -43,7 +43,7 @@ builder.Services.AddScoped<ICreateJWT,CreateJWT>();
 builder.Services.AddScoped<IGetDataExcel,GetDataExcel>();
 builder.Services.AddScoped<IEmailService,EmailService>();
 builder.Services.AddScoped<IImportDataExcel,ImportDataExcel>();
-builder.Services.AddScoped<IHubContext<MessageHub>>();
+//builder.Services.AddScoped<IHubContext<MessageHub>>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
 builder.Services.AddTransient<Seed>();
 builder.Services.AddDbContext<DataContext>(options =>
@@ -108,7 +108,6 @@ builder.Services.AddAuthentication(o =>
         };
     }
     );
-
 
 var app = builder.Build();
 

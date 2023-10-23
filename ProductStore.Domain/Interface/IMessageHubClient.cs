@@ -8,6 +8,6 @@ namespace ProductStore.Core.Interface
 {
     public interface IMessageHubClient
     {
-        Task SendOffersToUser(List<string> message);
+        Task SendOffersToUser(string user, List<string> message);
     }
 }

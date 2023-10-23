@@ -11,7 +11,9 @@ using ProductStore.Interface;
 using ProductStore.Models;
 using System.Data;
 using ProductStore.Framework.Services;
-using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNet.SignalR;
+using Microsoft.AspNet.SignalR.Messaging;
+
 
 namespace ProductStore.Controllers
 {
@@ -24,9 +26,9 @@ namespace ProductStore.Controllers
         private readonly DataContext _dataContext;
         private readonly IGetDataExcel _excel;
         private readonly IImportDataExcel _importDataExcel;
-        private IHubContext<MessageHub, IMessageHubClient> _messageHub;
+        private readonly IHubContext<IMessageHubClient> _messageHub;
 
-        public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel, IHubContext<MessageHub, IMessageHubClient> messageHub) 
+        public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel, IHubContext<IMessageHubClient> messageHub) 
         {
             _productRepository = productRepository;
             _servicePagination = servicePagination;
@@ -238,16 +240,18 @@ namespace ProductStore.Controllers
 
         [HttpPost]
         [Route("productoffers")]
-        public async Task<string> SendMessage()
+        public async Task<IActionResult> SendMessage()
         {
             var product = await _productRepository.GetProducts();
             List<string> offers = new List<string>();
-            foreach(var item in product)
+            foreach (var item in product)
             {
-                offers.Add("20% Off on" + item.Name);
+                offers.Add("20% Off on " + item.Name);
             }
-            await _messageHub.Clients.All.SendOffersToUser(offers);
-            return "Offers sent successfully to all users!";
+
+            await _messageHub.Clients.All.SendOffersToUser("ReceiveMessage",offers);
+
+            return Ok("Offers sent successfully to all users!");
         }
     }
 }

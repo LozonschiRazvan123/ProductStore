@@ -1,7 +1,9 @@
+using Microsoft.AspNet.SignalR;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,6 +43,7 @@ builder.Services.AddScoped<ICreateJWT,CreateJWT>();
 builder.Services.AddScoped<IGetDataExcel,GetDataExcel>();
 builder.Services.AddScoped<IEmailService,EmailService>();
 builder.Services.AddScoped<IImportDataExcel,ImportDataExcel>();
+builder.Services.AddScoped<IHubContext<IMessageHubClient>>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
 builder.Services.AddTransient<Seed>();
 builder.Services.AddDbContext<DataContext>(options =>
@@ -105,11 +108,6 @@ builder.Services.AddAuthentication(o =>
         };
     }
     );
-builder.Services.AddLogging(logging =>
-{
-    logging.AddConsole(); // Adaug? înregistrarea la consol?
-    logging.SetMinimumLevel(LogLevel.Debug); // Seteaz? nivelul minim de înregistrare
-});
 
 
 var app = builder.Build();

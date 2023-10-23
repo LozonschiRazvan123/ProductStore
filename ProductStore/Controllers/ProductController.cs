@@ -26,9 +26,9 @@ namespace ProductStore.Controllers
         private readonly DataContext _dataContext;
         private readonly IGetDataExcel _excel;
         private readonly IImportDataExcel _importDataExcel;
-        private readonly IHubContext<IMessageHubClient> _messageHub;
+        private readonly IHubContext<MessageHub> _messageHub;
 
-        public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel, IHubContext<IMessageHubClient> messageHub) 
+        public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel, IHubContext<MessageHub> messageHub) 
         {
             _productRepository = productRepository;
             _servicePagination = servicePagination;

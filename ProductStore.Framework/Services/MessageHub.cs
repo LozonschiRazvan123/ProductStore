@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace ProductStore.Framework.Services
 {
-    public class MessageHub: Hub
+    public sealed class MessageHub: Hub
     {
-        public async Task SendOffersToUser(string user, List<string> message)
+        public async Task SendOffersToUser(List<string> message)
 
-           => await Clients.All.SendAsync(user, message);
+           => await Clients.All.SendAsync("ReceiveMessage", message);
     }
 }

@@ -1,9 +1,9 @@
-using Microsoft.AspNet.SignalR;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
-
+using Microsoft.AspNet.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,7 +43,7 @@ builder.Services.AddScoped<ICreateJWT,CreateJWT>();
 builder.Services.AddScoped<IGetDataExcel,GetDataExcel>();
 builder.Services.AddScoped<IEmailService,EmailService>();
 builder.Services.AddScoped<IImportDataExcel,ImportDataExcel>();
-//builder.Services.AddScoped<IHubContext<MessageHub>>();
+builder.Services.AddScoped<MessageHub>(); 
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
 builder.Services.AddTransient<Seed>();
 builder.Services.AddDbContext<DataContext>(options =>
@@ -138,7 +138,7 @@ app.UseAuthorization();
 
 app.UseEndpoints(endpoints => {
     endpoints.MapControllers();
-    endpoints.MapHub<MessageHub>("/offers");
+    endpoints.MapHub<MessageHub>("/productoffers");
 });
 
 

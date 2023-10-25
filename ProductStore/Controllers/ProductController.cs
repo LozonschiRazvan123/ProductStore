@@ -26,9 +26,9 @@ namespace ProductStore.Controllers
         private readonly DataContext _dataContext;
         private readonly IGetDataExcel _excel;
         private readonly IImportDataExcel _importDataExcel;
-        private readonly MessageHub _messageHub;
+        private readonly IHubContext<MessageHub> _messageHub;
 
-        public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel, MessageHub messageHub) 
+        public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel, IHubContext<MessageHub> messageHub) 
         {
             _productRepository = productRepository;
             _servicePagination = servicePagination;
@@ -249,7 +249,8 @@ namespace ProductStore.Controllers
                 offers.Add("20% Off on " + item.Name);
             }
 
-            await _messageHub.SendOffersToUser(offers);
+            
+            await _messageHub.Clients.All.SendAsync("ReceiveMessage", offers);
 
             return Ok("Offers sent successfully to all users!");
         }

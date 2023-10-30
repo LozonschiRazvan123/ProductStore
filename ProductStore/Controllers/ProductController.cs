@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Hosting;
 using System.Globalization;
 using System.Resources;
 using Microsoft.Extensions.Localization;
+using ProductStore.Core.Language;
 
 namespace ProductStore.Controllers
 {
@@ -279,19 +280,17 @@ namespace ProductStore.Controllers
             return translatedErrorMessage ?? errorMessage;
         }*/
 
-        [HttpGet("Translate/{language}")]
-        public async Task<IActionResult> GetProduct(string language)
+        [HttpGet("Translate")]
+        public async Task<IActionResult> GetProduct()
         {
-            try
-            {
-                var message = _languageService.Translate("ProductNotFound", language);
-                return Ok(message);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to get translated message.");
-                return NotFound("Product not found");
-            }
+            var language = Request.Headers["Accept-Language"].ToString();
+            var userCulture = _languageService.GetRequestCulture(language);
+
+            System.Threading.Thread.CurrentThread.CurrentCulture = userCulture;
+            System.Threading.Thread.CurrentThread.CurrentUICulture = userCulture;
+
+            var message = _languageService.Translate("ProductNotFound", userCulture.ToString());
+            return Ok(message);
         }
 
     }

@@ -23,6 +23,11 @@ namespace ProductStore.Framework.Services
             _localizer = localizer;
             _logger = logger;
         }
+        public CultureInfo GetRequestCulture(string language)
+        {
+            CultureInfo culture = new CultureInfo(language);
+            return culture;
+        }
 
         public string Translate(string key, string language)
         {

@@ -23,6 +23,11 @@ using ProductStore.Repository;
 using Quartz;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
+using System.Reflection;
+using System.Resources;
+using ProductStore.Core.Language;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,7 +48,25 @@ builder.Services.AddScoped<ICreateJWT,CreateJWT>();
 builder.Services.AddScoped<IGetDataExcel,GetDataExcel>();
 builder.Services.AddScoped<IEmailService,EmailService>();
 builder.Services.AddScoped<IImportDataExcel,ImportDataExcel>();
-builder.Services.AddScoped<MessageHub>(); 
+builder.Services.AddScoped<MessageHub>();
+builder.Services.AddSingleton<LanguageService>();
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+builder.Services.AddMvc().AddViewLocalization().AddDataAnnotationsLocalization(options => {
+    options.DataAnnotationLocalizerProvider = (type, factory) => {
+        var assemblyName = new AssemblyName(typeof(SharedResource).GetTypeInfo().Assembly.FullName);
+        return factory.Create("SharedResource", assemblyName.Name);
+    };
+});
+builder.Services.Configure<RequestLocalizationOptions>(options => {
+    var supportedCultures = new List<CultureInfo> {
+        new CultureInfo("fr-FR"),
+        new CultureInfo("en-US")
+    };
+    options.DefaultRequestCulture = new RequestCulture(culture: "fr-FR", uiCulture: "fr-FR");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+    options.RequestCultureProviders.Insert(0, new QueryStringRequestCultureProvider());
+});
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
 builder.Services.AddTransient<Seed>();
 builder.Services.AddDbContext<DataContext>(options =>
@@ -154,4 +177,19 @@ app.MapGet("options", (IOptions<JwtSettings> options) =>
     return Results.Ok(response);
 });
 
+/*app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("en-US"),
+    SupportedCultures = new List<CultureInfo>
+    {
+        new CultureInfo("en-US"),
+        new CultureInfo("fr-FR")
+    },
+    SupportedUICultures = new List<CultureInfo>
+    {
+        new CultureInfo("en-US"),
+        new CultureInfo("fr-FR")
+    }
+});*/
+app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
 app.Run();

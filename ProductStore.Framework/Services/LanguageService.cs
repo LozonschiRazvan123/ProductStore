@@ -1,0 +1,41 @@
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
+using ProductStore.Core.Language;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ProductStore.Framework.Services
+{
+    public class LanguageService
+    {
+        private readonly IStringLocalizer<SharedResource> _localizer;
+        private readonly ILogger<LanguageService> _logger;
+
+        public LanguageService(IStringLocalizer<SharedResource> localizer, ILogger<LanguageService> logger)
+        {
+            _localizer = localizer;
+            _logger = logger;
+        }
+
+        public string Translate(string key, string language)
+        {
+            try
+            {
+                CultureInfo culture = new CultureInfo(language);
+                return _localizer[key, culture];
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to translate key: {Key}", key);
+                return key; 
+            }
+        }
+    }
+}

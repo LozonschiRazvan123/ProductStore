@@ -13,7 +13,10 @@ using System.Data;
 using ProductStore.Framework.Services;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNet.SignalR.Messaging;
-
+using Microsoft.AspNetCore.Hosting;
+using System.Globalization;
+using System.Resources;
+using Microsoft.Extensions.Localization;
 
 namespace ProductStore.Controllers
 {
@@ -27,8 +30,11 @@ namespace ProductStore.Controllers
         private readonly IGetDataExcel _excel;
         private readonly IImportDataExcel _importDataExcel;
         private readonly IHubContext<MessageHub> _messageHub;
+        private readonly LanguageService _languageService;
+        private readonly ILogger<ProductController> _logger;
 
-        public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel, IHubContext<MessageHub> messageHub) 
+
+        public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel, IHubContext<MessageHub> messageHub, LanguageService languageService, ILogger<ProductController> logger) 
         {
             _productRepository = productRepository;
             _servicePagination = servicePagination;
@@ -36,6 +42,8 @@ namespace ProductStore.Controllers
             _excel = excel;
             _importDataExcel = importDataExcel;
             _messageHub = messageHub;
+            _languageService = languageService;
+            _logger = logger;
         }
 
 
@@ -254,5 +262,37 @@ namespace ProductStore.Controllers
 
             return Ok("Offers sent successfully to all users!");
         }
+
+        /*private string GetTranslatedErrorMessage(string errorMessage, string userLanguage)
+        {
+            string translatedErrorMessage = null;
+
+            try
+            {
+                translatedErrorMessage = _resourceManager.GetString(errorMessage, new CultureInfo(userLanguage));
+            }
+            catch (MissingManifestResourceException)
+            {
+                return errorMessage;
+            }
+
+            return translatedErrorMessage ?? errorMessage;
+        }*/
+
+        [HttpGet("Translate/{language}")]
+        public async Task<IActionResult> GetProduct(string language)
+        {
+            try
+            {
+                var message = _languageService.Translate("ProductNotFound", language);
+                return Ok(message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get translated message.");
+                return NotFound("Product not found");
+            }
+        }
+
     }
 }

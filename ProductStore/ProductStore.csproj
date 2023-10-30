@@ -27,6 +27,8 @@
     <PackageReference Include="Quartz.Extensions.Hosting" Version="3.7.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.11" />
+    <PackageReference Include="System.Globalization" Version="4.3.0" />
+    <PackageReference Include="System.Resources.ResourceManager" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>

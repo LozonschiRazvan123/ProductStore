@@ -28,6 +28,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Resources;
 using ProductStore.Core.Language;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -177,7 +178,7 @@ app.MapGet("options", (IOptions<JwtSettings> options) =>
     return Results.Ok(response);
 });
 
-/*app.UseRequestLocalization(new RequestLocalizationOptions
+app.UseRequestLocalization(new RequestLocalizationOptions
 {
     DefaultRequestCulture = new RequestCulture("en-US"),
     SupportedCultures = new List<CultureInfo>
@@ -190,6 +191,16 @@ app.MapGet("options", (IOptions<JwtSettings> options) =>
         new CultureInfo("en-US"),
         new CultureInfo("fr-FR")
     }
-});*/
+});
 app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
+app.Use((context, next) =>
+{
+    var acceptLanguage = context.Request.Headers["Accept-Language"].ToString();
+
+    var cultureInfo = new CultureInfo(acceptLanguage);
+    CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+    CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+
+    return next();
+});
 app.Run();

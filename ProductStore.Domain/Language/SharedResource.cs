@@ -8,7 +8,7 @@ namespace ProductStore.Core.Language
 {
     public class SharedResource
     {
-        public string ProductNotFound { get; set; }
-        public string InvalidInput { get; set; }
+        /*public string ProductNotFound { get; set; }
+        public string InvalidInput { get; set; }*/
     }
 }

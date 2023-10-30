@@ -34,7 +34,7 @@ namespace ProductStore.Framework.Services
             try
             {
                 CultureInfo culture = new CultureInfo(language);
-                return _localizer[key, culture];
+                return _localizer[key,culture].Value;
             }
             catch (Exception ex)
             {

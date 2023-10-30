@@ -290,7 +290,7 @@ namespace ProductStore.Controllers
             System.Threading.Thread.CurrentThread.CurrentUICulture = userCulture;
 
             var message = _languageService.Translate("ProductNotFound", userCulture.ToString());
-            return Ok(message);
+            return Ok(new { message });
         }
 
     }

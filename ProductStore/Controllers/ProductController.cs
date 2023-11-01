@@ -31,11 +31,11 @@ namespace ProductStore.Controllers
         private readonly IGetDataExcel _excel;
         private readonly IImportDataExcel _importDataExcel;
         private readonly IHubContext<MessageHub> _messageHub;
-        private readonly LanguageService _languageService;
+        private readonly IStringLocalizer<SharedResource> _languageService;
         private readonly ILogger<ProductController> _logger;
 
 
-        public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel, IHubContext<MessageHub> messageHub, LanguageService languageService, ILogger<ProductController> logger) 
+        public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel, IHubContext<MessageHub> messageHub, IStringLocalizer<SharedResource> languageService, ILogger<ProductController> logger) 
         {
             _productRepository = productRepository;
             _servicePagination = servicePagination;
@@ -283,13 +283,14 @@ namespace ProductStore.Controllers
         [HttpGet("Translate")]
         public async Task<IActionResult> GetProduct()
         {
-            var language = Request.Headers["Accept-Language"].ToString();
+            /*var language = Request.Headers["Accept-Language"].ToString();
             var userCulture = _languageService.GetRequestCulture(language);
 
             System.Threading.Thread.CurrentThread.CurrentCulture = userCulture;
             System.Threading.Thread.CurrentThread.CurrentUICulture = userCulture;
 
-            var message = _languageService.Translate("ProductNotFound", userCulture.ToString());
+            var message = _languageService.Translate("ProductNotFound", userCulture.ToString());*/
+            var message = _languageService["ProductNotFound"];
             return Ok(new { message });
         }
 

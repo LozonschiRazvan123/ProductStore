@@ -17,7 +17,8 @@ using Microsoft.AspNetCore.Hosting;
 using System.Globalization;
 using System.Resources;
 using Microsoft.Extensions.Localization;
-using ProductStore.Core.Language;
+using ProductStore.Localize;
+using System.Text.RegularExpressions;
 
 namespace ProductStore.Controllers
 {
@@ -31,11 +32,11 @@ namespace ProductStore.Controllers
         private readonly IGetDataExcel _excel;
         private readonly IImportDataExcel _importDataExcel;
         private readonly IHubContext<MessageHub> _messageHub;
-        private readonly IStringLocalizer<SharedResource> _languageService;
+        private readonly IStringLocalizer<Resource> _languageService;
         private readonly ILogger<ProductController> _logger;
 
 
-        public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel, IHubContext<MessageHub> messageHub, IStringLocalizer<SharedResource> languageService, ILogger<ProductController> logger) 
+        public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel, IHubContext<MessageHub> messageHub, IStringLocalizer<Resource> languageService, ILogger<ProductController> logger) 
         {
             _productRepository = productRepository;
             _servicePagination = servicePagination;
@@ -281,17 +282,18 @@ namespace ProductStore.Controllers
         }*/
 
         [HttpGet("Translate")]
-        public async Task<IActionResult> GetProduct()
+        public string GetProduct()
         {
-            /*var language = Request.Headers["Accept-Language"].ToString();
-            var userCulture = _languageService.GetRequestCulture(language);
+            //var testHeaders = Request.Headers;
+            var language = Request.Headers["Accept-Language"].ToString();
+            /*var userCulture = _languageService.GetRequestCulture(language);
 
             System.Threading.Thread.CurrentThread.CurrentCulture = userCulture;
             System.Threading.Thread.CurrentThread.CurrentUICulture = userCulture;
 
             var message = _languageService.Translate("ProductNotFound", userCulture.ToString());*/
             var message = _languageService["ProductNotFound"];
-            return Ok(new { message });
+            return message;
         }
 
     }

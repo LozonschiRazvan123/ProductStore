@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using ProductStore.Core.Language;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,10 +14,10 @@ namespace ProductStore.Framework.Services
 {
     public class LanguageService
     {
-        private readonly IStringLocalizer<SharedResource> _localizer;
+        /*private readonly IStringLocalizer<Resource> _localizer;
         private readonly ILogger<LanguageService> _logger;
 
-        public LanguageService(IStringLocalizer<SharedResource> localizer, ILogger<LanguageService> logger)
+        public LanguageService(IStringLocalizer<Resource> localizer, ILogger<LanguageService> logger)
         {
             _localizer = localizer;
             _logger = logger;
@@ -41,6 +40,6 @@ namespace ProductStore.Framework.Services
                 _logger.LogError(ex, "Failed to translate key: {Key}", key);
                 return key; 
             }
-        }
+        }*/
     }
 }

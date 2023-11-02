@@ -27,17 +27,62 @@ using Microsoft.AspNetCore.Localization;
 using System.Globalization;
 using System.Reflection;
 using System.Resources;
-using ProductStore.Core.Language;
 using System;
+using ProductStore.Localize;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddLocalization(options =>
+{
+    options.ResourcesPath = "Resources";
+});
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[]
+    {
+             new CultureInfo("en-US"),
+             new CultureInfo("fr")
+         };
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+    options.DefaultRequestCulture = new RequestCulture("en-US");
+    options.RequestCultureProviders.Insert(0, new CustomRequestCultureProvider(context =>
+    {
+        var languages = context.Request.Headers["Accept-Language"].ToString();
+        var currentLanguage = languages.Split(',').FirstOrDefault();
+        var defaultLanguage = string.IsNullOrEmpty(currentLanguage) ? "en-US" : currentLanguage;
+        if (defaultLanguage != "fr" && defaultLanguage != "en-US")
+        {
+            defaultLanguage = "en-US";
+        }
+        return Task.FromResult(new ProviderCultureResult(defaultLanguage, defaultLanguage));
+    }));
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+/*builder.Services.AddLocalization(options =>
+{
+    options.ResourcesPath = "Resources";
+});*/
+
+
+/*builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[]
+    {
+        new CultureInfo("en-US"),
+        new CultureInfo("fr")
+    };
+    options.DefaultRequestCulture = new RequestCulture(culture: "en-US", uiCulture: "en-US");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});*/
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<ICustomerRepository, CostumerRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
@@ -50,24 +95,6 @@ builder.Services.AddScoped<IGetDataExcel,GetDataExcel>();
 builder.Services.AddScoped<IEmailService,EmailService>();
 builder.Services.AddScoped<IImportDataExcel,ImportDataExcel>();
 builder.Services.AddScoped<MessageHub>();
-builder.Services.AddSingleton<LanguageService>();
-builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-builder.Services.AddMvc().AddViewLocalization().AddDataAnnotationsLocalization(options => {
-    options.DataAnnotationLocalizerProvider = (type, factory) => {
-        var assemblyName = new AssemblyName(typeof(SharedResource).GetTypeInfo().Assembly.FullName);
-        return factory.Create("SharedResource", assemblyName.Name);
-    };
-});
-builder.Services.Configure<RequestLocalizationOptions>(options => {
-    var supportedCultures = new List<CultureInfo> {
-        new CultureInfo("fr-FR"),
-        new CultureInfo("en-US")
-    };
-    options.DefaultRequestCulture = new RequestCulture(culture: "fr-FR", uiCulture: "fr-FR");
-    options.SupportedCultures = supportedCultures;
-    options.SupportedUICultures = supportedCultures;
-    options.RequestCultureProviders.Insert(0, new QueryStringRequestCultureProvider());
-});
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
 builder.Services.AddTransient<Seed>();
 builder.Services.AddDbContext<DataContext>(options =>
@@ -178,29 +205,7 @@ app.MapGet("options", (IOptions<JwtSettings> options) =>
     return Results.Ok(response);
 });
 
-app.UseRequestLocalization(new RequestLocalizationOptions
-{
-    DefaultRequestCulture = new RequestCulture("en-US"),
-    SupportedCultures = new List<CultureInfo>
-    {
-        new CultureInfo("en-US"),
-        new CultureInfo("fr-FR")
-    },
-    SupportedUICultures = new List<CultureInfo>
-    {
-        new CultureInfo("en-US"),
-        new CultureInfo("fr-FR")
-    }
-});
-app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
-app.Use((context, next) =>
-{
-    var acceptLanguage = context.Request.Headers["Accept-Language"].ToString();
+var locOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
 
-    var cultureInfo = new CultureInfo(acceptLanguage);
-    CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
-    CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
-
-    return next();
-});
+app.UseRequestLocalization(locOptions.Value);
 app.Run();

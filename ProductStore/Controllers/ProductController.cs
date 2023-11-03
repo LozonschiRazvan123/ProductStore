@@ -20,6 +20,7 @@ using Microsoft.Extensions.Localization;
 using ProductStore.Localize;
 using System.Text.RegularExpressions;
 
+
 namespace ProductStore.Controllers
 {
     [Route("api/[controller]")]
@@ -285,8 +286,8 @@ namespace ProductStore.Controllers
         public string GetProduct()
         {
             //var testHeaders = Request.Headers;
-            var language = Request.Headers["Accept-Language"].ToString();
-            /*var userCulture = _languageService.GetRequestCulture(language);
+            /*var language = Request.Headers["Accept-Language"].ToString();
+            var userCulture = _languageService.GetRequestCulture(language);
 
             System.Threading.Thread.CurrentThread.CurrentCulture = userCulture;
             System.Threading.Thread.CurrentThread.CurrentUICulture = userCulture;

@@ -45,7 +45,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     var supportedCultures = new[]
     {
              new CultureInfo("en-US"),
-             new CultureInfo("fr")
+             new CultureInfo("fr-FR")
          };
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
@@ -55,9 +55,9 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
         var languages = context.Request.Headers["Accept-Language"].ToString();
         var currentLanguage = languages.Split(',').FirstOrDefault();
         var defaultLanguage = string.IsNullOrEmpty(currentLanguage) ? "en-US" : currentLanguage;
-        if (defaultLanguage != "fr" && defaultLanguage != "en-US")
+        if (defaultLanguage != "fr-FR" && defaultLanguage != "en-US")
         {
-            defaultLanguage = "en-US";
+            defaultLanguage = "fr-FR";
         }
         return Task.FromResult(new ProviderCultureResult(defaultLanguage, defaultLanguage));
     }));
@@ -69,10 +69,10 @@ builder.Services.AddSwaggerGen();
 /*builder.Services.AddLocalization(options =>
 {
     options.ResourcesPath = "Resources";
-});*/
+});
 
 
-/*builder.Services.Configure<RequestLocalizationOptions>(options =>
+builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[]
     {

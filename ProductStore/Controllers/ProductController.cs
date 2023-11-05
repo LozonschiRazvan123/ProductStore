@@ -1,24 +1,18 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using OfficeOpenXml.Table;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Localization;
 using OfficeOpenXml;
+using OfficeOpenXml.Table;
 using ProductStore.ConfigurationError;
 using ProductStore.Core.Interface;
 using ProductStore.Data;
 using ProductStore.DTO;
 using ProductStore.Framework.Pagination;
+using ProductStore.Framework.Services;
 using ProductStore.Interface;
+using ProductStore.Localize;
 using ProductStore.Models;
 using System.Data;
-using ProductStore.Framework.Services;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNet.SignalR.Messaging;
-using Microsoft.AspNetCore.Hosting;
-using System.Globalization;
-using System.Resources;
-using Microsoft.Extensions.Localization;
-using ProductStore.Localize;
-using System.Text.RegularExpressions;
 
 
 namespace ProductStore.Controllers
@@ -285,6 +279,7 @@ namespace ProductStore.Controllers
         [HttpGet("Translate")]
         public string GetProduct()
         {
+            var f = Thread.CurrentThread.CurrentCulture;
             //var testHeaders = Request.Headers;
             /*var language = Request.Headers["Accept-Language"].ToString();
             var userCulture = _languageService.GetRequestCulture(language);
@@ -293,7 +288,7 @@ namespace ProductStore.Controllers
             System.Threading.Thread.CurrentThread.CurrentUICulture = userCulture;
 
             var message = _languageService.Translate("ProductNotFound", userCulture.ToString());*/
-            var message = _languageService["ProductNotFound"];
+            var message = _languageService["ProductNotFound"].Value;
             return message;
         }
 

@@ -118,9 +118,9 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="InvalidInput" xml:space="preserve">
-    <value>Entrée non valide</value>
+    <value>Invalid input</value>
   </data>
   <data name="ProductNotFound" xml:space="preserve">
-    <value>Produit non trouvé</value>
+    <value>Product not found</value>
   </data>
 </root>

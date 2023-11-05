@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Resources\Localize.Resource.en.resx">
+    <EmbeddedResource Update="Resources\Localize.Resource.en-US.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Resources\Localize.Resource.fr.resx">

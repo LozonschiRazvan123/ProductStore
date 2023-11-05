@@ -29,6 +29,7 @@ using System.Reflection;
 using System.Resources;
 using System;
 using ProductStore.Localize;
+using Microsoft.AspNetCore.Mvc.Razor;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,49 +41,33 @@ builder.Services.AddLocalization(options =>
     options.ResourcesPath = "Resources";
 });
 
+builder.Services.AddControllersWithViews()
+           .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
+           .AddDataAnnotationsLocalization();
+
+var supportedCultures = new[]
+        {
+            new CultureInfo("en-US"),
+            new CultureInfo("fr"),
+        };
+
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[]
     {
-             new CultureInfo("en-US"),
-             new CultureInfo("fr-FR")
-         };
+                    new CultureInfo("en-US"),
+                    new CultureInfo("fr")
+                };
+
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
-    options.DefaultRequestCulture = new RequestCulture("en-US");
-    options.RequestCultureProviders.Insert(0, new CustomRequestCultureProvider(context =>
-    {
-        var languages = context.Request.Headers["Accept-Language"].ToString();
-        var currentLanguage = languages.Split(',').FirstOrDefault();
-        var defaultLanguage = string.IsNullOrEmpty(currentLanguage) ? "en-US" : currentLanguage;
-        if (defaultLanguage != "fr-FR" && defaultLanguage != "en-US")
-        {
-            defaultLanguage = "fr-FR";
-        }
-        return Task.FromResult(new ProviderCultureResult(defaultLanguage, defaultLanguage));
-    }));
+
+
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-/*builder.Services.AddLocalization(options =>
-{
-    options.ResourcesPath = "Resources";
-});
-
-
-builder.Services.Configure<RequestLocalizationOptions>(options =>
-{
-    var supportedCultures = new[]
-    {
-        new CultureInfo("en-US"),
-        new CultureInfo("fr")
-    };
-    options.DefaultRequestCulture = new RequestCulture(culture: "en-US", uiCulture: "en-US");
-    options.SupportedCultures = supportedCultures;
-    options.SupportedUICultures = supportedCultures;
-});*/
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<ICustomerRepository, CostumerRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
@@ -162,6 +147,15 @@ builder.Services.AddAuthentication(o =>
 
 var app = builder.Build();
 
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("en-US"),
+    // Formatting numbers, dates, etc.
+    SupportedCultures = supportedCultures,
+    // UI strings that we have localized.
+    SupportedUICultures = supportedCultures
+});
+
 if (args.Length == 1 && args[0].ToLower() == "seeddata")
 {
     await Seed.SeedUsersAndRolesAsync(app);
@@ -192,8 +186,6 @@ app.UseEndpoints(endpoints => {
     endpoints.MapHub<MessageHub>("/productoffers");
 });
 
-
-
 app.MapControllers();
 
 app.MapGet("options", (IOptions<JwtSettings> options) =>
@@ -204,8 +196,6 @@ app.MapGet("options", (IOptions<JwtSettings> options) =>
     };
     return Results.Ok(response);
 });
+app.UseStaticFiles();
 
-var locOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>();
-
-app.UseRequestLocalization(locOptions.Value);
 app.Run();

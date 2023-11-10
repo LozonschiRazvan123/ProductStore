@@ -308,10 +308,9 @@ namespace ProductStore.Controllers
 
             var newAccessToken = _createJWT.CreateJwt(user);
             var newRefreshToken = GenerateRefreshToken();
-            user.TokenExpires = DateTime.Now.AddDays(7);
+            user.ResetTokenExpires = DateTime.Now.AddDays(7);
 
-
-            SetRefreshToken(newRefreshToken);
+            _dataContext.SaveChanges();
 
             return Ok(new
             {
@@ -454,31 +453,24 @@ namespace ProductStore.Controllers
         }
 
         [HttpPost("refresh-token")]
-        public async Task<IActionResult> RefreshToken()
+        public async Task<IActionResult> RefreshToken(TokenApiModel token)
         {
-            var refreshToken = HttpContext.Request.Cookies["refreshToken"];
-            var user = await _userManager.GetUserAsync(User);
-
-            if (user == null)
-            {
-                return Unauthorized("User not found");
-            }
-
-            if (string.IsNullOrWhiteSpace(refreshToken))
-            {
-                return Unauthorized("Invalid Refresh Token.");
-            }
-
+            string accessToken = token.AccessToken;
+            string refreshToken = token.RefreshToken;
+            var principal = GetPrincipalFromExpiredToken(accessToken);
+            var username = principal.Identity.Name; 
+            var user = _dataContext.Users.SingleOrDefault(u => u.UserName == username);
+            if (user is null || user.TokenExpires <= DateTime.Now)
+                return BadRequest("Invalid client request");
             var newAccessToken = _createJWT.CreateJwt(user);
-            
             var newRefreshToken = GenerateRefreshToken();
-            SetRefreshToken(newRefreshToken);
-
+            //user.RefreshToken = newRefreshToken;
+            //_dataContext.SaveChanges();
             return Ok(new
             {
-                accessToken = newAccessToken,
-                refreshToken = newRefreshToken.Token
-            });
+                newAccessToken,
+                newRefreshToken.Token
+            }) ;
         }
 
         private RefreshToken GenerateRefreshToken()
@@ -493,20 +485,23 @@ namespace ProductStore.Controllers
             return refreshToken;
         }
 
-        private void SetRefreshToken(RefreshToken refreshToken)
+        private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
         {
-            var cookieOptions = new CookieOptions
+            var tokenValidationParameters = new TokenValidationParameters
             {
-                HttpOnly = true,
-                Expires = refreshToken.Expires
+                ValidateAudience = false, //you might want to validate the audience and issuer depending on your use case
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("my top secret key lozonschi-constantin-razvan123 dadaadsdasdbmfdlgkvn")),
+                ValidateLifetime = true //here we are saying that we don't care about the token's expiration date
             };
-
-            HttpContext.Response.Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
-/*            user.RefreshToken = refreshToken.Token;
-            user.TokenCreated = refreshToken.Created;
-            user.TokenExpires = refreshToken.Expires;*/
-
+            var tokenHandler = new JwtSecurityTokenHandler();
+            SecurityToken securityToken;
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+            var jwtSecurityToken = securityToken as JwtSecurityToken;
+            if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512Signature, StringComparison.InvariantCultureIgnoreCase))
+                throw new SecurityTokenException("Invalid token");
+            return principal;
         }
     }
-
 }

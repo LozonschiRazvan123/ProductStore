@@ -23,6 +23,8 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using ProductStore.Core.DTO;
+using Microsoft.EntityFrameworkCore;
 /*using System.Web.Mvc;*/
 
 namespace ProductStore.Controllers
@@ -38,7 +40,7 @@ namespace ProductStore.Controllers
         private readonly ICreateJWT _createJWT;
         private readonly IGetDataExcel _excel;
         private readonly IImportDataExcel _importDataExcel;
-        public UserController(IUserRepository userRepository, UserManager<User> userManager, IServicePagination<User> servicePagination, DataContext dataContext, ICreateJWT createJWT, IGetDataExcel excel, IImportDataExcel importDataExcel) 
+        public UserController(IUserRepository userRepository, UserManager<User> userManager, IServicePagination<User> servicePagination, DataContext dataContext, ICreateJWT createJWT, IGetDataExcel excel, IImportDataExcel importDataExcel)
         {
             _userRepository = userRepository;
             _userManager = userManager;
@@ -52,7 +54,7 @@ namespace ProductStore.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 throw new BadRequest();
             }
@@ -62,7 +64,7 @@ namespace ProductStore.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(Guid id)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 throw new BadRequest();
             }
@@ -131,7 +133,7 @@ namespace ProductStore.Controllers
             }
         }
 
- 
+
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] UserDTO userDTO)
         {
@@ -158,13 +160,13 @@ namespace ProductStore.Controllers
             {
                 var verificationToken = _createJWT.CreateJwt(user);
                 user.VerificationToken = verificationToken;
-                await _userManager.UpdateAsync(user); 
+                await _userManager.UpdateAsync(user);
 
                 return Ok("Successfully created");
             }
             else
             {
-                return BadRequest(result.Errors); 
+                return BadRequest(result.Errors);
             }
         }
 
@@ -267,7 +269,7 @@ namespace ProductStore.Controllers
                 return NotFound();
             }
 
-            user.ImageProfile = null; 
+            user.ImageProfile = null;
 
             bool updateSuccessful = _userRepository.Update(user);
             if (updateSuccessful)
@@ -299,21 +301,23 @@ namespace ProductStore.Controllers
                 return BadRequest("User not found");
             }
 
-/*            if (!VerifiedPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
-            {
-                return BadRequest("Password is incorrect");
-            }*/
-
             if (user.VerifiedAt == null)
             {
-                return BadRequest("Not veriffied!");
+                return BadRequest("Not verified!");
             }
 
-            //user.PasswordResetToken = CreateJwt(user);
-            user.PasswordResetToken = _createJWT.CreateJwt(user);
+            var newAccessToken = _createJWT.CreateJwt(user);
+            var newRefreshToken = GenerateRefreshToken();
+            user.TokenExpires = DateTime.Now.AddDays(7);
 
-            return Ok(new { token = user.PasswordResetToken });
 
+            SetRefreshToken(newRefreshToken);
+
+            return Ok(new
+            {
+                accessToken = newAccessToken,
+                refreshToken = newRefreshToken.Token
+            });
         }
 
 
@@ -341,7 +345,7 @@ namespace ProductStore.Controllers
                 return BadRequest("User not found!");
             }
 
-            user.PasswordResetToken = _createJWT.CreateJwt(user); 
+            user.PasswordResetToken = _createJWT.CreateJwt(user);
             user.ResetTokenExpires = DateTime.Now.AddDays(1);
             _userRepository.Save();
 
@@ -362,7 +366,7 @@ namespace ProductStore.Controllers
              user.ResetTokenExpires = null;
              _userRepository.Save();*/
             var user = await _userManager.FindByEmailAsync(request.Email);
-            if(user == null)
+            if (user == null)
             {
                 return BadRequest("User not found!");
             }
@@ -449,5 +453,60 @@ namespace ProductStore.Controllers
             }
         }
 
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var refreshToken = HttpContext.Request.Cookies["refreshToken"];
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+            {
+                return Unauthorized("User not found");
+            }
+
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                return Unauthorized("Invalid Refresh Token.");
+            }
+
+            var newAccessToken = _createJWT.CreateJwt(user);
+            
+            var newRefreshToken = GenerateRefreshToken();
+            SetRefreshToken(newRefreshToken);
+
+            return Ok(new
+            {
+                accessToken = newAccessToken,
+                refreshToken = newRefreshToken.Token
+            });
+        }
+
+        private RefreshToken GenerateRefreshToken()
+        {
+            var refreshToken = new RefreshToken
+            {
+                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+                Expires = DateTime.Now.AddDays(7), 
+                Created = DateTime.Now
+            };
+
+            return refreshToken;
+        }
+
+        private void SetRefreshToken(RefreshToken refreshToken)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = refreshToken.Expires
+            };
+
+            HttpContext.Response.Cookies.Append("refreshToken", refreshToken.Token, cookieOptions);
+/*            user.RefreshToken = refreshToken.Token;
+            user.TokenCreated = refreshToken.Created;
+            user.TokenExpires = refreshToken.Expires;*/
+
+        }
     }
+
 }

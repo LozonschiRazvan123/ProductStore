@@ -15,9 +15,9 @@ namespace ProductStore.DTO
 
         [Display(Name = "Confirm Password")]
         [Required, Compare("Password")]
-        public string ConfirmPassword { get; set; }
-        /*public byte[] PasswordHash { get; set; } = new byte[32];
-        public byte[] PasswordSalt { get; set; } = new byte[32];
-        public string? VerificationToken { get; set; }*/
+        public string ConfirmPassword { get; set; } = string.Empty;
+/*        public string RefreshToken { get; set; } = string.Empty;
+        public string TokenExpires { get; set; }*/
+        //public string? VerificationToken { get; set; }
     }
 }

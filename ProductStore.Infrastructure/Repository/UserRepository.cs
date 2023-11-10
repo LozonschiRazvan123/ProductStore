@@ -3,6 +3,7 @@ using ProductStore.Data;
 using ProductStore.DTO;
 using ProductStore.Interface;
 using ProductStore.Models;
+using System.Security.Claims;
 
 namespace ProductStore.Repository
 {

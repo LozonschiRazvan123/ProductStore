@@ -307,7 +307,7 @@ namespace ProductStore.Controllers
             }
 
             var newAccessToken = _createJWT.CreateJwt(user);
-            var newRefreshToken = GenerateRefreshToken();
+            var newRefreshToken = _createJWT.GenerateRefreshToken();
             user.ResetTokenExpires = DateTime.Now.AddDays(7);
 
             _dataContext.SaveChanges();
@@ -457,13 +457,13 @@ namespace ProductStore.Controllers
         {
             string accessToken = token.AccessToken;
             string refreshToken = token.RefreshToken;
-            var principal = GetPrincipalFromExpiredToken(accessToken);
+            var principal = _createJWT.GetPrincipalFromExpiredToken(accessToken);
             var username = principal.Identity.Name; 
             var user = _dataContext.Users.SingleOrDefault(u => u.UserName == username);
             if (user is null || user.TokenExpires <= DateTime.Now)
                 return BadRequest("Invalid client request");
             var newAccessToken = _createJWT.CreateJwt(user);
-            var newRefreshToken = GenerateRefreshToken();
+            var newRefreshToken = _createJWT.GenerateRefreshToken();
             //user.RefreshToken = newRefreshToken;
             //_dataContext.SaveChanges();
             return Ok(new
@@ -471,37 +471,6 @@ namespace ProductStore.Controllers
                 newAccessToken,
                 newRefreshToken.Token
             }) ;
-        }
-
-        private RefreshToken GenerateRefreshToken()
-        {
-            var refreshToken = new RefreshToken
-            {
-                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
-                Expires = DateTime.Now.AddDays(7), 
-                Created = DateTime.Now
-            };
-
-            return refreshToken;
-        }
-
-        private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
-        {
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateAudience = false, //you might want to validate the audience and issuer depending on your use case
-                ValidateIssuer = false,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("my top secret key lozonschi-constantin-razvan123 dadaadsdasdbmfdlgkvn")),
-                ValidateLifetime = true //here we are saying that we don't care about the token's expiration date
-            };
-            var tokenHandler = new JwtSecurityTokenHandler();
-            SecurityToken securityToken;
-            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
-            var jwtSecurityToken = securityToken as JwtSecurityToken;
-            if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512Signature, StringComparison.InvariantCultureIgnoreCase))
-                throw new SecurityTokenException("Invalid token");
-            return principal;
         }
     }
 }

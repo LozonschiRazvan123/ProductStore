@@ -13,7 +13,7 @@ using ProductStore.Interface;
 using ProductStore.Localize;
 using ProductStore.Models;
 using System.Data;
-
+using System.Reflection;
 
 namespace ProductStore.Controllers
 {
@@ -29,9 +29,9 @@ namespace ProductStore.Controllers
         private readonly IHubContext<MessageHub> _messageHub;
         private readonly IStringLocalizer<Resource> _languageService;
         private readonly ILogger<ProductController> _logger;
+        private readonly ISorting _sorting;
 
-
-        public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel, IHubContext<MessageHub> messageHub, IStringLocalizer<Resource> languageService, ILogger<ProductController> logger) 
+        public ProductController(IProductRepository productRepository, IServicePagination<Product> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel, IHubContext<MessageHub> messageHub, IStringLocalizer<Resource> languageService, ILogger<ProductController> logger, ISorting sorting) 
         {
             _productRepository = productRepository;
             _servicePagination = servicePagination;
@@ -41,6 +41,7 @@ namespace ProductStore.Controllers
             _messageHub = messageHub;
             _languageService = languageService;
             _logger = logger;
+            _sorting = sorting;
         }
 
 
@@ -290,6 +291,29 @@ namespace ProductStore.Controllers
             var message = _languageService.Translate("ProductNotFound", userCulture.ToString());*/
             var message = _languageService["ProductNotFound"].Value;
             return message;
+        }
+
+        [HttpGet("sorted")]
+        public async Task<IActionResult> GetSortedProducts(string sortBy)
+        {
+            try
+            {
+                var productDtos = await _productRepository.GetProducts();
+
+                var products = productDtos.Select(dto => new ProductDTO
+                {
+                    Id = dto.Id,
+                    Name = dto.Name,
+                    Price = dto.Price
+                });
+
+                var sortedProducts = _sorting.ApplyShellSort(products.AsQueryable(), sortBy);
+                return Ok(sortedProducts);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
         }
 
     }

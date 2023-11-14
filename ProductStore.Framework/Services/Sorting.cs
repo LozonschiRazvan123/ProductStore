@@ -12,11 +12,9 @@ namespace ProductStore.Framework.Services
     {
         public IQueryable<T> ApplyShellSort<T>(IQueryable<T> query, string sortBy)
         {
-            // Extrage datele din baza de date și apoi sortează utilizând Shellsort
             var list = query.ToList();
             ShellSort(list, sortBy);
 
-            // Converteste lista sortata la IQueryable pentru a pastra comportamentul de interogare
             return list.AsQueryable();
         }
 

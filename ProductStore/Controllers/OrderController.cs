@@ -11,6 +11,7 @@ using ProductStore.Interface;
 using ProductStore.Models;
 using System.Data;
 using ProductStore.Framework.Services;
+using ProductStore.Repository;
 
 namespace ProductStore.Controllers
 {

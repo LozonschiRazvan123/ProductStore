@@ -7,8 +7,10 @@ using ProductStore.Core.Interface;
 using ProductStore.Data;
 using ProductStore.DTO;
 using ProductStore.Framework.Pagination;
+using ProductStore.Framework.Services;
 using ProductStore.Interface;
 using ProductStore.Models;
+using ProductStore.Repository;
 using System.Data;
 using System.Reflection.Metadata.Ecma335;
 
@@ -233,6 +235,5 @@ namespace ProductStore.Controllers
 
             return NoContent();
         }
-
     }
 }

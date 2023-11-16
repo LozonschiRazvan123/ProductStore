@@ -9,5 +9,6 @@ namespace ProductStore.Core.Interface
     public interface ISorting
     {
         public IQueryable<T> ApplyShellSort<T>(IQueryable<T> query, string sortBy);
+        public IQueryable<T> ApplyCountingSort<T>(IQueryable<T> query, string sortBy);
     }
 }

@@ -10,6 +10,47 @@ namespace ProductStore.Framework.Services
 {
     public class Sorting : ISorting
     {
+        public IQueryable<T> ApplyCountingSort<T>(IQueryable<T> query, string sortBy)
+        {
+            var list = query.ToList();
+            CountingSort(list, sortBy);
+
+            return list.AsQueryable();
+        }
+
+        private void CountingSort<T>(List<T> list, string sortBy)
+        {
+            PropertyInfo prop = typeof(T).GetProperty(sortBy);
+
+            if (prop == null)
+            {
+                throw new ArgumentException($"Property '{sortBy}' not found in type '{typeof(T).Name}'.");
+            }
+
+            int n = list.Count;
+
+            Dictionary<object, int> count = new Dictionary<object, int>();
+            foreach (var item in list)
+            {
+                object value = prop.GetValue(item);
+                if (count.ContainsKey(value))
+                    count[value]++;
+                else
+                    count[value] = 1;
+            }
+
+            int index = 0;
+            foreach (var key in count.Keys.OrderBy(k => k))
+            {
+                int frequency = count[key];
+                for (int i = 0; i < frequency; i++)
+                {
+                    prop.SetValue(list[index], key, null);
+                    index++;
+                }
+            }
+        }
+
         public IQueryable<T> ApplyShellSort<T>(IQueryable<T> query, string sortBy)
         {
             var list = query.ToList();

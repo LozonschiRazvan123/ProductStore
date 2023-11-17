@@ -10,5 +10,6 @@ namespace ProductStore.Core.Interface
     {
         public IQueryable<T> ApplyShellSort<T>(IQueryable<T> query, string sortBy);
         public IQueryable<T> ApplyCountingSort<T>(IQueryable<T> query, string sortBy);
+        public IQueryable<T> ApplyRadixSort<T>(IQueryable<T> query, string sortBy);
     }
 }

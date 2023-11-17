@@ -84,5 +84,73 @@ namespace ProductStore.Framework.Services
             }
         }
 
+        private static void RadixSortNumeric<T>(List<T> list, string propertyName)
+        {
+            PropertyInfo property = typeof(T).GetProperty(propertyName);
+            if (property == null || !IsNumericType(property.PropertyType))
+            {
+                throw new ArgumentException("Invalid property or property type is not numeric.");
+            }
+
+            int maxLength = list.Max(e => GetNumericValue(e, propertyName, 0).ToString().Length);
+
+            for (int i = 0; i < maxLength; i++)
+            {
+                CountingSort(list, i, propertyName);
+            }
+        }
+
+        private static void CountingSort<T>(List<T> list, int position, string propertyName)
+        {
+            const int NUMERIC_RANGE = 10; // Numeric characters range (0-9)
+
+            List<T>[] buckets = new List<T>[NUMERIC_RANGE];
+            for (int i = 0; i < NUMERIC_RANGE; i++)
+            {
+                buckets[i] = new List<T>();
+            }
+
+            foreach (var entity in list)
+            {
+                int numericValue = GetNumericValue(entity, propertyName, position);
+                buckets[numericValue].Add(entity);
+            }
+
+            list.Clear();
+            foreach (var bucket in buckets)
+            {
+                list.AddRange(bucket);
+            }
+        }
+
+        private static int GetNumericValue<T>(T entity, string propertyName, int position)
+        {
+            PropertyInfo property = typeof(T).GetProperty(propertyName);
+            var propertyValue = property?.GetValue(entity);
+
+            if (propertyValue != null && propertyValue is IComparable)
+            {
+                string stringValue = propertyValue.ToString();
+                if (position < stringValue.Length)
+                {
+                    return int.Parse(stringValue[position].ToString());
+                }
+            }
+
+            return 0; 
+        }
+
+        private static bool IsNumericType(Type type)
+        {
+            return type == typeof(int) || type == typeof(long) || type == typeof(float) || type == typeof(double) || type == typeof(decimal);
+        }
+
+        public IQueryable<T> ApplyRadixSort<T>(IQueryable<T> query, string sortBy)
+        {
+            var list = query.ToList();
+            RadixSortNumeric(list, sortBy);
+
+            return list.AsQueryable();
+        }
     }
 }

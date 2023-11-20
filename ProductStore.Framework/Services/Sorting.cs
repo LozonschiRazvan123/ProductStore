@@ -92,12 +92,25 @@ namespace ProductStore.Framework.Services
                 throw new ArgumentException("Invalid property or property type is not numeric.");
             }
 
-            int maxLength = list.Max(e => GetNumericValue(e, propertyName, 0).ToString().Length);
+            int maxLength = GetMaxLength(list, propertyName);
 
-            for (int i = 0; i < maxLength; i++)
+            for (int i = maxLength - 1; i >= 0; i--)
             {
                 CountingSort(list, i, propertyName);
             }
+        }
+
+        private static int GetMaxLength<T>(List<T> list, string propertyName)
+        {
+            int maxLength = 0;
+
+            foreach (var entity in list)
+            {
+                int length = GetNumericValue(entity, propertyName, 0).ToString().Length;
+                maxLength = Math.Max(maxLength, length);
+            }
+
+            return maxLength;
         }
 
         private static void CountingSort<T>(List<T> list, int position, string propertyName)
@@ -131,13 +144,20 @@ namespace ProductStore.Framework.Services
             if (propertyValue != null && propertyValue is IComparable)
             {
                 string stringValue = propertyValue.ToString();
-                if (position < stringValue.Length)
+                int length = stringValue.Length;
+
+                // Nu este nevoie să verificăm poziția aici
+                if (position >= 0 && position < length)
                 {
-                    return int.Parse(stringValue[position].ToString());
+                    char digitChar = stringValue[position];
+                    if (char.IsDigit(digitChar))
+                    {
+                        return int.Parse(digitChar.ToString());
+                    }
                 }
             }
 
-            return 0; 
+            return 0;
         }
 
         private static bool IsNumericType(Type type)

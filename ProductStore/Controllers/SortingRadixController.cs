@@ -63,9 +63,9 @@ namespace ProductStore.Controllers
                     City = dto.City,
                     State = dto.State,
                     Street = dto.Street,
-                }).AsQueryable();
+                });
 
-                var sortedOrder = _sorting.ApplyRadixSort(address, sortBy);
+                var sortedOrder = _sorting.ApplyRadixSort(address.AsQueryable(), sortBy);
                 return Ok(sortedOrder);
             }
             catch (Exception ex)

@@ -83,94 +83,93 @@ namespace ProductStore.Framework.Services
                 }
             }
         }
-
-        private static void RadixSortNumeric<T>(List<T> list, string propertyName)
-        {
-            PropertyInfo property = typeof(T).GetProperty(propertyName);
-            if (property == null || !IsNumericType(property.PropertyType))
+            public IQueryable<T> ApplyRadixSort<T>(IQueryable<T> query, string sortBy)
             {
-                throw new ArgumentException("Invalid property or property type is not numeric.");
+                var list = query.ToList();
+                RadixSortNumeric(list, sortBy);
+                return list.AsQueryable();
             }
 
-            int maxLength = GetMaxLength(list, propertyName);
-
-            for (int i = maxLength - 1; i >= 0; i--)
+            private static void RadixSortNumeric<T>(List<T> list, string propertyName)
             {
-                CountingSort(list, i, propertyName);
-            }
-        }
-
-        private static int GetMaxLength<T>(List<T> list, string propertyName)
-        {
-            int maxLength = 0;
-
-            foreach (var entity in list)
-            {
-                int length = GetNumericValue(entity, propertyName, 0).ToString().Length;
-                maxLength = Math.Max(maxLength, length);
-            }
-
-            return maxLength;
-        }
-
-        private static void CountingSort<T>(List<T> list, int position, string propertyName)
-        {
-            const int NUMERIC_RANGE = 10; // Numeric characters range (0-9)
-
-            List<T>[] buckets = new List<T>[NUMERIC_RANGE];
-            for (int i = 0; i < NUMERIC_RANGE; i++)
-            {
-                buckets[i] = new List<T>();
-            }
-
-            foreach (var entity in list)
-            {
-                int numericValue = GetNumericValue(entity, propertyName, position);
-                buckets[numericValue].Add(entity);
-            }
-
-            list.Clear();
-            foreach (var bucket in buckets)
-            {
-                list.AddRange(bucket);
-            }
-        }
-
-        private static int GetNumericValue<T>(T entity, string propertyName, int position)
-        {
-            PropertyInfo property = typeof(T).GetProperty(propertyName);
-            var propertyValue = property?.GetValue(entity);
-
-            if (propertyValue != null && propertyValue is IComparable)
-            {
-                string stringValue = propertyValue.ToString();
-                int length = stringValue.Length;
-
-                // Nu este nevoie să verificăm poziția aici
-                if (position >= 0 && position < length)
+                PropertyInfo property = typeof(T).GetProperty(propertyName);
+                if (property == null || !IsNumericType(property.PropertyType))
                 {
-                    char digitChar = stringValue[position];
-                    if (char.IsDigit(digitChar))
-                    {
-                        return int.Parse(digitChar.ToString());
-                    }
+                    throw new ArgumentException("Invalid property or property type is not numeric.");
+                }
+
+                int maxLength = GetMaxLength(list, propertyName);
+
+                for (int i = 0; i < maxLength; i++)
+                {
+                    CountingSort(list, i, propertyName);
                 }
             }
 
-            return 0;
-        }
+            private static int GetMaxLength<T>(List<T> list, string propertyName)
+            {
+                int maxLength = 0;
 
-        private static bool IsNumericType(Type type)
-        {
-            return type == typeof(int) || type == typeof(long) || type == typeof(float) || type == typeof(double) || type == typeof(decimal);
-        }
+                foreach (var entity in list)
+                {
+                    int length = GetNumericValue(entity, propertyName, 0).ToString().Length;
+                    maxLength = Math.Max(maxLength, length);
+                }
 
-        public IQueryable<T> ApplyRadixSort<T>(IQueryable<T> query, string sortBy)
-        {
-            var list = query.ToList();
-            RadixSortNumeric(list, sortBy);
+                return maxLength;
+            }
 
-            return list.AsQueryable();
-        }
+            private static void CountingSort<T>(List<T> list, int position, string propertyName)
+            {
+                const int NUMERIC_RANGE = 10; // Numeric characters range (0-9)
+
+                List<T>[] buckets = new List<T>[NUMERIC_RANGE];
+                for (int i = 0; i < NUMERIC_RANGE; i++)
+                {
+                    buckets[i] = new List<T>();
+                }
+
+                foreach (var entity in list)
+                {
+                    int numericValue = GetNumericValue(entity, propertyName, position);
+                    buckets[numericValue].Add(entity);
+                }
+
+                list.Clear();
+
+                foreach (var bucket in buckets)
+                {
+                    list.AddRange(bucket);
+                }
+            }
+
+            private static int GetNumericValue<T>(T entity, string propertyName, int position)
+            {
+                PropertyInfo property = typeof(T).GetProperty(propertyName);
+                var propertyValue = property?.GetValue(entity);
+
+                if (propertyValue != null && propertyValue is IComparable)
+                {
+                    string stringValue = propertyValue.ToString();
+                    int length = stringValue.Length;
+
+                    if (position >= 0 && position < length)
+                    {
+                        char digitChar = stringValue[position];
+                        if (char.IsDigit(digitChar))
+                        {
+                            return int.Parse(digitChar.ToString());
+                        }
+                    }
+                }
+
+                return 0;
+            }
+
+            private static bool IsNumericType(Type type)
+            {
+                return type == typeof(int) || type == typeof(long) || type == typeof(float) || type == typeof(double) || type == typeof(decimal);
+            }
     }
+
 }

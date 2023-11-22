@@ -1,4 +1,5 @@
-﻿using ProductStore.Core.Interface;
+﻿using LinqKit;
+using ProductStore.Core.Interface;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -93,95 +94,70 @@ namespace ProductStore.Framework.Services
         public IQueryable<T> ApplyRadixSort<T>(IQueryable<T> query, string sortBy)
         {
             var list = query.AsEnumerable().ToList();
-            RadixSortNumeric(list, sortBy);
+            RadixSort(list, sortBy);
             return list.AsQueryable();
         }
 
-        private static void RadixSortNumeric<T>(List<T> list, string propertyName)
+
+        private static void RadixSort<T>(List<T> list, string propertyName)
         {
-            PropertyInfo property = typeof(T).GetProperty(propertyName);
-            if (property == null || !IsNumericType(property.PropertyType))
+            var propertyInfo = typeof(T).GetProperty(propertyName);
+            var type = propertyInfo.PropertyType;
+
+            if (!IsNumericType(type))
             {
-                throw new ArgumentException("Invalid property or property type is not numeric.");
+                throw new ArgumentException("The specified property must be a numeric type.");
             }
 
-            int maxLength = GetMaxLength(list, propertyName);
-
-            for (int i = 0; i < maxLength; i++)
-            {
-                CountingSort(list, i, propertyName);
-            }
+            var maxVal = GetMaxVal(list, propertyName);
+            for (int exponent = 1; maxVal / exponent > 0; exponent *= 10)
+                CountingSort(list, exponent, propertyName);
         }
 
-        private static void CountingSort<T>(List<T> list, int position, string propertyName)
+        private static int GetMaxVal<T>(List<T> list, string propertyName)
         {
-            const int NUMERIC_RANGE = 10; // Numeric characters range (0-9)
+            var maxVal = list.Max(x => GetNumericValue(x, propertyName, 1));
+            return maxVal;
+        }
 
-            var bucketLists = new List<List<T>>(NUMERIC_RANGE);
-            for (int i = 0; i < NUMERIC_RANGE; i++)
-            {
-                bucketLists.Add(new List<T>());
-            }
+        private static void CountingSort<T>(List<T> list, int exponent, string propertyName)
+        {
+            var outputList = new List<T>[10];
+            for (int i = 0; i < 10; i++)
+                outputList[i] = new List<T>();
 
             foreach (var entity in list)
             {
-                int? numericValue = GetNumericValue(entity, propertyName, position);
-                if (numericValue != null)
-                {
-                    bucketLists[numericValue.Value].Add(entity);
-                }
+                int numericValue = GetNumericValue(entity, propertyName, exponent);
+                outputList[(numericValue / exponent) % 10].Add(entity);
             }
 
             list.Clear();
 
-            foreach (var bucketList in bucketLists)
+            foreach (var outputBucket in outputList)
             {
-                list.AddRange(bucketList);
+                list.AddRange(outputBucket);
             }
         }
 
-
-        private static int GetMaxLength<T>(List<T> list, string propertyName)
+        private static int GetNumericValue<T>(T entity, string propertyName, int exponent)
         {
-            int maxLength = 0;
-            foreach (var entity in list)
-            {
-                int length = GetNumericValue(entity, propertyName, 0)?.ToString().Length ?? 0;
-                maxLength = Math.Max(maxLength, length);
-            }
+            var propertyInfo = typeof(T).GetProperty(propertyName);
+            var propertyValue = propertyInfo.GetValue(entity);
 
-            return maxLength;
-        }
-
-        private static int? GetNumericValue<T>(T entity, string propertyName, int position)
-        {
-            PropertyInfo property = typeof(T).GetProperty(propertyName);
-            var propertyValue = property?.GetValue(entity);
 
             if (propertyValue != null && propertyValue is IComparable)
             {
-                string stringValue = propertyValue.ToString().PadLeft(position + 1, '0');
-                int length = stringValue.Length;
-
-                if (position >= 0 && position < length)
-                {
-                    int numericValue;
-                    bool isValidNumericValue = int.TryParse(stringValue[position].ToString(), out numericValue);
-                    if (isValidNumericValue)
-                    {
-                        return numericValue;
-                    }
-                }
+                int numericValue = Convert.ToInt32(propertyValue);
+                return (numericValue / exponent) % 10;
             }
 
-            return null;
+            return 0;
         }
 
         private static bool IsNumericType(Type type)
         {
             return type == typeof(int) || type == typeof(long) || type == typeof(float) || type == typeof(double) || type == typeof(decimal);
         }
-
-
     }
 }

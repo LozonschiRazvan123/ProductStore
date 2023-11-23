@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ProductStore.Core.Interface;
 using ProductStore.DTO;
 using ProductStore.Interface;
+using System.Reflection;
 
 namespace ProductStore.Controllers
 {
@@ -55,7 +56,7 @@ namespace ProductStore.Controllers
         {
             try
             {
-                var addressDtos =  _addressRepository.GetAddresses();
+                var addressDtos = _addressRepository.GetAddresses();
 
                 var address = addressDtos.Select(dto => new AddressDTO
                 {

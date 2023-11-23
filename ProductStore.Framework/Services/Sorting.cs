@@ -129,6 +129,7 @@ namespace ProductStore.Framework.Services
             foreach (var entity in list)
             {
                 int numericValue = GetNumericValue(entity, propertyName, exponent);
+                Console.WriteLine($"Numeric value: {numericValue}");
                 outputList[(numericValue / exponent) % 10].Add(entity);
             }
 
@@ -136,9 +137,16 @@ namespace ProductStore.Framework.Services
 
             foreach (var outputBucket in outputList)
             {
+                if (outputBucket.Count > 1)
+                {
+                    outputBucket.Sort((a, b) => GetNumericValue(a, propertyName, exponent).CompareTo(GetNumericValue(b, propertyName, exponent)));
+                }
+
                 list.AddRange(outputBucket);
             }
         }
+
+
 
         private static int GetNumericValue<T>(T entity, string propertyName, int exponent)
         {
@@ -159,5 +167,54 @@ namespace ProductStore.Framework.Services
         {
             return type == typeof(int) || type == typeof(long) || type == typeof(float) || type == typeof(double) || type == typeof(decimal);
         }
+
+        public IQueryable<T> BucketSort<T>(IQueryable<T> source, string propertyName)
+        {
+            if (string.IsNullOrEmpty(propertyName))
+            {
+                return source;
+            }
+
+            PropertyInfo propertyInfo = typeof(T).GetProperty(propertyName);
+            if (propertyInfo == null)
+            {
+                return source;
+            }
+
+            var minMaxValues = new
+            {
+                Min = source.Min(item => ((DateTime)propertyInfo.GetValue(item)).Ticks),
+                Max = source.Max(item => ((DateTime)propertyInfo.GetValue(item)).Ticks)
+            };
+
+            int bucketCount = (int)Math.Sqrt(source.Count());
+            bucketCount = Math.Max(bucketCount, 1);
+
+            double bucketSize = (minMaxValues.Max - minMaxValues.Min) / bucketCount;
+
+            var buckets = new List<List<T>>();
+            for (int i = 0; i < bucketCount; i++)
+            {
+                buckets.Add(new List<T>());
+            }
+
+            foreach (var item in source)
+            {
+                double propertyValue = ((DateTime)propertyInfo.GetValue(item)).Ticks;
+                int bucketIndex = (int)((propertyValue - minMaxValues.Min) / bucketSize);
+
+                if (bucketIndex == bucketCount)
+                {
+                    bucketIndex--;
+                }
+
+                buckets[bucketIndex].Add(item);
+            }
+
+            var sortedQuery = buckets.SelectMany(bucket => bucket.AsQueryable().OrderBy(x => ((DateTime)propertyInfo.GetValue(x)).Ticks));
+
+            return sortedQuery.AsQueryable();
+        }
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using LinqKit;
 using ProductStore.Core.Interface;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -216,5 +217,32 @@ namespace ProductStore.Framework.Services
             return sortedQuery.AsQueryable();
         }
 
+        public IQueryable<T> InsertionSort<T>(IQueryable<T> source, string propertyName)
+        {
+            PropertyInfo property = typeof(T).GetProperty(propertyName);
+
+            if (property == null)
+            {
+                throw new ArgumentException($"Property '{propertyName}' not found on type '{typeof(T).Name}'.");
+            }
+
+            List<T> list = source.ToList();
+
+            for (int i = 1; i < list.Count; i++)
+            {
+                T key = list[i];
+                int j = i - 1;
+
+                while (j >= 0 && Comparer.Default.Compare(property.GetValue(list[j]), property.GetValue(key)) > 0)
+                {
+                    list[j + 1] = list[j];
+                    j = j - 1;
+                }
+
+                list[j + 1] = key;
+            }
+
+            return list.AsQueryable();
+        }
     }
 }

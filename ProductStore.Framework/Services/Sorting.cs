@@ -244,5 +244,70 @@ namespace ProductStore.Framework.Services
 
             return list.AsQueryable();
         }
+
+        public IQueryable<T> QuickSort<T>(IQueryable<T> source, string propertyName)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            if (string.IsNullOrEmpty(propertyName))
+            {
+                throw new ArgumentNullException(nameof(propertyName));
+            }
+
+            var elements = source.ToArray();
+            QuickSort(elements, propertyName, 0, elements.Length - 1);
+            return elements.AsQueryable();
+        }
+
+        private static void QuickSort<T>(T[] elements, string propertyName, int left, int right)
+        {
+            if (left < right)
+            {
+                int pivotIndex = Partition(elements, propertyName, left, right);
+
+                if (pivotIndex > 1)
+                {
+                    QuickSort(elements, propertyName, left, pivotIndex - 1);
+                }
+
+                if (pivotIndex + 1 < right)
+                {
+                    QuickSort(elements, propertyName, pivotIndex + 1, right);
+                }
+            }
+        }
+
+        private static int Partition<T>(T[] elements, string propertyName, int left, int right)
+        {
+            T pivot = elements[left];
+            while (true)
+            {
+                while (((IComparable)pivot.GetType().GetProperty(propertyName).GetValue(pivot)).CompareTo(elements[left].GetType().GetProperty(propertyName).GetValue(elements[left])) > 0)
+                {
+                    left++;
+                }
+
+                while (((IComparable)pivot.GetType().GetProperty(propertyName).GetValue(pivot)).CompareTo(elements[right].GetType().GetProperty(propertyName).GetValue(elements[right])) < 0)
+                {
+                    right--;
+                }
+
+                if (left < right)
+                {
+                    T temp = elements[left];
+                    elements[left] = elements[right];
+                    elements[right] = temp;
+                    left++;
+                    right--;
+                }
+                else
+                {
+                    return right;
+                }
+            }
+        }
     }
 }

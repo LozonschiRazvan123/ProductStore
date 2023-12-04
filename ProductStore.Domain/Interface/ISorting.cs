@@ -13,5 +13,6 @@ namespace ProductStore.Core.Interface
         public IQueryable<T> ApplyRadixSort<T>(IQueryable<T> query, string sortBy);
         public IQueryable<T> BucketSort<T>(IQueryable<T> source, string propertyName);
         public IQueryable<T> InsertionSort<T>(IQueryable<T> source, string propertyName);
+        public IQueryable<T> QuickSort<T>(IQueryable<T> source, string propertyName);
     }
 }

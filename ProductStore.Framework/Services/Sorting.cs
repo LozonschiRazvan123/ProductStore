@@ -1,4 +1,5 @@
 ﻿using LinqKit;
+using Org.BouncyCastle.Utilities;
 using ProductStore.Core.Interface;
 using System;
 using System.Collections;
@@ -306,6 +307,48 @@ namespace ProductStore.Framework.Services
                 else
                 {
                     return right;
+                }
+            }
+        }
+
+        public IQueryable<T> BubleSort<T>(IQueryable<T> source, string propertyName)
+        {
+            var list = source.ToArray();
+            BubbleSort(list, propertyName);
+            return list.AsQueryable();
+        }
+
+        private static void BubbleSort<T>(T[] array, string propertyName) 
+        {
+            var n = array.Length;
+
+            for (int i = 0; i < n - 1; i++)
+            {
+                for (int j = 0; j < n - i - 1; j++)
+                {
+                    var currentPropertyValue = typeof(T).GetProperty(propertyName)?.GetValue(array[j]);
+                    var nextPropertyValue = typeof(T).GetProperty(propertyName)?.GetValue(array[j + 1]);
+
+                    if (currentPropertyValue != null && nextPropertyValue != null)
+                    {
+                        if (currentPropertyValue is IComparable comparable && nextPropertyValue is IComparable)
+                        {
+                            if (comparable.CompareTo(nextPropertyValue) > 0)
+                            {
+                                var tempVar = array[j];
+                                array[j] = array[j + 1];
+                                array[j + 1] = tempVar;
+                            }
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("Property values are not of comparable types.");
+                        }
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Property values cannot be null.");
+                    }
                 }
             }
         }

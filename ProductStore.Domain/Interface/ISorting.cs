@@ -15,5 +15,6 @@ namespace ProductStore.Core.Interface
         public IQueryable<T> InsertionSort<T>(IQueryable<T> source, string propertyName);
         public IQueryable<T> QuickSort<T>(IQueryable<T> source, string propertyName);
         public IQueryable<T> BubleSort<T>(IQueryable<T> source, string propertyName);
+        public IQueryable<T> SelectionSort<T>(IQueryable<T> source, string propertyName);
     }
 }

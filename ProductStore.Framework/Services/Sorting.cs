@@ -1,4 +1,5 @@
 ﻿using LinqKit;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Org.BouncyCastle.Utilities;
 using ProductStore.Core.Interface;
 using System;
@@ -318,7 +319,7 @@ namespace ProductStore.Framework.Services
             return list.AsQueryable();
         }
 
-        private static void BubbleSort<T>(T[] array, string propertyName) 
+        private static void BubbleSort<T>(T[] array, string propertyName)
         {
             var n = array.Length;
 
@@ -349,6 +350,55 @@ namespace ProductStore.Framework.Services
                     {
                         throw new InvalidOperationException("Property values cannot be null.");
                     }
+                }
+            }
+        }
+
+        public IQueryable<T> SelectionSort<T>(IQueryable<T> source, string propertyName)
+        {
+            var list = source.ToArray();
+            SelectionSort(list, propertyName);
+            return list.AsQueryable();
+        }
+
+        public static void SelectionSort<T>(T[] array, string propertyName)
+        {
+            var arrayLength = array.Length;
+            for (int i = 0; i < arrayLength - 1; i++)
+            {
+                var smallestVal = i;
+                for (int j = i + 1; j < arrayLength; j++)
+                {
+                    var value1 = typeof(T).GetProperty(propertyName)?.GetValue(array[j]);
+                    var value2 = typeof(T).GetProperty(propertyName)?.GetValue(array[smallestVal]);
+
+                    if (value1 != null && value2 != null)
+                    {
+                        if (value1 is IComparable comparable && value2 is IComparable)
+                        {
+                            if (comparable.CompareTo(value2) < 0)
+                            {
+                                smallestVal = j;
+                            }
+                        }
+                        else
+                        {
+                            var strValue1 = value1.ToString();
+                            var strValue2 = value2.ToString();
+
+                            if (String.Compare(strValue1, strValue2) < 0)
+                            {
+                                smallestVal = j;
+                            }
+                        }
+                    }
+                }
+
+                if (smallestVal != i)
+                {
+                    var tempVar = array[smallestVal];
+                    array[smallestVal] = array[i];
+                    array[i] = tempVar;
                 }
             }
         }

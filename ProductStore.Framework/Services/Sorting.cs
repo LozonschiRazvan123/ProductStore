@@ -1,5 +1,6 @@
 ﻿using LinqKit;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Org.BouncyCastle.Utilities;
 using ProductStore.Core.Interface;
 using System;
@@ -400,6 +401,72 @@ namespace ProductStore.Framework.Services
                     array[smallestVal] = array[i];
                     array[i] = tempVar;
                 }
+            }
+        }
+
+        public IQueryable<T> MergeSort<T>(IQueryable<T> source, string propertyName)
+        {
+            var list = source.ToArray();
+            SortArray(list,0, list.Length-1, propertyName);
+            return list.AsQueryable();
+        }
+
+        public static void SortArray<T>(T[] array, int left, int right, string propertyName)
+        {
+            if (left < right)
+            {
+                int middle = left + (right - left) / 2;
+                SortArray(array, left, middle, propertyName);
+                SortArray(array, middle + 1, right, propertyName);
+                MergeArray(array, left, middle, right, propertyName);
+            }
+        }
+
+        public static void MergeArray<T>(T[] array, int left, int middle, int right, string propertyName)
+        {
+            var leftArrayLength = middle - left + 1;
+            var rightArrayLength = right - middle;
+            var leftTempArray = new T[leftArrayLength];
+            var rightTempArray = new T[rightArrayLength];
+            int i, j;
+
+            for (i = 0; i < leftArrayLength; ++i)
+                leftTempArray[i] = array[left + i];
+            for (j = 0; j < rightArrayLength; ++j)
+                rightTempArray[j] = array[middle + 1 + j];
+
+            i = 0;
+            j = 0;
+            int k = left;
+
+            while (i < leftArrayLength && j < rightArrayLength)
+            {
+                var value1 = typeof(T).GetProperty(propertyName)?.GetValue(leftTempArray[i]);
+                var value2 = typeof(T).GetProperty(propertyName)?.GetValue(rightTempArray[j]);
+                if (value1 != null && value2 != null)
+                {
+                    if (value1 is IComparable comparable && value2 is IComparable)
+                    {
+                        if (comparable.CompareTo(value2) <= 0)
+                        {
+                            array[k++] = leftTempArray[i++];
+                        }
+                        else
+                        {
+                            array[k++] = rightTempArray[j++];
+                        }
+                    }
+                }
+            }
+
+            while (i < leftArrayLength)
+            {
+                array[k++] = (T)leftTempArray[i++];
+            }
+
+            while (j < rightArrayLength)
+            {
+                array[k++] = rightTempArray[j++];
             }
         }
     }

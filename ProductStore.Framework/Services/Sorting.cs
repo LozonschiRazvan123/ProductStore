@@ -469,5 +469,74 @@ namespace ProductStore.Framework.Services
                 array[k++] = rightTempArray[j++];
             }
         }
+
+        public IQueryable<T> HeapSort<T>(IQueryable<T> source, string propertyName)
+        {
+            var list = source.ToList();
+            SortArrayHeap(list, list.Count, propertyName);
+            return list.AsQueryable();
+        }
+        public static void SortArrayHeap<T>(List<T> array, int size, string propertyName)
+        {
+            if (size <= 1)
+                return;
+
+            for (int i = size / 2 - 1; i >= 0; i--)
+            {
+                Heapify(array, size, i, propertyName);
+            }
+
+            for (int i = size - 1; i > 0; i--)
+            {
+                var tempVar = array[0];
+                array[0] = array[i];
+                array[i] = tempVar;
+
+                Heapify(array, i, 0, propertyName);
+            }
+        }
+        public static void Heapify<T>(List<T> array, int size, int index, string propertyName)
+        {
+            int largestIndex = index;
+            int leftChild = 2 * index + 1;
+            int rightChild = 2 * index + 2;
+
+            if (leftChild < size)
+            {
+                var value1 = typeof(T).GetProperty(propertyName)?.GetValue(array[leftChild]);
+                var value2 = typeof(T).GetProperty(propertyName)?.GetValue(array[largestIndex]);
+
+                if (value1 != null && value2 != null && value1 is IComparable comparable && value2 is IComparable)
+                {
+                    if (comparable.CompareTo(value2) > 0)
+                    {
+                        largestIndex = leftChild;
+                    }
+                }
+            }
+
+            if (rightChild < size)
+            {
+                var value1 = typeof(T).GetProperty(propertyName)?.GetValue(array[rightChild]);
+                var value2 = typeof(T).GetProperty(propertyName)?.GetValue(array[largestIndex]);
+
+                if (value1 != null && value2 != null && value1 is IComparable comparable && value2 is IComparable)
+                {
+                    if (comparable.CompareTo(value1) > 0) 
+                    {
+                        largestIndex = rightChild;
+                    }
+                }
+            }
+
+            if (largestIndex != index)
+            {
+                var tempVar = array[index];
+                array[index] = array[largestIndex];
+                array[largestIndex] = tempVar;
+
+                Heapify(array, size, largestIndex, propertyName);
+            }
+        }
     }
 }

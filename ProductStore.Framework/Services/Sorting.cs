@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Org.BouncyCastle.Utilities;
 using ProductStore.Core.Interface;
+using ProductStore.DTO;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -103,69 +104,85 @@ namespace ProductStore.Framework.Services
         }
 
 
-        private static void RadixSort<T>(List<T> list, string propertyName)
+        public void RadixSort<T>(List<T> list, string sortBy)
         {
-            var propertyInfo = typeof(T).GetProperty(propertyName);
-            var type = propertyInfo.PropertyType;
+            var array = list.ToArray();
+            var size = array.Length;
 
-            if (!IsNumericType(type))
-            {
-                throw new ArgumentException("The specified property must be a numeric type.");
-            }
-
-            var maxVal = GetMaxVal(list, propertyName);
+            var maxVal = GetMaxVal(array, size, sortBy);
             for (int exponent = 1; maxVal / exponent > 0; exponent *= 10)
-                CountingSort(list, exponent, propertyName);
-        }
-
-        private static int GetMaxVal<T>(List<T> list, string propertyName)
-        {
-            var maxVal = list.Max(x => GetNumericValue(x, propertyName, 1));
-            return maxVal;
-        }
-
-        private static void CountingSort<T>(List<T> list, int exponent, string propertyName)
-        {
-            var outputList = new List<T>[10];
-            for (int i = 0; i < 10; i++)
-                outputList[i] = new List<T>();
-
-            foreach (var entity in list)
             {
-                int numericValue = GetNumericValue(entity, propertyName, exponent);
-                Console.WriteLine($"Numeric value: {numericValue}");
-                outputList[(numericValue / exponent) % 10].Add(entity);
+                CountingSort(array, size, exponent, sortBy);
             }
 
-            list.Clear();
-
-            foreach (var outputBucket in outputList)
+            for (int i = 0; i < size; i++)
             {
-                if (outputBucket.Count > 1)
+                list[i] = array[i];
+            }
+        }
+
+        private dynamic GetMaxVal<T>(T[] array, int size, string sortBy)
+        {
+            var property = typeof(T).GetProperty(sortBy);
+            if (property == null)
+            {
+                throw new ArgumentException($"Property {sortBy} not found in type {nameof(T)}");
+            }
+
+            if (IsNumericType(property.PropertyType))
+            {
+
+                dynamic maxVal = Convert.ChangeType(property.GetValue(array[0]), property.PropertyType);
+                for (int i = 1; i < size; i++)
                 {
-                    outputBucket.Sort((a, b) => GetNumericValue(a, propertyName, exponent).CompareTo(GetNumericValue(b, propertyName, exponent)));
+                    dynamic value = Convert.ChangeType(property.GetValue(array[i]), property.PropertyType);
+                    if (value > maxVal)
+                    {
+                        maxVal = value;
+                    }
                 }
-
-                list.AddRange(outputBucket);
+                return maxVal;
             }
+            return default(dynamic);
         }
 
-
-
-        private static int GetNumericValue<T>(T entity, string propertyName, int exponent)
+        private void CountingSort<T>(T[] array, int size, int exponent, string sortBy)
         {
-            var propertyInfo = typeof(T).GetProperty(propertyName);
-            var propertyValue = propertyInfo.GetValue(entity);
+            var outputArr = new T[size];
+            var occurrences = new int[10];
 
-
-            if (propertyValue != null && propertyValue is IComparable)
+            var property = typeof(T).GetProperty(sortBy);
+            for (int i = 0; i < 10; i++)
             {
-                int numericValue = Convert.ToInt32(propertyValue);
-                return (numericValue / exponent) % 10;
+                occurrences[i] = 0;
             }
 
-            return 0;
+            for (int i = 0; i < size; i++)
+            {
+                var value = (int)property.GetValue(array[i]);
+                var digit = (value / exponent) % 10;
+                occurrences[digit]++;
+            }
+
+            for (int i = 1; i < 10; i++)
+            {
+                occurrences[i] += occurrences[i - 1];
+            }
+
+            for (int i = size - 1; i >= 0; i--)
+            {
+                var value = (int)property.GetValue(array[i]);
+                var digit = (value / exponent) % 10;
+                outputArr[occurrences[digit] - 1] = array[i];
+                occurrences[digit]--;
+            }
+
+            for (int i = 0; i < size; i++)
+            {
+                array[i] = outputArr[i];
+            }
         }
+
 
         private static bool IsNumericType(Type type)
         {

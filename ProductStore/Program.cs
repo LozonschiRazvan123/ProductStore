@@ -30,6 +30,11 @@ using System.Resources;
 using System;
 using ProductStore.Localize;
 using Microsoft.AspNetCore.Mvc.Razor;
+using ProductStore.GraphQL.GraphQLSchema;
+using GraphQL.Server;
+using GraphQL;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using GraphQL.Types;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -83,10 +88,16 @@ builder.Services.AddScoped<ISorting,Sorting>();
 builder.Services.AddScoped<MessageHub>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
 builder.Services.AddTransient<Seed>();
+builder.Services.AddScoped<AppSchema>();
+builder.Services.AddGraphQL(b => b
+    .AddSchema<AppSchema>()
+    .AddErrorInfoProvider(options => options.ExposeExceptionStackTrace = builder.Environment.IsDevelopment())
+    .AddGraphTypes(Assembly.GetExecutingAssembly())
+    .AddSystemTextJson());
 builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-}) ;
+},ServiceLifetime.Scoped);
 JobKey jobKey = new JobKey("my-job");
 builder.Services.AddSignalR();
 builder.Services.AddCors(options => {
@@ -182,10 +193,14 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
+app.MapGraphQL();
+
 app.UseEndpoints(endpoints => {
     endpoints.MapControllers();
     endpoints.MapHub<MessageHub>("/productoffers");
+    endpoints.MapGraphQLPlayground("/graphql/playground");
 });
+
 
 app.MapControllers();
 

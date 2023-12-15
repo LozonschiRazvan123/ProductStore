@@ -2,22 +2,37 @@
 using ProductStore.DTO;
 using ProductStore.GraphQL.GraphQLTypes;
 using ProductStore.Interface;
+using Quartz.Impl.AdoJobStore.Common;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ProductStore.GraphQL.GraphQLQueries
 {
-    public class AppQuerry: ObjectGraphType
+    public class AppQuerry : ObjectGraphType
     {
-        public AppQuerry(IAddressRepository repository)
+        private readonly IServiceScopeFactory _scopeFactory;
+
+        public AppQuerry(IServiceScopeFactory scopeFactory)
         {
+            _scopeFactory = scopeFactory;
+
             Field<ListGraphType<AddressType>>(
-            "addresses",
-            resolve: context =>
+                "address",
+                resolve: context =>
+                {
+                    using (var scope = _scopeFactory.CreateScope())
+                    {
+                        var addressRepository = scope.ServiceProvider.GetRequiredService<IAddressRepository>();
+                        return addressRepository.GetAddresses();
+                    }
+                });
+            /*Field<AppMutation>("mutation", resolve: context =>
             {
-                var serviceProvider = context.RequestServices;
-                var addressRepository = serviceProvider.GetRequiredService<IAddressRepository>();
-                return addressRepository.GetAddresses();
-            }
-        );
+                using (var scope = _scopeFactory.CreateScope())
+                {
+                    var addressRepository = scope.ServiceProvider.GetRequiredService<IAddressRepository>();
+                    return scope.ServiceProvider.GetRequiredService<AppMutation>();
+                }
+            });*/
         }
     }
 }

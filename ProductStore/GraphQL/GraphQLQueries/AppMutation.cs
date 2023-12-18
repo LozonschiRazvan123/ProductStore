@@ -65,18 +65,18 @@ namespace ProductStore.GraphQL.GraphQLQueries
         {
             using (var scope = _serviceScopeFactory.CreateScope())
             {
-                var repository = scope.ServiceProvider.GetRequiredService<IAddressRepository>(); // Înlocuiește cu repository-ul real pentru proprietari
+                var repository = scope.ServiceProvider.GetRequiredService<IAddressRepository>();
                 var addressId = context.GetArgument<int>("addressId");
                 var address = repository.GetAddress(addressId);
 
                 if (address == null)
                 {
-                    context.Errors.Add(new ExecutionError("Couldn't find a in db."));
-                    return null;
+                    context.Errors.Add(new ExecutionError($"Couldn't find address with id {addressId} in the database."));
+                    return "Address not found.";
                 }
 
                 repository.DeleteAddress(address);
-                return $"The address with the id: {addressId} has been successfully deleted from db.";
+                return $"Address with id {addressId} has been successfully deleted.";
             }
         }
     }

@@ -16,13 +16,13 @@ namespace ProductStore.Controllers
         public ProductStoreController()
         {
             _mlContext = new MLContext();
-            var modelPath = Path.Combine(Directory.GetCurrentDirectory(), "ProductStore.zip");
+            var modelPath = Path.Combine(Directory.GetCurrentDirectory(), "ProductStoreController.zip");
             var model = _mlContext.Model.Load(modelPath, out _);
             _predictionEngine = _mlContext.Model.CreatePredictionEngine<ProductStoreData, ProductStorePrediction>(model);
         }
 
         [HttpPost("predict")]
-        public ActionResult<float> PredictProductLabel([FromBody] ProductStoreData productData)
+        public ActionResult<float[]> PredictProductLabel([FromBody] ProductStoreData productData)
         {
             var prediction = _predictionEngine.Predict(productData);
             return prediction.Label;

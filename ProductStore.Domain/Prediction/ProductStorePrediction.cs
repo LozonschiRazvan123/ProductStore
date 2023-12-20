@@ -10,6 +10,6 @@ namespace ProductStore.Core.Prediction
     public class ProductStorePrediction
     {
         [ColumnName("Score")]
-        public float Label { get; set; }
+        public float[] Label { get; set; }
     }
 }

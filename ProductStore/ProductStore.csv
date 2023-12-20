@@ -1,0 +1,11 @@
+﻿ProductID,ProductName,Price,Category,IsPopular,Rating,Reviews
+1,Laptop,1200,Electronics,1,4.5,120
+2,Smartphone,800,Electronics,1,4.2,90
+3,Headphones,100,Electronics,1,4.8,150
+4,Running Shoes,80,Fashion,0,3.5,50
+5,Backpack,50,Accessories,0,4,80
+6,TV,1500,Electronics,1,4.6,200
+7,Desk Chair,120,Furniture,0,3.2,30
+8,Desk,200,Furniture,0,3.9,60
+9,Watch,300,Fashion,1,4.4,110
+10,Sunglasses,50,Accessories,0,3.7,45

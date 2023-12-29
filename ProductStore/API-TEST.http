@@ -1,0 +1,30 @@
+﻿GET https://localhost:7016/api/Address
+
+###
+GET https://localhost:7016/api/Address/1
+
+###
+POST https://localhost:7016/api/Address
+Content-Type: application/json
+
+{
+    "street":"DADADAD",
+    "city":"DADADASADAFDD",
+    "state":"fdsfsfdsf"
+}
+###
+PUT https://localhost:7016/api/Address/8
+Content-Type: application/json
+
+{
+    "id":8,
+    "street":"DADADAD1",
+    "city":"DADADASADAFDD",
+    "state":"fdsfsfdsf"
+}
+
+###
+DELETE https://localhost:7016/api/Address/8
+
+###
+GET https://localhost:7016/api/BubbleSort/BubbleSortAddress?sortBy=Street

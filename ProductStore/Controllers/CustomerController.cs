@@ -13,6 +13,7 @@ using ProductStore.Models;
 using ProductStore.Repository;
 
 using System.Data;
+using Polly;
 
 namespace ProductStore.Controllers
 {
@@ -69,13 +70,39 @@ namespace ProductStore.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetAddressById(int id)
+        public async Task<IActionResult> GetCustomerById(int id)
         {
             if (!ModelState.IsValid)
             {
                 throw new BadRequest();
             }
             return Ok(await _customerRepository.GetCustomerById(id));
+        }
+
+        [HttpGet("byidwithpolly/{id}")]
+        public async Task<IActionResult> GetCustomerByIdWithPolly(int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var retryPolicy = Policy
+                .Handle<Exception>() 
+                .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+
+            try
+            {
+                var customer = await retryPolicy.ExecuteAsync(async () =>
+                {
+                    return await _customerRepository.GetCustomerById(id);
+                });
+                return Ok(customer);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error retrieving customer data: {ex.Message}");
+            }
         }
 
         [HttpGet("ExportExcel")]

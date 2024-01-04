@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="6.2.10" />
+    <PackageReference Include="IronPdf" Version="2023.12.6" />
     <PackageReference Include="MailKit" Version="4.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0" />

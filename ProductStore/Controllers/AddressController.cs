@@ -142,6 +142,12 @@ namespace ProductStore.Controllers
             return Ok("Successfully created!");
         }
 
+        [HttpPost("AddBulkDataTable")]
+        public async Task<IActionResult> AddBulkData()
+        {
+            await _addressRepository.AddBulkAddressesAsync();
+            return Ok("Successfully added");
+        }
 
         [HttpPost("ImportExcel")]
         public IActionResult ImportExcel(IFormFile file)
@@ -214,6 +220,13 @@ namespace ProductStore.Controllers
             }
         }
 
+        [HttpPut("UpdateBulkAddress")]
+        public async Task<IActionResult> UpdateBulkAddress()
+        {
+            await _addressRepository.UpdateBulkAddress();
+            return Ok("Update successfully");
+        }
+
         [HttpDelete("{addressId}")]
         public IActionResult DeleteAddress(int addressId)
         {
@@ -234,6 +247,14 @@ namespace ProductStore.Controllers
             }
 
             return NoContent();
+        }
+
+        [HttpDelete("DeleteBulkData")]
+        public async Task<IActionResult> DeleteBulkData()
+        {
+            await _addressRepository.DeleteAllBulkAddressesAsync();
+            //await _addressRepository.DeleteAIdsBulkAddressesAsync(addressId);
+            return Ok("Successfully delete");
         }
     }
 }

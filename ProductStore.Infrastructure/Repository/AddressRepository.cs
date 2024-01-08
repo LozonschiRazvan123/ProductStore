@@ -1,4 +1,5 @@
-﻿using ProductStore.Data;
+﻿using EFCore.BulkExtensions;
+using ProductStore.Data;
 using ProductStore.DTO;
 using ProductStore.Interface;
 using ProductStore.Models;
@@ -12,6 +13,23 @@ namespace ProductStore.Repository
         public AddressRepository(DataContext context) 
         { 
             _context = context;
+        }
+
+        public async Task AddBulkAddressesAsync()
+        {
+            List<Address> addresses = new List<Address>();
+
+            for (int i = 50; i < 100000; i++)
+            {
+                addresses.Add(new Address()
+                {
+                    City = "City_" + i,
+                    State = "State_" + i,
+                    Street = "Street_" + i
+                });
+            }
+
+           await _context.BulkInsertAsync(addresses);
         }
 
         public bool AddressExist(int id)
@@ -43,6 +61,26 @@ namespace ProductStore.Repository
             var existingAddress = _context.Addresses.Find(address.Id);
             _context.Remove(existingAddress);
             return Save();
+        }
+
+        public async Task DeleteAIdsBulkAddressesAsync(List<int> addressId)
+        {
+            List<Address> addressesToDelete =  _context.Addresses
+                .Where(a => addressId.Contains(a.Id))
+                .ToList();
+
+            if (addressesToDelete.Any())
+            {
+                await _context.BulkDeleteAsync(addressesToDelete);
+            }
+        }
+
+        public async Task DeleteAllBulkAddressesAsync()
+        {
+            List<Address> employees = new(); 
+           
+            var addresses = _context.Addresses.ToList();
+            await _context.BulkDeleteAsync(addresses);
         }
 
         public AddressDTO GetAddress(int id)
@@ -90,6 +128,22 @@ namespace ProductStore.Repository
                 return Save();
             }
             return false;
+        }
+
+        public async Task UpdateBulkAddress()
+        {
+            List<Address> addresses = new();
+            for (int i = 50; i < 100000; i++)
+            {
+                addresses.Add(new Address()
+                {
+                    Id = (i + 1),
+                    City = "CityUpdate_" + i,
+                    State = "StateUpdate_" + i,
+                    Street = "StreetUpdate_" + i
+                });
+            }
+            await _context.BulkUpdateAsync(addresses);
         }
     }
 }

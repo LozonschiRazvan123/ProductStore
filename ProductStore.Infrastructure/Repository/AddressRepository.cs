@@ -37,6 +37,24 @@ namespace ProductStore.Repository
             return _context.Addresses.Any(a => a.Id == id);    
         }
 
+        public async Task AddWithoutBulkAddressesAsync()
+        {
+            List<Address> addresses = new List<Address>();
+
+            for (int i = 10000; i < 100000; i++)
+            {
+                addresses.Add(new Address()
+                {
+                    City = "City_" + i,
+                    State = "State_" + i,
+                    Street = "Street_" + i
+                });
+            }
+
+            _context.Addresses.AddRange(addresses);
+            await _context.SaveChangesAsync();
+        }
+
         public bool CreateAddress(AddressDTO addressCreateDTO)
         {
             var existingAddress = _context.Addresses.Where(a => a.Street == addressCreateDTO.Street).FirstOrDefault();
@@ -75,12 +93,32 @@ namespace ProductStore.Repository
             }
         }
 
+        public async Task DeleteAIdsWithoutBulkAddressesAsync(List<int> addressId)
+        {
+            List<Address> addressesToDelete = _context.Addresses
+                .Where(a => addressId.Contains(a.Id))
+                .ToList();
+
+            if (addressesToDelete.Any())
+            {
+                _context.RemoveRange(addressesToDelete);
+            }
+        }
+
         public async Task DeleteAllBulkAddressesAsync()
         {
             List<Address> employees = new(); 
            
             var addresses = _context.Addresses.ToList();
             await _context.BulkDeleteAsync(addresses);
+        }
+
+        public async Task DeleteWithoutAllBulkAddressesAsync()
+        {
+            List<Address> employees = new();
+
+            var addresses = _context.Addresses.ToList();
+            _context.RemoveRange(addresses);
         }
 
         public AddressDTO GetAddress(int id)
@@ -144,6 +182,22 @@ namespace ProductStore.Repository
                 });
             }
             await _context.BulkUpdateAsync(addresses);
+        }
+
+        public async Task UpdateWithoutBulkAddress()
+        {
+            List<Address> addresses = new();
+            for (int i = 100000; i < 100100; i++)
+            {
+                addresses.Add(new Address()
+                {
+                    Id = (i + 1),
+                    City = "CityUpdate_" + i,
+                    State = "StateUpdate_" + i,
+                    Street = "StreetUpdate_" + i
+                });
+            }
+            _context.UpdateRange(addresses);
         }
     }
 }

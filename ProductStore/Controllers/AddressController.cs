@@ -149,6 +149,13 @@ namespace ProductStore.Controllers
             return Ok("Successfully added");
         }
 
+        [HttpPost("AddBWithoutulkDataTable")]
+        public async Task<IActionResult> AddWithoutBulkData()
+        {
+            await _addressRepository.AddWithoutBulkAddressesAsync();
+            return Ok("Successfully added");
+        }
+
         [HttpPost("ImportExcel")]
         public IActionResult ImportExcel(IFormFile file)
         {
@@ -227,6 +234,13 @@ namespace ProductStore.Controllers
             return Ok("Update successfully");
         }
 
+        [HttpPut("UpdateWithoutBulkAddress")]
+        public async Task<IActionResult> UpdateWithoutBulkAddress()
+        {
+            await _addressRepository.UpdateWithoutBulkAddress();
+            return Ok("Update successfully");
+        }
+
         [HttpDelete("{addressId}")]
         public IActionResult DeleteAddress(int addressId)
         {
@@ -254,6 +268,14 @@ namespace ProductStore.Controllers
         {
             await _addressRepository.DeleteAllBulkAddressesAsync();
             //await _addressRepository.DeleteAIdsBulkAddressesAsync(addressId);
+            return Ok("Successfully delete");
+        }
+
+        [HttpDelete("DeleteWithoutBulkData")]
+        public async Task<IActionResult> DeleteWithoutBulkData(List<int> addressId)
+        {
+            //await _addressRepository.DeleteAllBulkAddressesAsync();
+            await _addressRepository.DeleteAIdsBulkAddressesAsync(addressId);
             return Ok("Successfully delete");
         }
     }

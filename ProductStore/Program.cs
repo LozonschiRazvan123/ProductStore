@@ -36,6 +36,9 @@ using GraphQL;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using GraphQL.Types;
 using ProductStore.GraphQL.GraphQLQueries;
+using System.Data;
+using System.Data.SqlClient;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -87,6 +90,7 @@ builder.Services.AddScoped<IEmailService,EmailService>();
 builder.Services.AddScoped<IImportDataExcel,ImportDataExcel>();
 builder.Services.AddScoped<ISorting,Sorting>();
 builder.Services.AddScoped<IPDFService,GeneratePDF>();
+builder.Services.AddScoped<ICustomerRepositoryDapper,CustomerRepositoryDapper>();
 builder.Services.AddScoped<MessageHub>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
 builder.Services.AddTransient<Seed>();
@@ -101,6 +105,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+builder.Services.AddTransient<IDbConnection>((sp) => new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
 JobKey jobKey = new JobKey("my-job");
 builder.Services.AddSignalR();
 builder.Services.AddCors(options => {

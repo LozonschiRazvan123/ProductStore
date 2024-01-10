@@ -14,6 +14,8 @@ using ProductStore.Repository;
 
 using System.Data;
 using Polly;
+using Microsoft.Extensions.Localization;
+using ProductStore.Localize;
 
 namespace ProductStore.Controllers
 {
@@ -26,13 +28,15 @@ namespace ProductStore.Controllers
         private readonly DataContext _dataContext;
         private readonly IGetDataExcel _excel;
         private readonly IImportDataExcel _importDataExcel;
-        public CustomerController(ICustomerRepository customerRepository, IServicePagination<Customer> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel) 
+        private readonly IStringLocalizer<Resource> _languageService;
+        public CustomerController(ICustomerRepository customerRepository, IServicePagination<Customer> servicePagination, DataContext dataContext, IGetDataExcel excel, IImportDataExcel importDataExcel, IStringLocalizer<Resource> languageService) 
         {
             _customerRepository = customerRepository;
             _servicePagination = servicePagination;
             _dataContext = dataContext;
             _excel = excel;
             _importDataExcel = importDataExcel;
+            _languageService = languageService;
         }
 
         [HttpGet]
@@ -151,6 +155,12 @@ namespace ProductStore.Controllers
             if (customerCreateDTO == null)
             {
                 throw new BadRequest();
+            }
+            
+            if(ModelState.IsValid)
+            {
+                var message = _languageService["InvalidInput"].Value;
+                return Ok(message);
             }
 
             var customer = _customerRepository.Add(customerCreateDTO);

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ProductStore.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace ProductStore.DTO
 {
@@ -12,6 +13,7 @@ namespace ProductStore.DTO
 
         public string Surname { get; set; }
         [EmailAddress(ErrorMessage = "Just introduce your email")]
+        [CustomEmailValidator]
         public string Email { get; set; }
     }
 }

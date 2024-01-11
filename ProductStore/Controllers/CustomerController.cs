@@ -159,7 +159,7 @@ namespace ProductStore.Controllers
             
             if(ModelState.IsValid)
             {
-                var message = _languageService["InvalidInput"].Value;
+                var message = _languageService["PleaseEnterAValidEmail"].Value;
                 return Ok(message);
             }
 

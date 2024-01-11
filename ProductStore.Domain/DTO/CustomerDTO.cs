@@ -13,7 +13,7 @@ namespace ProductStore.DTO
 
         public string Surname { get; set; }
         [EmailAddress(ErrorMessage = "Just introduce your email")]
-        [CustomEmailValidator]
+        [CustomEmailValidator(ErrorMessage = "Please enter a valid Email")]
         public string Email { get; set; }
     }
 }

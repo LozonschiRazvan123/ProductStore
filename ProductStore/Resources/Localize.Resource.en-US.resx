@@ -120,6 +120,9 @@
   <data name="InvalidInput" xml:space="preserve">
     <value>Entrée non valide</value>
   </data>
+  <data name="PleaseEnterAValidEmail" xml:space="preserve">
+    <value>Please enter a valid email</value>
+  </data>
   <data name="ProductNotFound" xml:space="preserve">
     <value>Produit non trouvé</value>
   </data>

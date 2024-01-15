@@ -12,6 +12,7 @@ using ProductStore.Framework.Services;
 using ProductStore.Interface;
 using ProductStore.Localize;
 using ProductStore.Models;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Reflection;
 
@@ -135,6 +136,14 @@ namespace ProductStore.Controllers
             {
                 throw new BadRequest();
             }
+
+            var validationResults = new List<ValidationResult>();
+            if (!Validator.TryValidateObject(product, new ValidationContext(product), validationResults, true))
+            {
+                var errorMessages = validationResults.Select(result => result.ErrorMessage);
+                return BadRequest(errorMessages);
+            }
+
 
             var productCreate = _productRepository.Add(product);
 

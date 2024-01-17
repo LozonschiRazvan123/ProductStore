@@ -39,6 +39,8 @@ using ProductStore.GraphQL.GraphQLQueries;
 using System.Data;
 using System.Data.SqlClient;
 using System.Configuration;
+using Microsoft.AspNetCore.Mvc;
+using ProductStore.Core.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -91,6 +93,7 @@ builder.Services.AddScoped<IImportDataExcel,ImportDataExcel>();
 builder.Services.AddScoped<ISorting,Sorting>();
 builder.Services.AddScoped<IPDFService,GeneratePDF>();
 builder.Services.AddScoped<ICustomerRepositoryDapper,CustomerRepositoryDapper>();
+builder.Services.AddScoped<CustomProductValidation>();
 builder.Services.AddScoped<MessageHub>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(nameof(JwtSettings)));
 builder.Services.AddTransient<Seed>();
@@ -101,6 +104,8 @@ builder.Services.AddGraphQL(b => b
     .AddErrorInfoProvider(options => options.ExposeExceptionStackTrace = builder.Environment.IsDevelopment())
     .AddGraphTypes(Assembly.GetExecutingAssembly())
     .AddSystemTextJson());
+builder.Services.Configure<ApiBehaviorOptions>(options
+    => options.SuppressModelStateInvalidFilter = true);
 builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));

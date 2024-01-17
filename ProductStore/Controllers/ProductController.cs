@@ -5,6 +5,7 @@ using OfficeOpenXml;
 using OfficeOpenXml.Table;
 using ProductStore.ConfigurationError;
 using ProductStore.Core.Interface;
+using ProductStore.Core.Validation;
 using ProductStore.Data;
 using ProductStore.DTO;
 using ProductStore.Framework.Pagination;
@@ -136,12 +137,22 @@ namespace ProductStore.Controllers
             {
                 throw new BadRequest();
             }
+            //Pentru: ValidationAttribute
+            /*var checkPrice = new CheckPrice { Price = product.Price };
+            var checkPriceValidationResults = checkPrice.Validate(new ValidationContext(checkPrice));
 
-            var validationResults = new List<ValidationResult>();
-            if (!Validator.TryValidateObject(product, new ValidationContext(product), validationResults, true))
+            foreach (var validationResult in checkPriceValidationResults)
             {
-                var errorMessages = validationResults.Select(result => result.ErrorMessage);
-                return BadRequest(errorMessages);
+                foreach (var memberName in validationResult.MemberNames)
+                {
+                    ModelState.AddModelError(memberName, validationResult.ErrorMessage);
+                }
+            }*/
+
+            if (!ModelState.IsValid)
+            {
+                var priceError = ModelState[nameof(product.Price)]?.Errors.FirstOrDefault()?.ErrorMessage;
+                return BadRequest(priceError);
             }
 
 

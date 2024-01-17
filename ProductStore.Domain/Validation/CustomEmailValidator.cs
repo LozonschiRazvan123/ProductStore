@@ -3,8 +3,6 @@ using System.Text.RegularExpressions;
 
 namespace ProductStore.Validation
 {
-    using System;
-    using System.ComponentModel.DataAnnotations;
 
     public class CustomEmailValidator : ValidationAttribute
     {

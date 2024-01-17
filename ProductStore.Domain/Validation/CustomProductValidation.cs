@@ -11,12 +11,12 @@ namespace ProductStore.Core.Validation
     {
         protected override ValidationResult IsValid(object value, ValidationContext validationContext)
         {
-            if (value is int price && price >= 100)
+            if (value is int price && price>0)
             {
                 return ValidationResult.Success;
             }
 
-            return new ValidationResult(ErrorMessage);
+            return new ValidationResult("Price must be greater than zero.");
         }
     }
 }
